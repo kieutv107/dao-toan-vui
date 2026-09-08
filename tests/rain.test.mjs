@@ -24,10 +24,19 @@ test('ordinary answer leaves a nonmatching gold drop intact; wrong answer clears
   const g=engine.createGame();g.drops=[{id:1,answer:5,y:.2},{id:2,answer:9,y:.4,special:true}];
   engine.submit(g,'4');assert.equal(g.drops.length,2);engine.submit(g,'5');assert.deepEqual(g.drops.map(d=>d.id),[2]);
 });
-test('multi-drop levels spawn a gold card alongside an ordinary card, never two gold cards',()=>{
-  const g=engine.createGame();engine.advance(g,0);assert.equal(g.drops[0].special,false);
-  g.solved=6;g.spawnIn=0;engine.advance(g,0);assert.equal(g.drops.filter(d=>d.special).length,1);
-  g.solved=80;for(let i=0;i<10;i++){g.spawnIn=0;engine.advance(g,0);assert.ok(g.drops.filter(d=>d.special).length<=1)}
+test('gold probability starts low, rises with level, and remains capped',()=>{
+  const g=engine.createGame();assert.equal(engine.difficulty(g).goldChance,0);
+  g.solved=6;const low=engine.difficulty(g).goldChance;assert.equal(low,.06);
+  g.solved=18;assert.ok(engine.difficulty(g).goldChance>low);
+  g.solved=1000;assert.ok(engine.difficulty(g).goldChance<=.2);
+});
+test('gold is a chance event with a spawn gap and no simultaneous gold cards',()=>{
+  const g=engine.createGame();g.solved=6;
+  engine.advance(g,0,()=>0);assert.equal(g.drops[0].special,false);
+  g.spawnIn=0;engine.advance(g,0,()=>.99);assert.equal(g.drops.filter(d=>d.special).length,0);
+  g.drops.pop();g.spawnIn=0;engine.advance(g,0,()=>0);assert.equal(g.drops.filter(d=>d.special).length,1);
+  g.solved=80;g.spawnIn=0;engine.advance(g,0,()=>0);assert.equal(g.drops.filter(d=>d.special).length,1);
+  g.drops=g.drops.filter(d=>!d.special);g.spawnIn=0;engine.advance(g,0,()=>0);assert.equal(g.drops.filter(d=>d.special).length,0);
 });
 test('blank input does nothing; wrong answers reset streak without costing lives',()=>{
   const g=engine.createGame();g.streak=4;g.drops=[{id:1,answer:0,y:.1}];
@@ -35,8 +44,13 @@ test('blank input does nothing; wrong answers reset streak without costing lives
   assert.equal(engine.submit(g,'19').type,'wrong');assert.equal(g.streak,0);assert.equal(g.lives,3);
   assert.equal(engine.submit(g,'0').type,'correct');
 });
-test('three missed drops end the game and later input cannot award points',()=>{
-  const g=engine.createGame();g.drops=[1,2,3].map(id=>({id,y:.999,answer:1}));engine.advance(g,.2);
+test('one crossing clears the field, costs one life, and grants a short breathing space',()=>{
+  const g=engine.createGame();g.drops=[{id:1,y:.999,answer:1},{id:2,y:.5,answer:4,special:true},{id:3,y:.999,answer:9}];
+  engine.advance(g,.2);assert.equal(g.lives,2);assert.equal(g.drops.length,0);assert.ok(g.spawnIn>=1);assert.equal(g.streak,0);
+  engine.advance(g,.1);assert.equal(g.drops.length,0);
+});
+test('three separate misses end the game and later input cannot award points',()=>{
+  const g=engine.createGame();for(let i=0;i<3;i++){g.drops=[{id:i,y:.999,answer:1}];engine.advance(g,.2)}
   assert.equal(g.lives,0);assert.equal(g.over,true);const score=g.score;engine.submit(g,'1');assert.equal(g.score,score);
 });
 test('higher levels increase speed and concurrent drops within a playable cap',()=>{

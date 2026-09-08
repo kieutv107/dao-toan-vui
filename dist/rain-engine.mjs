@@ -1,28 +1,30 @@
 import {question} from './math.mjs';
 
 export function createGame({limit=20,op='mix'}={}) {
-  return {limit,op,drops:[],spawnIn:0,nextId:1,score:0,streak:0,bestStreak:0,solved:0,lives:3,over:false};
+  return {limit,op,drops:[],spawnIn:0,nextId:1,goldGap:0,score:0,streak:0,bestStreak:0,solved:0,lives:3,over:false};
 }
 export function difficulty(g) {
   const level=1+Math.floor(g.solved/6);
-  return {level,speed:Math.min(.15,.055+(level-1)*.009),interval:Math.max(1.4,3.8-(level-1)*.3),maxDrops:Math.min(4,1+Math.floor(level/2))};
+  return {level,speed:Math.min(.15,.055+(level-1)*.009),interval:Math.max(1.4,3.8-(level-1)*.3),maxDrops:Math.min(4,1+Math.floor(level/2)),goldChance:level<2?0:Math.min(.2,.06+(level-2)*.02)};
 }
-export function advance(g,dt) {
+export function advance(g,dt,random=Math.random) {
   if(g.over)return [];
   const d=difficulty(g),events=[];
   for(const drop of g.drops)drop.y+=dt*d.speed;
-  for(const drop of g.drops.filter(x=>x.y>=1)) {
-    g.lives=Math.max(0,g.lives-1);g.streak=0;events.push({type:'miss',drop});
+  const missed=g.drops.find(x=>x.y>=1);
+  if(missed) {
+    g.lives=Math.max(0,g.lives-1);g.streak=0;events.push({type:'miss',drop:missed});
+    g.drops=[];g.spawnIn=1.2;g.over=!g.lives;
+    return events;
   }
-  g.drops=g.drops.filter(x=>x.y<1);
-  if(!g.lives){g.over=true;return events}
   g.spawnIn-=dt;
   if(g.spawnIn<=0&&g.drops.length<d.maxDrops) {
     // Each live card owns a lane, so equations never obscure one another.
     const free=[0,1,2,3].filter(lane=>!g.drops.some(x=>x.lane===lane));
     const lane=free[Math.floor(Math.random()*free.length)];
     const limit=Math.min(g.limit,10+(d.level-1)*2);
-    const special=d.maxDrops>1&&g.drops.length>0&&!g.drops.some(x=>x.special);
+    const special=d.maxDrops>1&&g.drops.length>0&&g.goldGap===0&&!g.drops.some(x=>x.special)&&random()<d.goldChance;
+    g.goldGap=special?5:Math.max(0,g.goldGap-1);
     g.drops.push({...question(limit,g.op),id:g.nextId++,lane,y:0,special});
     g.spawnIn=d.interval;
   }
