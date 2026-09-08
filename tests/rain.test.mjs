@@ -53,8 +53,14 @@ test('three separate misses end the game and later input cannot award points',()
   const g=engine.createGame();for(let i=0;i<3;i++){g.drops=[{id:i,y:.999,answer:1}];engine.advance(g,.2)}
   assert.equal(g.lives,0);assert.equal(g.over,true);const score=g.score;engine.submit(g,'1');assert.equal(g.score,score);
 });
-test('higher levels increase speed and concurrent drops within a playable cap',()=>{
+test('higher levels increase concurrent drops without accelerating fall or spawn cadence',()=>{
   const g=engine.createGame();const first=engine.difficulty(g);g.solved=80;const high=engine.difficulty(g);
-  assert.ok(high.speed>first.speed);assert.ok(high.maxDrops>first.maxDrops);assert.ok(high.maxDrops<=4);
+  assert.equal(high.speed,first.speed);assert.equal(high.interval,first.interval);assert.ok(high.maxDrops>first.maxDrops);assert.ok(high.maxDrops<=4);
   for(let i=0;i<200;i++){engine.advance(g,.1);assert.ok(g.drops.length<=4)}
+});
+
+test('a drop travels the same distance at every level over the same elapsed time',()=>{
+  const positions=[];
+  for(const solved of [0,6,18,60,600]){const g=engine.createGame();g.solved=solved;g.drops=[{id:1,lane:0,y:.1,answer:3}];engine.advance(g,2);positions.push(g.drops[0].y)}
+  for(const y of positions)assert.equal(y,positions[0]);
 });

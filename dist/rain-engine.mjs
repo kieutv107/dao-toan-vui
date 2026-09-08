@@ -5,7 +5,7 @@ export function createGame({limit=20,op='mix'}={}) {
 }
 export function difficulty(g) {
   const level=1+Math.floor(g.solved/6);
-  return {level,speed:Math.min(.15,.055+(level-1)*.009),interval:Math.max(1.4,3.8-(level-1)*.3),maxDrops:Math.min(4,1+Math.floor(level/2)),goldChance:level<2?0:Math.min(.2,.06+(level-2)*.02)};
+  return {level,speed:.055,interval:3.8,maxDrops:Math.min(4,1+Math.floor(level/2)),goldChance:level<2?0:Math.min(.2,.06+(level-2)*.02)};
 }
 export function advance(g,dt,random=Math.random) {
   if(g.over)return [];
