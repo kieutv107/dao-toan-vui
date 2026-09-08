@@ -22,18 +22,22 @@ export function advance(g,dt) {
     const free=[0,1,2,3].filter(lane=>!g.drops.some(x=>x.lane===lane));
     const lane=free[Math.floor(Math.random()*free.length)];
     const limit=Math.min(g.limit,10+(d.level-1)*2);
-    g.drops.push({...question(limit,g.op),id:g.nextId++,lane,y:0});
+    const special=d.maxDrops>1&&g.drops.length>0&&!g.drops.some(x=>x.special);
+    g.drops.push({...question(limit,g.op),id:g.nextId++,lane,y:0,special});
     g.spawnIn=d.interval;
   }
   return events;
 }
 export function submit(g,input) {
   if(g.over||!/^\d{1,2}$/.test(input))return {type:'empty'};
-  const drop=g.drops.filter(x=>x.answer===Number(input)).sort((a,b)=>b.y-a.y)[0];
+  const matches=g.drops.filter(x=>x.answer===Number(input)).sort((a,b)=>b.y-a.y);
+  const drop=matches.find(x=>x.special)||matches[0];
   if(!drop){g.streak=0;return {type:'wrong'}}
-  g.drops=g.drops.filter(x=>x.id!==drop.id);g.solved++;g.streak++;
+  const special=!!drop.special,cleared=special?[...g.drops]:matches;
+  const ids=new Set(cleared.map(x=>x.id));
+  g.drops=g.drops.filter(x=>!ids.has(x.id));g.solved++;g.streak++;
   g.bestStreak=Math.max(g.bestStreak,g.streak);
   const points=10*Math.min(5,1+Math.floor(g.streak/5));g.score+=points;
   if(!g.drops.length)g.spawnIn=Math.min(g.spawnIn,.6);
-  return {type:'correct',drop,points};
+  return {type:'correct',drop,cleared,special,points};
 }
