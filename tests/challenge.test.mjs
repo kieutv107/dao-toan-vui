@@ -26,3 +26,20 @@ test('memory boards grow from three to six pairs with readable mismatch time',()
   const g=engine.createChallenge('memory');const initial=engine.challengeDifficulty(g);g.board=3;const final=engine.challengeDifficulty(g);
   assert.equal(initial.pairs,3);assert.equal(final.pairs,6);assert.ok(final.reveal<initial.reveal);assert.ok(final.reveal>=900);
 });
+test('memory earns fixed pair points and never counts a streak',()=>{
+  const g=engine.createChallenge('memory');
+  engine.recordAnswer(g,true);engine.recordAnswer(g,true);assert.equal(g.score,40);
+  engine.recordAnswer(g,false);assert.equal(g.score,40);
+  engine.recordAnswer(g,true);assert.equal(g.score,60);assert.equal(g.streak,0);assert.equal(g.bestStreak,0);assert.equal(g.attempts,4);
+});
+test('memory completion bonus rewards fewer misses and is granted once per board',()=>{
+  const g=engine.createChallenge('memory');assert.equal(engine.completeMemoryBoard(g),0);
+  engine.recordAnswer(g,false);for(let i=0;i<3;i++)engine.recordAnswer(g,true);
+  assert.equal(engine.completeMemoryBoard(g),25);assert.equal(g.score,85);assert.equal(engine.completeMemoryBoard(g),0);assert.equal(g.score,85);
+  g.board=2;engine.beginMemoryBoard(g);for(let i=0;i<4;i++)engine.recordAnswer(g,true);
+  assert.equal(engine.completeMemoryBoard(g),40);assert.equal(g.memoryBonus,65);assert.equal(g.attempts,8);
+});
+test('many memory misses cannot remove earned points or make bonus negative',()=>{
+  const g=engine.createChallenge('memory');engine.recordAnswer(g,true);for(let i=0;i<50;i++)engine.recordAnswer(g,false);engine.recordAnswer(g,true);engine.recordAnswer(g,true);
+  assert.equal(engine.completeMemoryBoard(g),0);assert.equal(g.score,60);
+});
