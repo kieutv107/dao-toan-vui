@@ -25,3 +25,7 @@ export function completeMemoryBoard(g){
   const bonus=Math.max(0,g.boardMatches*10-(g.boardAttempts-g.boardMatches)*5);
   g.boardBonusPaid=true;g.memoryBonus+=bonus;g.score+=bonus;return bonus;
 }
+export function selectMemoryCard(selected,index){return selected.length===2?[index]:[...selected,index]}
+export function closeMemoryMismatch(selected,expected){
+  return selected.length===2&&selected[0]===expected[0]&&selected[1]===expected[1]?[]:selected;
+}

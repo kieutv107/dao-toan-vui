@@ -43,3 +43,12 @@ test('many memory misses cannot remove earned points or make bonus negative',()=
   const g=engine.createChallenge('memory');engine.recordAnswer(g,true);for(let i=0;i<50;i++)engine.recordAnswer(g,false);engine.recordAnswer(g,true);engine.recordAnswer(g,true);
   assert.equal(engine.completeMemoryBoard(g),0);assert.equal(g.score,60);
 });
+test('a third memory card immediately replaces the two-card mismatch',()=>{
+  assert.deepEqual(engine.selectMemoryCard([1,2],3),[3]);
+  assert.deepEqual(engine.selectMemoryCard([1],3),[1,3]);
+});
+test('mismatch timeout closes only the pair that originally scheduled it',()=>{
+  assert.deepEqual(engine.closeMemoryMismatch([1,2],[1,2]),[]);
+  assert.deepEqual(engine.closeMemoryMismatch([3],[1,2]),[3]);
+  assert.deepEqual(engine.closeMemoryMismatch([1,3],[1,2]),[1,3]);
+});
