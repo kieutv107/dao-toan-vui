@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createCompareGame,unlockedCompareStage,compareStage,recordCompareAnswer,elapseCompare} from '../dist/compare-engine.mjs';
+import {createCompareGame,unlockedCompareStage,compareStage,recordCompareAnswer,elapseCompare,createCompareRound,compareGap} from '../dist/compare-engine.mjs';
 
 test('comparison stages open on attempts 1, 6 and 11',()=>{
   const g=createCompareGame();
@@ -36,4 +36,30 @@ test('sixty active seconds ends the run and later answers do nothing',()=>{
   const g=createCompareGame();elapseCompare(g,59.9);assert.equal(g.over,false);
   elapseCompare(g,.1);assert.equal(g.remaining,0);assert.equal(g.over,true);
   assert.equal(recordCompareAnswer(g,true),0);assert.equal(g.attempts,0);
+});
+
+test('generator follows the three display stages',()=>{
+  const fact=()=>({a:7,b:6,sign:'+',answer:13,id:'7+6'}),g=createCompareGame();
+  assert.deepEqual(createCompareRound(g,{fact,random:()=>.9}).cards.map(x=>x.kind),['number','number']);
+  g.attempts=5;assert.deepEqual(createCompareRound(g,{fact,random:()=>.9}).cards.map(x=>x.kind).sort(),['fact','number']);
+  g.attempts=10;assert.deepEqual(createCompareRound(g,{fact,random:()=>.9}).cards.map(x=>x.kind),['fact','fact']);
+});
+
+test('tie rolls create equal values and every value stays through 20',()=>{
+  const facts=[{a:7,b:6,sign:'+',answer:13,id:'7+6'},{a:8,b:5,sign:'+',answer:13,id:'8+5'}];
+  const round=createCompareRound(Object.assign(createCompareGame(),{attempts:10}),{fact:()=>facts.shift(),random:()=>.1});
+  assert.equal(round.answer,'equal');assert.ok(round.cards.every(x=>x.value>=0&&x.value<=20));
+  assert.ok(round.cards.every(x=>x.kind==='fact'));
+});
+
+test('winner matches the greater card for non-ties',()=>{
+  const g=createCompareGame(),round=createCompareRound(g,{fact:()=>null,random:()=>.9});
+  assert.notEqual(round.cards[0].value,round.cards[1].value);
+  assert.equal(round.answer,round.cards[0].value>round.cards[1].value?'top':'bottom');
+});
+
+test('stage-three target gaps narrow after every five attempts',()=>{
+  for(const [attempts,expected] of [[10,[3,6]],[15,[2,4]],[20,[1,2]]]){
+    const g=Object.assign(createCompareGame(),{attempts});assert.deepEqual(compareGap(g),expected);
+  }
 });
