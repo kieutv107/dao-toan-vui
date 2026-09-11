@@ -8,10 +8,14 @@ export function compareStage(g){return Math.max(1,unlockedCompareStage(g)-g.stag
 
 export function recordCompareAnswer(g,good){
   if(g.over)return 0;
+  const stageBefore=compareStage(g);
   g.attempts++;
   if(!good){
     g.streak=0;g.recoveryRun=0;g.wrongRun++;
-    if(g.wrongRun===2){if(compareStage(g)>1)g.stagePenalty++;g.wrongRun=0}
+    if(g.wrongRun===2){
+      if(stageBefore>1)g.stagePenalty=unlockedCompareStage(g)-(stageBefore-1);
+      g.wrongRun=0;
+    }
     return 0;
   }
   g.correct++;g.wrongRun=0;g.streak++;g.bestStreak=Math.max(g.bestStreak,g.streak);g.recoveryRun++;

@@ -17,6 +17,15 @@ test('two misses lower a stage and three correct answers recover it',()=>{
   assert.equal(compareStage(g),3);
 });
 
+test('two misses lower the displayed stage even across an unlock boundary',()=>{
+  const g=createCompareGame();g.attempts=8;
+  recordCompareAnswer(g,false);recordCompareAnswer(g,false);
+  assert.equal(unlockedCompareStage(g),3);
+  assert.equal(compareStage(g),1);
+  recordCompareAnswer(g,true);recordCompareAnswer(g,true);recordCompareAnswer(g,true);
+  assert.equal(compareStage(g),2);
+});
+
 test('difficulty stays within opened stages',()=>{
   const g=createCompareGame();recordCompareAnswer(g,false);recordCompareAnswer(g,false);
   assert.equal(compareStage(g),1);assert.equal(g.stagePenalty,0);

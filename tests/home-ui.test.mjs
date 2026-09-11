@@ -38,3 +38,16 @@ test('greater-number HUD stays focused without a difficulty counter',async()=>{
   assert.doesNotMatch(source,/<span>Độ khó<\/span>/);
   assert.doesNotMatch(source,/BẬC \$\{compareStage\(g\)\}/);
 });
+
+test('greater-number record celebration appears only after the game',async()=>{
+  const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  const hud=source.match(/function hud\(\)\{([\s\S]*?)\n  \}/)?.[1]||'';
+  assert.doesNotMatch(hud,/new-record|Kỷ lục mới/);
+  assert.match(source,/function finish\(\)[\s\S]*Kỷ lục mới!/);
+});
+
+test('greater-number timer counts the full active frame interval',async()=>{
+  const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  assert.match(source,/const dt=last\?\(now-last\)\/1000:0/);
+  assert.doesNotMatch(source,/Math\.min\(\.25,\(now-last\)\/1000\)/);
+});

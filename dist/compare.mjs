@@ -12,8 +12,7 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
   const overlay=$('#compare-overlay'),pauseButton=$('#compare-pause');
 
   function hud(){
-    const isRecord=g.score>bestAtStart&&g.score>0;
-    $('#compare-hud').innerHTML=`<div><span>Điểm</span><b>${g.score}</b></div><div class="${isRecord?'new-record':''}"><span>${isRecord?'Kỷ lục mới!':'Kỷ lục'}</span><b>${Math.max(bestAtStart,g.score)}</b></div><div><span>Thời gian</span><b>${Math.ceil(g.remaining)}s</b></div><div><span>Chuỗi đúng</span><b>${g.streak}</b></div>`;
+    $('#compare-hud').innerHTML=`<div><span>Điểm</span><b>${g.score}</b></div><div><span>Kỷ lục</span><b>${bestAtStart}</b></div><div><span>Thời gian</span><b>${Math.ceil(g.remaining)}s</b></div><div><span>Chuỗi đúng</span><b>${g.streak}</b></div>`;
   }
 
   function adaptiveFact(options={}){return learning.nextFact({context:'compare',...options})}
@@ -51,7 +50,7 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
   }
 
   function tick(now){
-    if(disposed||!playing)return;const dt=last?Math.min(.25,(now-last)/1000):0;last=now;
+    if(disposed||!playing)return;const dt=last?(now-last)/1000:0;last=now;
     if(!paused){
       elapseCompare(g,dt);if(g.over){finish();return}
       if(delayAction){delayLeft-=dt;if(delayLeft<=0){const action=delayAction;delayAction=null;action()}}
