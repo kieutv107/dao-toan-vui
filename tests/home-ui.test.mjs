@@ -32,3 +32,9 @@ test('greater-number game is registered and styled',async()=>{
   assert.match(app,/id:'compare'/);assert.match(app,/mountCompare/);
   assert.match(index,/compare\.css/);assert.match(index,/6 trò chơi/);
 });
+
+test('greater-number HUD stays focused without a difficulty counter',async()=>{
+  const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  assert.doesNotMatch(source,/<span>Độ khó<\/span>/);
+  assert.doesNotMatch(source,/BẬC \$\{compareStage\(g\)\}/);
+});

@@ -8,10 +8,10 @@ Thêm một mini-game so sánh trong 60 giây. Bé chọn thẻ trên, thẻ dư
 
 - Hai thẻ lớn xếp dọc. Chạm thẻ trên khi giá trị trên lớn hơn, chạm thẻ dưới khi giá trị dưới lớn hơn.
 - Một nút “Bằng nhau” nằm bên dưới hai thẻ.
-- Có hướng dẫn ngắn trước lượt chơi, HUD hiển thị điểm, kỷ lục, thời gian còn lại, bậc khó và chuỗi đúng.
+- Có hướng dẫn ngắn trước lượt chơi, HUD hiển thị điểm, kỷ lục, thời gian còn lại, chuỗi đúng. Không cần hiển thị bậc khó.
 - Một lượt kéo dài 60 giây. Tạm dừng sẽ dừng đồng hồ và các chuyển tiếp đang chờ.
 - Đúng: cộng điểm theo cơ chế chuỗi, phát phản hồi nhẹ và chuyển câu sau một khoảng ngắn.
-- Sai: không trừ điểm, đặt chuỗi về 0, tô nổi lựa chọn đúng trong 1 giây rồi chuyển câu.
+- Sai: không trừ điểm, đặt chuỗi về 0, tô nổi lựa chọn đúng rồi chuyển câu.
 - Hết giờ: hủy chuyển tiếp đang chờ và kết thúc ngay, lưu điểm vào danh sách năm điểm cao nhất của riêng game và chúc mừng nếu có kỷ lục mới.
 - Hỗ trợ cảm ứng, chuột và phím `ArrowUp`, `ArrowDown`, `=` hoặc `Enter` cho lựa chọn bằng nhau.
 
