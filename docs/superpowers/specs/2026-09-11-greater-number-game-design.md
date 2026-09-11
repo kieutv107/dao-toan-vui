@@ -2,14 +2,14 @@
 
 ## Mục tiêu
 
-Thêm một mini-game so sánh trong 60 giây. Bé chọn thẻ trên, thẻ dưới hoặc nút “Bằng nhau” dựa trên giá trị của hai thẻ. Game luyện khả năng tính nhẩm và so sánh, dùng tiến độ học hiện có, lưu năm điểm cao nhất và không làm thay đổi các game đang có.
+Thêm một mini-game so sánh trong 2 phút. Bé chọn thẻ trên, thẻ dưới hoặc nút “Bằng nhau” dựa trên giá trị của hai thẻ. Game luyện khả năng tính nhẩm và so sánh, dùng tiến độ học hiện có, lưu năm điểm cao nhất và không làm thay đổi các game đang có.
 
 ## Trải nghiệm chơi
 
 - Hai thẻ lớn xếp dọc. Chạm thẻ trên khi giá trị trên lớn hơn, chạm thẻ dưới khi giá trị dưới lớn hơn.
 - Một nút “Bằng nhau” nằm bên dưới hai thẻ.
 - Có hướng dẫn ngắn trước lượt chơi, HUD hiển thị điểm, kỷ lục, thời gian còn lại, chuỗi đúng. Không cần hiển thị bậc khó.
-- Một lượt kéo dài 60 giây. Tạm dừng sẽ dừng đồng hồ và các chuyển tiếp đang chờ.
+- Một lượt kéo dài 2 phút. Tạm dừng sẽ dừng đồng hồ và các chuyển tiếp đang chờ.
 - Đúng: cộng điểm theo cơ chế chuỗi, phát phản hồi nhẹ và chuyển câu sau một khoảng ngắn.
 - Sai: không trừ điểm, đặt chuỗi về 0, tô nổi lựa chọn đúng rồi chuyển câu.
 - Hết giờ: hủy chuyển tiếp đang chờ và kết thúc ngay, lưu điểm vào danh sách năm điểm cao nhất của riêng game và chúc mừng nếu có kỷ lục mới.
@@ -50,7 +50,7 @@ Khoảng 20% câu có hai giá trị bằng nhau. Các câu còn lại có một
 
 ## Cấu trúc mã
 
-- `dist/compare-engine.mjs`: trạng thái 60 giây, bậc đã mở, giảm/khôi phục độ khó, sinh cặp so sánh, xác định đáp án và tính điểm.
+- `dist/compare-engine.mjs`: trạng thái 2 phút, bậc đã mở, giảm/khôi phục độ khó, sinh cặp so sánh, xác định đáp án và tính điểm.
 - `dist/compare.mjs`: giao diện, đồng hồ, bàn phím, phản hồi, ghi tiến độ và lưu kỷ lục.
 - `dist/compare.css`: bố cục hai thẻ, trạng thái đúng/sai và responsive.
 - `dist/app.js`: thêm game vào menu và định tuyến đến controller mới.
@@ -64,7 +64,7 @@ Kiểm thử tự động sẽ bao phủ:
 - Giảm bậc sau hai sai liên tiếp và khôi phục sau ba đúng liên tiếp.
 - Không giảm dưới bậc 1 hoặc tăng cao hơn bậc đã mở.
 - Câu sai giữ nguyên điểm và ngắt chuỗi.
-- Đồng hồ kết thúc ở 60 giây và không chạy khi tạm dừng.
+- Đồng hồ kết thúc ở 2 phút và không chạy khi tạm dừng.
 - Câu bằng nhau, câu có một phép tính và câu có hai phép tính trả về đúng lựa chọn.
 - Giá trị luôn trong 0–20 và khoảng cách hẹp dần ở bậc 3.
 - Phím tắt, lưu top 5, thông báo kỷ lục và ghi nhận `review` đúng phạm vi.

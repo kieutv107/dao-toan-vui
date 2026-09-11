@@ -7,7 +7,7 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
     <section class="play purple compare-game" aria-label="Số nào lớn hơn">
       <div class="compare-hud" id="compare-hud"></div>
       <div id="compare-body"></div>
-      <div class="challenge-overlay compare-overlay" id="compare-overlay"><span class="compare-symbol">⚖️</span><h1>Số nào lớn hơn?</h1><p>Chạm vào thẻ có giá trị lớn hơn.<br>Nếu hai bên bằng nhau, chọn <strong>Bằng nhau</strong>.</p><button class="primary" id="compare-begin">Bắt đầu 60 giây →</button><small>↑ thẻ trên · ↓ thẻ dưới · Enter để chọn bằng nhau</small></div>
+      <div class="challenge-overlay compare-overlay" id="compare-overlay"><span class="compare-symbol">⚖️</span><h1>Số nào lớn hơn?</h1><p>Chạm vào thẻ có giá trị lớn hơn.<br>Nếu hai bên bằng nhau, chọn <strong>Bằng nhau</strong>.</p><button class="primary" id="compare-begin">Bắt đầu 2 phút →</button><small>↑ thẻ trên · ↓ thẻ dưới · Enter để chọn bằng nhau</small></div>
     </section>`;
   const overlay=$('#compare-overlay'),pauseButton=$('#compare-pause');
 

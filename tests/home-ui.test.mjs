@@ -33,6 +33,16 @@ test('greater-number game is registered and styled',async()=>{
   assert.match(index,/compare\.css/);assert.match(index,/6 trò chơi/);
 });
 
+test('greater-number game advertises a two-minute round',async()=>{
+  const [app,game]=await Promise.all([
+    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8')
+  ]);
+  assert.match(app,/trong 2 phút/);
+  assert.match(game,/Bắt đầu 2 phút/);
+  assert.doesNotMatch(app+game,/60 giây/);
+});
+
 test('greater-number HUD stays focused without a difficulty counter',async()=>{
   const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
   assert.doesNotMatch(source,/<span>Độ khó<\/span>/);
