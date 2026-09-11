@@ -7,7 +7,7 @@ export function difficulty(g) {
   const level=1+Math.floor(g.solved/6);
   return {level,speed:.055,interval:3.8,maxDrops:Math.min(4,1+Math.floor(level/2)),goldChance:level<2?0:Math.min(.2,.06+(level-2)*.02)};
 }
-export function advance(g,dt,random=Math.random) {
+export function advance(g,dt,random=Math.random,{normalFact,hardestFact}={}) {
   if(g.over)return [];
   const d=difficulty(g),events=[];
   for(const drop of g.drops)drop.y+=dt*d.speed;
@@ -25,7 +25,8 @@ export function advance(g,dt,random=Math.random) {
     const limit=Math.min(g.limit,10+(d.level-1)*2);
     const special=d.maxDrops>1&&g.drops.length>0&&g.goldGap===0&&!g.drops.some(x=>x.special)&&random()<d.goldChance;
     g.goldGap=special?5:Math.max(0,g.goldGap-1);
-    g.drops.push({...question(limit,g.op),id:g.nextId++,lane,y:0,special});
+    const fact=(special?hardestFact?.():normalFact?.())||question(limit,g.op);
+    g.drops.push({...fact,factId:fact.id,id:g.nextId++,lane,y:0,special});
     g.spawnIn=d.interval;
   }
   return events;
@@ -43,3 +44,4 @@ export function submit(g,input) {
   if(!g.drops.length)g.spawnIn=Math.min(g.spawnIn,.6);
   return {type:'correct',drop,cleared,special,points};
 }
+export function learningFact(result){return result?.type==='correct'?result.drop:null}

@@ -64,3 +64,16 @@ test('a drop travels the same distance at every level over the same elapsed time
   for(const solved of [0,6,18,60,600]){const g=engine.createGame();g.solved=solved;g.drops=[{id:1,lane:0,y:.1,answer:3}];engine.advance(g,2);positions.push(g.drops[0].y)}
   for(const y of positions)assert.equal(y,positions[0]);
 });
+
+test('adaptive suppliers create normal drops and hardest gold drops',()=>{
+  const normal={a:1,b:2,sign:'+',answer:3,id:'normal'},hard={a:9,b:8,sign:'+',answer:17,id:'hard'};
+  const g=engine.createGame();g.spawnIn=0;engine.advance(g,.1,()=>.9,{normalFact:()=>normal,hardestFact:()=>hard});assert.equal(g.drops[0].factId,'normal');
+  g.solved=6;g.spawnIn=0;g.goldGap=0;engine.advance(g,.1,()=>0,{normalFact:()=>normal,hardestFact:()=>hard});assert.equal(g.drops.find(x=>x.special).factId,'hard');
+});
+
+test('learning evidence returns only the correctly targeted drop',()=>{
+  const g=engine.createGame();g.drops=[{id:1,answer:5,y:.8},{id:2,answer:5,y:.2},{id:3,answer:9,y:.1,special:true}];
+  const ordinary=engine.submit(g,'5');assert.equal(engine.learningFact(ordinary).id,1);
+  assert.equal(engine.learningFact({type:'wrong'}),null);
+  const h=engine.createGame();h.drops=[{id:4,answer:4,y:.2},{id:5,answer:9,y:.3,special:true}];const gold=engine.submit(h,'9');assert.equal(engine.learningFact(gold).id,5);
+});
