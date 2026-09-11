@@ -11,3 +11,15 @@ test('home introduces the 11–15 starting level',async()=>{
   const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
   assert.match(source,/bắt đầu với các phép tính từ 11 đến 15/);
 });
+
+test('in-game new-record highlights do not animate',async()=>{
+  const files=await Promise.all([
+    readFile(new URL('../dist/challenge.css',import.meta.url),'utf8'),
+    readFile(new URL('../dist/rain.css',import.meta.url),'utf8')
+  ]);
+  for(const css of files){
+    const rule=css.match(/\.new-record\s*\{([^}]*)\}/)?.[1]??'';
+    assert.ok(rule.includes('background:#fff0bd'));
+    assert.doesNotMatch(rule,/animation\s*:/);
+  }
+});
