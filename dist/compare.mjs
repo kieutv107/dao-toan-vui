@@ -7,7 +7,7 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
     <section class="play purple compare-game" aria-label="Số nào lớn hơn">
       <div class="compare-hud" id="compare-hud"></div>
       <div id="compare-body"></div>
-      <div class="challenge-overlay compare-overlay" id="compare-overlay"><span class="compare-symbol">⚖️</span><h1>Số nào lớn hơn?</h1><p>Chạm vào thẻ có giá trị lớn hơn.<br>Nếu hai bên bằng nhau, chọn <strong>Bằng nhau</strong>.</p><button class="primary" id="compare-begin">Bắt đầu 2 phút →</button><small>↑ thẻ trên · ↓ thẻ dưới · Enter để chọn bằng nhau</small></div>
+      <div class="challenge-overlay compare-overlay" id="compare-overlay"><span class="compare-symbol">⚖️</span><h1>Số nào lớn hơn?</h1><p>Chạm vào thẻ có giá trị lớn hơn.<br>Nếu hai bên bằng nhau, chọn <strong>Bằng nhau</strong>.</p><button class="primary" id="compare-begin">Bắt đầu →</button><small>↑ thẻ trên · ↓ thẻ dưới · Enter để chọn bằng nhau</small></div>
     </section>`;
   const overlay=$('#compare-overlay'),pauseButton=$('#compare-pause');
 
@@ -18,7 +18,7 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
   function adaptiveFact(options={}){return learning.nextFact({context:'compare',...options})}
   function newRound(){
     if(disposed||g.over)return;locked=false;delayAction=null;round=createCompareRound(g,{fact:adaptiveFact});
-    $('#compare-body').innerHTML=`<div class="play-label">LƯỢT ${g.attempts+1}</div><h2>Thẻ nào có giá trị lớn hơn?</h2><div class="compare-stack"><button class="compare-card" data-compare-choice="top"><small>THẺ TRÊN</small><b>${round.cards[0].label}</b></button><div class="compare-versus" aria-hidden="true">so với</div><button class="compare-card" data-compare-choice="bottom"><small>THẺ DƯỚI</small><b>${round.cards[1].label}</b></button><button class="compare-equal" data-compare-choice="equal">Hai thẻ bằng nhau</button></div><div class="compare-feedback" id="compare-feedback" role="status" aria-live="polite">Chọn đáp án của bé nhé!</div>`;
+    $('#compare-body').innerHTML=`<div class="play-label">LƯỢT ${g.attempts+1}</div><h2>Thẻ nào có giá trị lớn hơn?</h2><div class="compare-stack"><button class="compare-card" aria-label="Chọn thẻ phía trên: ${round.cards[0].label}" data-compare-choice="top"><b>${round.cards[0].label}</b></button><div class="compare-versus" aria-hidden="true">so với</div><button class="compare-card" aria-label="Chọn thẻ phía dưới: ${round.cards[1].label}" data-compare-choice="bottom"><b>${round.cards[1].label}</b></button><button class="compare-equal" data-compare-choice="equal">Hai thẻ bằng nhau</button></div><div class="compare-feedback" id="compare-feedback" role="status" aria-live="polite">Chọn đáp án của bé nhé!</div>`;
     app.querySelectorAll('[data-compare-choice]').forEach(button=>button.onclick=()=>choose(button.dataset.compareChoice));hud();
   }
 

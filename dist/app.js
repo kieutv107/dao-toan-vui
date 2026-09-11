@@ -15,7 +15,7 @@ const modes=[
   {id:'bubble',icon:'🫧',title:'Bắt bong bóng',desc:'Tìm đáp án đúng, chạm và… bụp!',tag:'NHANH TAY · TINH MẮT',color:'blue',label:'Chơi ngay'},
   {id:'memory',icon:'🧩',title:'Lật thẻ thần kỳ',desc:'Ghép phép tính với đáp án. Thử tài trí nhớ!',tag:'GHI NHỚ · KHÁM PHÁ',color:'orange',label:'Lật thẻ'},
   {id:'mystery',icon:'🔎',title:'Số nào trốn mất?',desc:'Làm thám tử, tìm con số còn thiếu.',tag:'SUY LUẬN · TÌM TÒI',color:'pink',label:'Khám phá'},
-  {id:'compare',icon:'⚖️',title:'Số nào lớn hơn?',desc:'So sánh hai thẻ thật nhanh trong 2 phút!',tag:'SO SÁNH · TÍNH NHẨM',color:'purple',label:'So tài'}
+  {id:'compare',icon:'⚖️',title:'Số nào lớn hơn?',desc:'So sánh hai thẻ và tính thật nhanh!',tag:'SO SÁNH · TÍNH NHẨM',color:'purple',label:'So tài'}
 ];
 function updateStars(){document.querySelector('#stars').textContent='⭐ '+total}
 function award(){total++;updateStars();try{localStorage.setItem('toan-stars',total)}catch{}}
