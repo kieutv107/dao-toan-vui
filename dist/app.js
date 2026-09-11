@@ -27,7 +27,7 @@ function home(){
 +  <div class="section-head"><h2>Cả một đảo niềm vui</h2><span>Luôn luyện cộng & trừ trong phạm vi 20</span></div><section class="cards">${modes.map((m,i)=>`<button class="game-card ${m.color} ${i===0?'featured':''}" data-mode="${m.id}"><div class="card-top"><span class="game-icon">${m.icon}</span><span class="card-num">0${i+1}</span></div><span class="tag">${m.tag}</span><h3>${m.title}</h3><p>${m.desc}</p><span class="card-cta">${m.label} <span>↗</span></span></button>`).join('')}<aside class="tip"><span>✨</span><h3>Mỗi lần thử là<br>một lần tiến bộ.</h3><p>Chơi một lượt nhỏ,<br>học thêm một điều hay.</p><div>+ &nbsp; − &nbsp; = &nbsp; ♡</div></aside></section>`;
   app.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>start(b.dataset.mode));
   const details=app.querySelector('#journey-details');app.querySelector('#progress-details').onclick=()=>{details.hidden=!details.hidden};
-  let confirmReset=false;app.querySelector('#reset-progress').onclick=e=>{if(!confirmReset){confirmReset=true;e.currentTarget.textContent='Bấm lần nữa để xác nhận';return}learning.reset();scores.reset();home()};
+  let confirmReset=false;app.querySelector('#reset-progress').onclick=e=>{if(!confirmReset){confirmReset=true;e.currentTarget.textContent='Bấm lần nữa để xác nhận';return}learning.reset();scores.reset();total=0;try{localStorage.removeItem('toan-stars')}catch{}updateStars();home()};
 }
 function start(id){stopGame?.();stopGame=null;const mode=modes.find(m=>m.id===id),common={settings,home,award,beep,learning,scores};stopGame=id==='rain'?mountRain(app,common):id==='practice'?mountPractice(app,{...common,startGame:start}):mountChallenge(app,{...common,mode})}
 updateStars();home();
