@@ -1,6 +1,7 @@
 import {mountRain} from './rain.mjs';
 import {mountPractice} from './practice.mjs';
 import {mountChallenge} from './challenge.mjs';
+import {mountCompare} from './compare.mjs';
 import {createLearningService} from './learning-service.mjs';
 import {createHighScoreStore} from './high-scores.mjs';
 
@@ -13,7 +14,8 @@ const modes=[
   {id:'rain',icon:'🌦️',title:'Mưa phép tính',desc:'Tính nhẩm, hứng điểm! Đừng để phép tính chạm đáy.',tag:'TÍNH NHẨM NHANH',color:'teal',label:'Đón cơn mưa'},
   {id:'bubble',icon:'🫧',title:'Bắt bong bóng',desc:'Tìm đáp án đúng, chạm và… bụp!',tag:'NHANH TAY · TINH MẮT',color:'blue',label:'Chơi ngay'},
   {id:'memory',icon:'🧩',title:'Lật thẻ thần kỳ',desc:'Ghép phép tính với đáp án. Thử tài trí nhớ!',tag:'GHI NHỚ · KHÁM PHÁ',color:'orange',label:'Lật thẻ'},
-  {id:'mystery',icon:'🔎',title:'Số nào trốn mất?',desc:'Làm thám tử, tìm con số còn thiếu.',tag:'SUY LUẬN · TÌM TÒI',color:'pink',label:'Khám phá'}
+  {id:'mystery',icon:'🔎',title:'Số nào trốn mất?',desc:'Làm thám tử, tìm con số còn thiếu.',tag:'SUY LUẬN · TÌM TÒI',color:'pink',label:'Khám phá'},
+  {id:'compare',icon:'⚖️',title:'Số nào lớn hơn?',desc:'So sánh hai thẻ thật nhanh trong 60 giây!',tag:'SO SÁNH · TÍNH NHẨM',color:'purple',label:'So tài'}
 ];
 function updateStars(){document.querySelector('#stars').textContent='⭐ '+total}
 function award(){total++;updateStars();try{localStorage.setItem('toan-stars',total)}catch{}}
@@ -29,5 +31,5 @@ function home(){
   const details=app.querySelector('#journey-details');app.querySelector('#progress-details').onclick=()=>{details.hidden=!details.hidden};
   let confirmReset=false;app.querySelector('#reset-progress').onclick=e=>{if(!confirmReset){confirmReset=true;e.currentTarget.textContent='Bấm lần nữa để xác nhận';return}learning.reset();scores.reset();total=0;try{localStorage.removeItem('toan-stars')}catch{}updateStars();home()};
 }
-function start(id){stopGame?.();stopGame=null;const mode=modes.find(m=>m.id===id),common={settings,home,award,beep,learning,scores};stopGame=id==='rain'?mountRain(app,common):id==='practice'?mountPractice(app,{...common,startGame:start}):mountChallenge(app,{...common,mode})}
+function start(id){stopGame?.();stopGame=null;const mode=modes.find(m=>m.id===id),common={settings,home,award,beep,learning,scores};stopGame=id==='rain'?mountRain(app,common):id==='practice'?mountPractice(app,{...common,startGame:start}):id==='compare'?mountCompare(app,common):mountChallenge(app,{...common,mode})}
 updateStars();home();

@@ -23,3 +23,12 @@ test('in-game new-record highlights do not animate',async()=>{
     assert.doesNotMatch(rule,/animation\s*:/);
   }
 });
+
+test('greater-number game is registered and styled',async()=>{
+  const [app,index]=await Promise.all([
+    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../dist/index.html',import.meta.url),'utf8')
+  ]);
+  assert.match(app,/id:'compare'/);assert.match(app,/mountCompare/);
+  assert.match(index,/compare\.css/);assert.match(index,/6 trò chơi/);
+});
