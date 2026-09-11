@@ -20,7 +20,7 @@ test('service creates unique session ids and can reset',()=>{
 });
 
 test('service supplies normal and hardest adaptive facts',()=>{
-  const learning=createLearningService({storage:storage(),random:()=>0}),weak={a:0,b:1,sign:'+',answer:1};
+  const learning=createLearningService({storage:storage(),random:()=>0}),weak={a:0,b:11,sign:'+',answer:11};
   learning.record({fact:weak,result:'wrong',context:'practice',sessionId:'a'});
   assert.ok(learning.nextFact({context:'bubble'}).id);assert.equal(learning.hardestFact({context:'rain'}).id,factId(weak));
 });

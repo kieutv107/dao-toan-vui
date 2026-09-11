@@ -1,18 +1,14 @@
 import {factCatalog,getFactState} from './mastery-engine.mjs';
 
 export function unlockedBand(profile){
-  let unlocked=0;
-  for(let band=0;band<3;band++){
-    const facts=factCatalog().filter(f=>f.band===band),ready=facts.filter(f=>['strong','mastered'].includes(getFactState(profile,f.id).status)).length;
-    if(ready/facts.length<.7)break;unlocked=band+1;
-  }
-  return unlocked;
+  const band=2,facts=factCatalog().filter(f=>f.band===band),ready=facts.filter(f=>['strong','mastered'].includes(getFactState(profile,f.id).status)).length;
+  return ready/facts.length>=.7?3:band;
 }
 function seen(s){return s.correct+s.wrong+s.hints+s.reviews>0}
 function poolFor(profile,{kind='normal',excludeIds=[],excludeAnswers=[],sign,now=Date.now()}={}){
   const band=unlockedBand(profile),excluded=new Set(excludeIds),answers=new Set(excludeAnswers);
-  let pool=factCatalog().filter(f=>f.band<=band&&!excluded.has(f.id)&&!answers.has(f.answer)&&(!sign||f.sign===sign));
-  if(kind==='new')pool=factCatalog().filter(f=>f.band<=Math.min(3,band+1)&&getFactState(profile,f.id).status==='new'&&!excluded.has(f.id)&&!answers.has(f.answer)&&(!sign||f.sign===sign));
+  let pool=factCatalog().filter(f=>f.band===band&&!excluded.has(f.id)&&!answers.has(f.answer)&&(!sign||f.sign===sign));
+  if(kind==='new')pool=pool.filter(f=>getFactState(profile,f.id).status==='new');
   else if(kind==='weak')pool=pool.filter(f=>{const s=getFactState(profile,f.id);return seen(s)&&(s.wrong>0||s.hints>0||s.strength<=2)});
   else if(kind==='learning')pool=pool.filter(f=>getFactState(profile,f.id).status==='learning');
   else if(kind==='due')pool=pool.filter(f=>{const s=getFactState(profile,f.id);return ['strong','mastered'].includes(s.status)&&s.dueAt<=now});
