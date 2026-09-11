@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createCompareGame,unlockedCompareStage,compareStage,recordCompareAnswer,elapseCompare,createCompareRound,compareGap} from '../dist/compare-engine.mjs';
+import {createCompareGame,unlockedCompareStage,compareStage,recordCompareAnswer,elapseCompare,createCompareRound,compareGap,reviewFacts} from '../dist/compare-engine.mjs';
 
 test('comparison stages open on attempts 1, 6 and 11',()=>{
   const g=createCompareGame();
@@ -62,4 +62,11 @@ test('stage-three target gaps narrow after every five attempts',()=>{
   for(const [attempts,expected] of [[10,[3,6]],[15,[2,4]],[20,[1,2]]]){
     const g=Object.assign(createCompareGame(),{attempts});assert.deepEqual(compareGap(g),expected);
   }
+});
+
+test('only correct rounds expose expression facts for review',()=>{
+  const fact={a:7,b:6,sign:'+',answer:13,id:'7+6'};
+  const round={cards:[{kind:'fact',value:13,fact},{kind:'number',value:12}],answer:'top'};
+  assert.deepEqual(reviewFacts(round,true),[fact]);
+  assert.deepEqual(reviewFacts(round,false),[]);
 });

@@ -84,3 +84,7 @@ export function createCompareRound(g,{fact,random=Math.random}={}){
   const tie=random()<.2,stage=compareStage(g);
   return stage===1?numberRound(tie,random):stage===2?mixedRound(tie,fact,random):factRound(g,tie,fact,random);
 }
+
+export function reviewFacts(round,correct){
+  return correct?round.cards.filter(card=>card.kind==='fact').map(card=>card.fact):[];
+}
