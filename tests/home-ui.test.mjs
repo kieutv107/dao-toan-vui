@@ -30,16 +30,16 @@ test('greater-number game is registered and styled',async()=>{
     readFile(new URL('../dist/index.html',import.meta.url),'utf8')
   ]);
   assert.match(app,/id:'compare'/);assert.match(app,/mountCompare/);
-  assert.match(index,/compare\.css/);assert.match(index,/7 trò chơi/);
+  assert.match(index,/compare\.css/);assert.match(index,/6 trò chơi/);
 });
 
-test('obstacle runner is available as a seventh game',async()=>{
+test('obstacle runner is absent from the island',async()=>{
   const [app,index]=await Promise.all([
     readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
     readFile(new URL('../dist/index.html',import.meta.url),'utf8')
   ]);
-  assert.match(app,/id:'runner'/);assert.match(app,/mountRunner/);
-  assert.match(index,/runner\.css/);assert.match(index,/7 trò chơi/);
+  assert.doesNotMatch(app,/id:'runner'|mountRunner/);
+  assert.doesNotMatch(index,/runner\.css|7 trò chơi/);
 });
 
 test('greater-number game keeps duration out of its menu and intro labels',async()=>{
