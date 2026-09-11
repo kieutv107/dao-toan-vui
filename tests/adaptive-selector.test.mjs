@@ -9,6 +9,13 @@ test('new profile starts in 11–15 and keeps every practice question in that ba
   assert.equal(qs.length,18);assert.ok(qs.every(q=>q.band===2));
 });
 
+test('practice prioritizes at least six addition facts above 11 with both addends below 10',()=>{
+  const p=createProfile(),qs=buildPracticeSession({profile:p,sessionId:'s',random:()=>.1});
+  const additions=qs.filter(q=>q.sign==='+');
+  const focused=additions.filter(q=>q.answer>11&&q.a<10&&q.b<10);
+  assert.equal(additions.length,9);assert.ok(focused.length>=6);
+});
+
 test('less than seventy percent strong facts keeps the child in 11–15',()=>{
   const p=createProfile(),band=factCatalog().filter(f=>f.band===2),count=Math.ceil(band.length*.7)-1;
   for(const f of band.slice(0,count))for(const sessionId of ['a','b'])recordEvidence(p,{fact:f,result:'correct',elapsedMs:1000,context:'practice',sessionId});
@@ -19,6 +26,8 @@ test('seventy percent strong facts unlocks 16–20',()=>{
   const p=createProfile(),band=factCatalog().filter(f=>f.band===2),count=Math.ceil(band.length*.7);
   for(const f of band.slice(0,count))for(const sessionId of ['a','b'])recordEvidence(p,{fact:f,result:'correct',elapsedMs:1000,context:'practice',sessionId});
   assert.equal(getFactState(p,band[0].id).status,'strong');assert.equal(unlockedBand(p),3);
+  const additions=buildPracticeSession({profile:p,sessionId:'s',random:()=>.1}).filter(q=>q.sign==='+');
+  assert.ok(additions.filter(q=>q.answer>11&&q.a<10&&q.b<10).length>=6);
 });
 
 test('hardest selection prefers weak previously missed fact',()=>{

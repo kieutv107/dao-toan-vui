@@ -5,19 +5,20 @@ export function unlockedBand(profile){
   return ready/facts.length>=.7?3:band;
 }
 function seen(s){return s.correct+s.wrong+s.hints+s.reviews>0}
-function poolFor(profile,{kind='normal',excludeIds=[],excludeAnswers=[],sign,now=Date.now()}={}){
+function poolFor(profile,{kind='normal',excludeIds=[],excludeAnswers=[],sign,focusSmallAddends=false,now=Date.now()}={}){
   const band=unlockedBand(profile),excluded=new Set(excludeIds),answers=new Set(excludeAnswers);
   let pool=factCatalog().filter(f=>f.band===band&&!excluded.has(f.id)&&!answers.has(f.answer)&&(!sign||f.sign===sign));
+  if(focusSmallAddends)pool=pool.filter(f=>f.sign==='+'&&f.answer>11&&f.a<10&&f.b<10);
   if(kind==='new')pool=pool.filter(f=>getFactState(profile,f.id).status==='new');
   else if(kind==='weak')pool=pool.filter(f=>{const s=getFactState(profile,f.id);return seen(s)&&(s.wrong>0||s.hints>0||s.strength<=2)});
   else if(kind==='learning')pool=pool.filter(f=>getFactState(profile,f.id).status==='learning');
   else if(kind==='due')pool=pool.filter(f=>{const s=getFactState(profile,f.id);return ['strong','mastered'].includes(s.status)&&s.dueAt<=now});
   return pool;
 }
-export function selectFact({profile,kind='normal',excludeIds=[],excludeAnswers=[],sign,random=Math.random,now=Date.now()}={}){
-  let pool=poolFor(profile,{kind,excludeIds,excludeAnswers,sign,now});
-  if(!pool.length)pool=poolFor(profile,{kind:'normal',excludeIds,excludeAnswers,sign,now});
-  if(!pool.length)pool=poolFor(profile,{kind:'normal',excludeIds,excludeAnswers,now});
+export function selectFact({profile,kind='normal',excludeIds=[],excludeAnswers=[],sign,focusSmallAddends=false,random=Math.random,now=Date.now()}={}){
+  let pool=poolFor(profile,{kind,excludeIds,excludeAnswers,sign,focusSmallAddends,now});
+  if(!pool.length)pool=poolFor(profile,{kind:'normal',excludeIds,excludeAnswers,sign,focusSmallAddends,now});
+  if(!pool.length)pool=poolFor(profile,{kind:'normal',excludeIds,excludeAnswers,focusSmallAddends,now});
   if(kind==='hardest')return [...pool].sort((a,b)=>{const x=getFactState(profile,a.id),y=getFactState(profile,b.id);return Number(!seen(x))-Number(!seen(y))||x.strength-y.strength||y.wrong-x.wrong||y.hints-x.hints||b.band-a.band||a.id.localeCompare(b.id)})[0];
   const weights=pool.map(f=>{const s=getFactState(profile,f.id);return 1+(s.wrong*3+s.hints*2)+(s.dueAt<=now&&seen(s)?3:0)+(s.status==='learning'?2:0)}),total=weights.reduce((a,b)=>a+b,0);let n=random()*total;
   for(let i=0;i<pool.length;i++){n-=weights[i];if(n<=0)return pool[i]}return pool.at(-1);
@@ -25,7 +26,8 @@ export function selectFact({profile,kind='normal',excludeIds=[],excludeAnswers=[
 export function buildPracticeSession({profile,random=Math.random,now=Date.now()}={}){
   const kinds=['weak','weak','weak','weak','weak','weak','weak','learning','learning','learning','learning','learning','due','due','due','due','new','new'],out=[],used=[];
   for(let i=0;i<kinds.length;i++){
-    const sign=i%2?'−':'+';let q=selectFact({profile,kind:kinds[i],excludeIds:used,sign,random,now});
+    const sign=i%2?'−':'+',additionSlot=Math.floor(i/2),focusSmallAddends=sign==='+'&&additionSlot%3!==2;
+    let q=selectFact({profile,kind:kinds[i],excludeIds:used,sign,focusSmallAddends,random,now});
     if(!q)q=selectFact({profile,excludeIds:used,sign,random,now});
     if(!q)q=selectFact({profile,excludeIds:used,random,now});
     out.push({...q});used.push(q.id);
