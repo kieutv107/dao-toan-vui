@@ -12,6 +12,36 @@ test('home introduces the 11–15 starting level',async()=>{
   assert.match(source,/bắt đầu với các phép tính từ 11 đến 15/);
 });
 
+test('journey card invites the child to practice with an animated CTA',async()=>{
+  const [app,css]=await Promise.all([
+    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../dist/style.css',import.meta.url),'utf8')
+  ]);
+  assert.doesNotMatch(app,/>Xem tiến độ</);
+  assert.match(app,/id="practice-now"[^>]*>[\s\S]*?Luyện tập ngay/);
+  assert.match(app,/#practice-now'\)\.onclick=\(\)=>start\('practice'\)/);
+  const rule=css.match(/\.journey-cta\s*\{([^}]*)\}/)?.[1]??'';
+  assert.match(rule,/animation\s*:\s*cta-breathe/);
+  assert.match(css,/@keyframes cta-breathe/);
+  assert.match(css,/@keyframes cta-hop/);
+  assert.match(css,/@keyframes cta-ripple/);
+  assert.match(css,/@keyframes cta-nudge/);
+  // the idle motion stays calm: the button itself never bounces, and the
+  // rocket hop, arrow nudge and ripple share one 5s cycle so they read as a single gesture
+  assert.doesNotMatch(css,/@keyframes cta-(?:bounce|ring|arrow)/);
+  const icon=css.match(/\.journey-cta-icon\s*\{([^}]*)\}/)?.[1]??'';
+  const arrow=css.match(/\.journey-cta-arrow\s*\{([^}]*)\}/)?.[1]??'';
+  const ripple=css.match(/\.journey-cta:before\s*\{([^}]*)\}/)?.[1]??'';
+  assert.match(icon,/animation\s*:\s*cta-hop 5s/);
+  assert.match(arrow,/animation\s*:\s*cta-nudge 5s/);
+  assert.match(ripple,/animation\s*:\s*cta-ripple 5s/);
+  // the cycle is phase-shifted so the first gesture greets the child within a second of landing
+  const button=css.match(/\.journey-cta\s*\{([^}]*)\}/)?.[1]??'';
+  assert.match(button,/--cta-phase:-3\.5s/);
+  assert.match(css,/@keyframes cta-sheen/);
+  assert.match(css,/@keyframes cta-lift/);
+});
+
 test('in-game new-record highlights do not animate',async()=>{
   const files=await Promise.all([
     readFile(new URL('../dist/challenge.css',import.meta.url),'utf8'),

@@ -13,7 +13,8 @@
 ### Hành trình của bé
 
 - Hiển thị số phép đang đến hạn ôn, đã thuộc và đang luyện.
-- “Xem tiến độ” mở chi tiết bốn trạng thái: đã thuộc, đang vững, đang học, chưa khám phá.
+- Nút “Luyện tập ngay” mở thẳng Vườn luyện tập. Animation ở trạng thái tĩnh cố ý tinh tế: bóng đổ “thở” chậm, và cứ 5 giây có một “khoảnh khắc mời gọi” dài khoảng 0,7 giây: nút nhấc nhẹ, vệt sáng quét ngang, tên lửa nhún, mũi tên nhích theo và một vòng sáng mỏng lan ra rồi tan. Chu kỳ được dịch pha (`--cta-phase`) để khoảnh khắc đầu tiên xuất hiện chỉ ~0,8 giây sau khi bé vào trang. Ngoài khoảnh khắc đó nút đứng yên; hover thì dừng animation và nhấc nút lên. Tắt hoàn toàn khi hệ thống bật `prefers-reduced-motion`.
+- Link nhỏ “Chi tiết ›” trong dòng tóm tắt mở chi tiết bốn trạng thái: đã thuộc, đang vững, đang học, chưa khám phá.
 - “Đặt lại dữ liệu” yêu cầu bấm hai lần, sau đó xóa tiến độ học, bảng điểm và tổng sao.
 
 ### Danh sách game
