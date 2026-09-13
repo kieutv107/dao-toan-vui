@@ -1,5 +1,7 @@
 import {choices} from './math.mjs';
 import {createPractice,current,answer,markHint} from './practice-engine.mjs';
+import {strategyHint} from './strategies.mjs';
+import {showCheck,showMiss,announce,NEXT_DELAY_MS} from './feedback.mjs';
 
 export function mountPractice(app,{home,beep,learning,startGame}){
   const before=learning.summary(),g=createPractice({profile:learning.profile,sessionId:learning.newSessionId(),record:e=>learning.record(e)}),$=s=>app.querySelector(s);
@@ -14,10 +16,11 @@ export function mountPractice(app,{home,beep,learning,startGame}){
     $('#practice-body').innerHTML=`<div class="play-label">CÂU ${Math.min(g.pos+1,g.questions.length)}</div><h2>Mình cùng tính nhé!</h2><div class="equation">${q.a}<span>${q.sign}</span>${q.b}<span>=</span><b class="unknown">?</b></div><div class="answers">${options.map((v,i)=>`<button data-answer="${v}" style="--i:${i}">${v}</button>`).join('')}</div><div id="feedback" role="status" aria-live="polite" class="challenge-feedback"></div><button class="hint" id="hint">💡 Cho bé một gợi ý</button><div id="hint-content"></div>`;
     app.querySelectorAll('[data-answer]').forEach(b=>b.onclick=()=>choose(Number(b.dataset.answer),b));$('#hint').onclick=()=>hint(q);feedback(message,kind);hud();
   }
-  function hint(q){if(locked||disposed)return;markHint(g);$('#hint').disabled=true;$('#hint-content').innerHTML=`<p>${q.sign==='+'?`Đếm ${q.a} chấm, rồi thêm ${q.b} chấm.`:`Có ${q.a} chấm, bớt đi ${q.b} chấm bị gạch.`}</p><div class="dots">${Array.from({length:q.sign==='+'?q.answer:q.a},(_,i)=>`<i class="${q.sign==='+'?(i>=q.a?'added':''):(i>=q.answer?'removed':'')}"></i>`).join('')||'<b>Không còn chấm nào: 0</b>'}</div>`;focusFirst()}
+  function hint(q){if(locked||disposed)return;markHint(g);$('#hint').disabled=true;const h=strategyHint(q),{total,from,mode}=h.dots;
+    $('#hint-content').innerHTML=`<div class="hint-steps">${h.lines.map(l=>`<p>${l}</p>`).join('')}</div><div class="dots ${h.frame==='ten'?'ten-frame':''}">${Array.from({length:total},(_,i)=>`<i class="${i>=from?mode:''}"></i>`).join('')||'<b>Không còn chấm nào: 0</b>'}</div>`;focusFirst()}
   function choose(value,button){if(locked||disposed||g.done||bad.includes(value))return;const q=current(g),result=answer(g,value,{elapsedMs:performance.now()-startedAt});
-    if(!result.correct){bad.push(value);button.disabled=true;button.classList.add('wrong','challenge-shake');beep(false);feedback('Chưa đúng. Bé thử lại nhé!','miss');hud();return}
-    locked=true;button.classList.add('right','challenge-pop');app.querySelectorAll('[data-answer]').forEach(b=>b.disabled=true);$('#hint').disabled=true;beep();feedback(`Chính xác! ${q.a} ${q.sign} ${q.b} = ${q.answer}`,'success');hud();advanceTimer=setTimeout(()=>result.complete?finish():newQuestion(true),700);
+    if(!result.correct){bad.push(value);button.disabled=true;button.classList.add('wrong','challenge-shake');showMiss(button);beep(false);feedback('Chưa đúng. Bé thử lại nhé!','miss');hud();return}
+    locked=true;button.classList.add('right','challenge-pop');app.querySelectorAll('[data-answer]').forEach(b=>b.disabled=true);$('#hint').disabled=true;beep();showCheck($('.unknown'),q.answer);feedback('','success');announce($('#feedback'),`Chính xác, ${q.a} ${q.sign} ${q.b} = ${q.answer}`);hud();advanceTimer=setTimeout(()=>result.complete?finish():newQuestion(true),NEXT_DELAY_MS);
   }
   function finish(){if(disposed)return;const after=learning.summary(),gained=Math.max(0,after.mastered-before.mastered);
     $('#practice-body').innerHTML=`<div class="finish-icon">${gained?'🏆':'🌟'}</div><h2>${gained?`Bé vừa thuộc thêm ${gained} phép tính!`:'Hoàn thành một lượt luyện!'}</h2><p>Bé đã làm đúng ${g.results.correct} câu. Hiện có ${after.learning} phép đang luyện và ${after.mastered} phép đã thuộc.</p><div class="finish-actions"><button class="primary" id="practice-again">↻ Luyện thêm</button><button class="primary secondary" id="practice-recommend">Chơi Bắt bong bóng</button><button class="back" id="practice-home">Nghỉ một chút</button></div>`;

@@ -24,6 +24,9 @@ flowchart TD
   Learning --> Selector[adaptive-selector.mjs]
   Learning --> Mastery[mastery-engine.mjs]
   Learning --> LearningStore[learning-store.mjs]
+  Selector --> CoreFacts[core-facts.mjs]
+  Practice --> Strategies[strategies.mjs]
+  Strategies --> CoreFacts
   Shell --> Scores[high-scores.mjs]
 ```
 
@@ -101,25 +104,60 @@ Phép cộng hoán vị và phép trừ đảo liên quan dùng chung `familyId`
 | 2 | 11–15 |
 | 3 | 16–20 |
 
-Band của phép cộng dựa trên kết quả; band của phép trừ dựa trên số bị trừ `a`.
+Band của phép cộng dựa trên kết quả; band của phép trừ dựa trên số bị trừ `a`. Band chỉ còn dùng làm khóa benchmark thời gian (`context:band`); việc chọn câu đi theo giáo trình ở mục 4b.
 
 `math.mjs` còn cung cấp generator đơn giản `question(limit, op)` và `choices(answer, limit)`. Engine mới nên ưu tiên facts từ `learning-service`; generator đơn giản chỉ phù hợp làm fallback hoặc tạo đáp án nhiễu.
 
+### 4b. Core fact, form và giáo trình (`core-facts.mjs`)
+
+Đơn vị học không phải một câu hỏi mà là một **core fact**: một family số kèm chiến lược tính nhẩm. `8+5`, `5+8`, `13−8`, `13−5` là bốn biến thể của cùng core fact `5+8=13`.
+
+```js
+{ id:'5+8=13', x:5, y:8, sum:13, strategy:'bridge10',
+  variants:{ '+':['5+8','8+5'], '−':['13−5','13−8'] },
+  forms:{ '+':form, '−':form } }
+```
+
+Một **form** là core fact × dấu; đây là khóa tiến độ (`formKey` = `familyId:sign`, ví dụ `5+8=13:+`). Phép cộng hoán vị chung tiến độ; phép trừ có tiến độ riêng vì "Trừ qua 10" là một chặng riêng.
+
+Pool v1 gồm 35 core fact (70 form, 120 câu). Mỗi family chỉ nhận một chiến lược theo thứ tự ưu tiên:
+
+| Chiến lược | Điều kiện (x ≤ y) | Số family |
+| --- | --- | ---: |
+| `make10` | x + y = 10, x ≥ 1 | 5 |
+| `double` | x = y, 1..10 | 9 |
+| `nearDouble` | y = x + 1, x 1..9 | 9 |
+| `bridge10` | y ≤ 9, x + y ≥ 11 | 12 |
+
+Giáo trình (`LEVELS`) gồm 5 chặng; chặng của mỗi form:
+
+| Chặng | Tiêu đề | Form | Số form |
+| ---: | --- | --- | ---: |
+| 1 | Bù về 10 và số đôi nhỏ | `+` của make10 và double có tổng ≤ 10 | 9 |
+| 2 | Số đôi và gần số đôi | `+` của double tổng > 10 và nearDouble | 14 |
+| 3 | Cộng qua 10 | `+` của bridge10 | 12 |
+| 4 | Trừ qua 10 | `−` của mọi core fact có tổng ≥ 10 | 27 |
+| 5 | Trộn tất cả | mọi form (8 form trừ tổng < 10 được giới thiệu ở đây) | 70 |
+
+`formsAtLevel(n)` trả form của chặng `n` (chặng 5 trả tất cả); `formsBelowLevel(n)` trả form của các chặng trước để ôn. Chặng 6 "Tốc độ" trong tầm nhìn sản phẩm chưa có trong code.
+
 ## 5. Mastery engine
 
-Profile phiên bản 1:
+Profile phiên bản 2:
 
 ```js
 {
-  version: 1,
-  facts: {},
+  version: 2,
+  facts: {},      // khóa là formKey, ví dụ '5+8=13:+'
   timings: {},
   createdAt,
   updatedAt
 }
 ```
 
-State của từng fact:
+`getFactState(profile, factOrId)` nhận object fact hoặc id câu (`'8+5'`) và tra theo form key. Profile v1 (khóa theo id câu) được `migrateProfile()` gộp khi load: cộng dồn `correct/wrong/hints/reviews`, lấy max `strength/lastSeen/dueAt`, hợp nhất `fastSessions`, rồi store ghi lại ngay ở dạng v2.
+
+State của từng form:
 
 ```js
 {
@@ -166,21 +204,26 @@ Một câu được coi là nhanh khi `elapsedMs` không vượt benchmark của
 - Strength 3–4: đến hạn sau 1 ngày.
 - Mastered: đến hạn sau 3 ngày.
 
-`progressSummary()` duyệt toàn catalog và trả số lượng theo status, số fact đến hạn và tổng fact.
+`progressSummary()` (nay nằm trong `adaptive-selector.mjs`) duyệt các form đang mở (chặng hiện tại và các chặng trước) và trả số lượng theo status, số form đến hạn, `total`, `level` hiện tại và mảng `levels[{id,title,total,ready,unlocked}]` cho UI.
 
 ## 6. Adaptive selector
 
-`selectFact()` chọn trong band đang mở. Profile mới bắt đầu ở band 2 (11–15). Band 3 mở khi ít nhất 70% facts band 2 đạt `strong` hoặc `mastered`.
+`currentLevel(profile)` bắt đầu ở chặng 1; chặng N+1 mở khi ít nhất 70% form của chặng N đạt `strong` hoặc `mastered` (`levelReadiness`). Tối đa chặng 5.
+
+`selectFact()` mỗi lần gọi chọn pool **focus** (form của chặng hiện tại) với xác suất 75%, còn lại pool **review** (form các chặng trước); chặng 1 và chặng 5 không có review nên luôn focus. Từ pool form lấy ra các câu biến thể rồi lọc theo filter; thứ tự `a+b` / `b+a` ngẫu nhiên vì mỗi biến thể là một câu riêng nhưng chung tiến độ.
 
 ### Filter hỗ trợ
 
-- `kind`: `normal`, `new`, `weak`, `learning`, `due`, `hardest`.
-- `excludeIds`: tránh lặp fact.
+- `kind`: `normal`, `new`, `weak`, `learning`, `due`, `hardest`. `hardest` xét cả focus lẫn review.
+- `excludeIds`: tránh lặp câu.
 - `excludeAnswers`: tạo nhiều đáp án khác nhau, dùng cho memory.
 - `sign`: chỉ cộng hoặc chỉ trừ.
-- `focusSmallAddends`: chỉ cộng qua 10, kết quả trên 11, hai số hạng dưới 10.
+- `scope`: ép `focus` hoặc `review` thay vì rút ngẫu nhiên.
+- `strict`: không nới rộng ra ngoài các chặng đang mở; trả `undefined` nếu hết câu.
 
-Nếu filter quá hẹp làm pool rỗng, selector lần lượt bỏ `kind`, rồi bỏ `sign`, nhưng vẫn cố giữ các exclusion và focus có thể áp dụng.
+Thang fallback khi pool rỗng: bỏ `kind` → gộp focus + review → toàn bộ core pool mọi chặng → bỏ `sign`. `excludeIds` và `excludeAnswers` luôn được giữ. Nhờ vậy Lật thẻ ở chặng 1 (chỉ 5 đáp án khác nhau) vẫn đủ 6 cặp bằng cách mượn câu từ chặng sau.
+
+`buildPracticeSession()` tạo 18 slot theo kind (7 weak, 5 learning, 4 due, 2 new). Mỗi slot thử `strict` với toàn bộ câu đã dùng; nếu hết thì cho lặp nhưng tránh 3 câu liền kề; cuối cùng mới nới rộng.
 
 ### Trọng số normal
 
@@ -204,7 +247,7 @@ weight = 1
 | `summary()` | Tổng hợp tiến độ tại thời điểm hiện tại |
 | `nextFact(options)` | Chọn fact thích ứng |
 | `hardestFact(options)` | Chọn fact yếu nhất |
-| `record(event)` | Ghi evidence rồi persist ngay |
+| `record(event)` | Ghi evidence rồi persist ngay; `event.fact` chỉ cần `a`, `b`, `sign` (và `answer` nếu có) |
 | `save()` | Persist profile hiện tại |
 | `reset()` | Tạo profile mới và xóa storage |
 | `newSessionId()` | ID duy nhất theo timestamp + sequence |
@@ -245,6 +288,10 @@ State được mutate tại chỗ. `advance` nhận random và fact supplier đ�
 | `markHint(g)` | Ghi hint và xếp lại câu |
 
 `record` được inject khi tạo state, giúp engine không phụ thuộc storage/service.
+
+### Strategies
+
+`strategyHint(question)` trong `strategies.mjs` là hàm thuần trả `{strategy, lines, dots:{total,from,mode}, frame}` cho `practice.mjs` render gợi ý: `make10` dùng khung 10 ô, `double`/`nearDouble` giải thích mẫu số đôi, `bridge10` tách qua 10 hai bước (cả cộng lẫn trừ), câu ngoài core pool quay về đếm chấm.
 
 ### Challenge engine
 

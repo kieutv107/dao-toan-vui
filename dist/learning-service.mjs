@@ -1,6 +1,6 @@
 import {createLearningStore} from './learning-store.mjs';
-import {recordEvidence,progressSummary} from './mastery-engine.mjs';
-import {selectFact} from './adaptive-selector.mjs';
+import {recordEvidence} from './mastery-engine.mjs';
+import {selectFact,progressSummary} from './adaptive-selector.mjs';
 
 export function createLearningService({storage=globalThis.localStorage,now=Date.now,random=Math.random}={}){
   const store=createLearningStore(storage);let profile=store.load(),sequence=0;

@@ -1,4 +1,5 @@
 import {createCompareGame,compareStage,createCompareRound,recordCompareAnswer,elapseCompare,reviewFacts} from './compare-engine.mjs';
+import {showCheck,showMiss,showStreak,announce,NEXT_DELAY_MS} from './feedback.mjs';
 
 export function mountCompare(app,{home,award,beep,learning,scores}){
   const g=createCompareGame(),$=selector=>app.querySelector(selector);
@@ -23,21 +24,23 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
   }
 
   function highlight(answer,choice){
-    app.querySelectorAll('[data-compare-choice]').forEach(button=>{button.disabled=true;if(button.dataset.compareChoice===answer)button.classList.add('right');else if(button.dataset.compareChoice===choice)button.classList.add('wrong')});
+    app.querySelectorAll('[data-compare-choice]').forEach(button=>{button.disabled=true;if(button.dataset.compareChoice===answer){button.classList.add('right');showCheck(button)}else if(button.dataset.compareChoice===choice){button.classList.add('wrong');showMiss(button)}});
   }
 
   function choose(choice){
     if(!playing||paused||locked||disposed||g.over)return;
     const correct=choice===round.answer,beforeStage=compareStage(g),points=recordCompareAnswer(g,correct),afterStage=compareStage(g);
     locked=true;highlight(round.answer,choice);hud();
+    const chosen=app.querySelector(`[data-compare-choice="${choice}"]`),region=$('#compare-feedback');
     if(correct){
       reviewFacts(round,true).forEach(fact=>learning.record({fact,result:'review',context:'compare',sessionId}));award();beep();
-      $('#compare-feedback').textContent=afterStage>beforeStage?'Tuyệt! Bé đã tăng một bậc.':`Chính xác! +${points} điểm${g.streak>1?` · Chuỗi ${g.streak}`:''}`;
-      $('#compare-feedback').className='compare-feedback success';delayLeft=.65;
+      if(g.streak>0&&g.streak%3===0)showStreak(chosen,g.streak);
+      if(afterStage>beforeStage)region.textContent='Tuyệt! Bé đã tăng một bậc.';else announce(region,`Chính xác, +${points} điểm`);
+      region.className='compare-feedback success';delayLeft=NEXT_DELAY_MS/1000;
     }else{
       beep(false);const answerText=round.answer==='equal'?'Hai thẻ bằng nhau':round.answer==='top'?'Thẻ trên lớn hơn':'Thẻ dưới lớn hơn';
-      $('#compare-feedback').textContent=afterStage<beforeStage?`${answerText}. Mình giảm một bậc để luyện chắc hơn nhé!`:`${answerText}. Mình xem lại rồi thử câu tiếp nhé!`;
-      $('#compare-feedback').className='compare-feedback miss';delayLeft=1;
+      region.textContent=afterStage<beforeStage?`${answerText}. Mình giảm một bậc để luyện chắc hơn nhé!`:`${answerText}. Mình xem lại rồi thử câu tiếp nhé!`;
+      region.className='compare-feedback miss';delayLeft=1;
     }
     delayAction=newRound;
   }

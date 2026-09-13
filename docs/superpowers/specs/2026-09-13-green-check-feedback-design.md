@@ -14,11 +14,12 @@ Làm phản hồi đúng/sai trong bốn game trả lời nhanh (Vườn luyện
 
 ## Module `feedback.mjs`
 
-Ba hàm thuần DOM, không giữ trạng thái, không gọi engine:
+Bốn hàm thuần DOM, không giữ trạng thái, không gọi engine:
 
 - `showCheck(target, answer)`. Có `answer`: dùng cho ô `?` (class `.unknown`). Ô nhận class `is-check`, một `<i class="fb-check">✓</i>` được chèn vào và phóng từ 40% lên 100% trong 180 ms; từ 200 ms dấu ✓ mờ đi và nội dung ô đổi thành `answer`. Không có `answer`: dùng cho thẻ đã hiện giá trị (Số nào lớn hơn). Dấu ✓ phóng lên giữa thẻ trong 180 ms rồi thu về huy hiệu nhỏ ở góc trên phải, giá trị thẻ vẫn đọc được.
 - `showMiss(button)`. Chèn `<i class="fb-miss">✗</i>` vào nút, huy hiệu đỏ nhỏ ở góc trên phải hiện 300 ms rồi tan; class `challenge-shake` vẫn do controller gắn như hiện tại. Sau đó nút giữ trạng thái mờ, vô hiệu như cũ.
 - `showStreak(anchor, n)`. Chèn `<span class="fb-streak">Chuỗi n</span>` cạnh `anchor`, pill bay lên khoảng 24 px và tan trong 600 ms rồi tự gỡ khỏi DOM. Không chặn việc sang câu mới.
+- `announce(region, text)`. Xóa nội dung vùng `aria-live` và chèn `<span class="sr-only">text</span>` để trình đọc màn hình đọc câu đúng dù màn hình không hiện chữ.
 - Hằng xuất `NEXT_DELAY_MS = 450`: thời gian từ lúc chạm đúng đến khi câu mới xuất hiện. Cả ba controller dùng hằng này thay số riêng.
 
 `feedback.css` cũng định nghĩa class `sr-only` (repo chưa có) để giấu chữ khỏi màn hình nhưng vẫn cho trình đọc màn hình đọc.

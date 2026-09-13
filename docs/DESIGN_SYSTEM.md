@@ -119,6 +119,14 @@ Mobile card grid hiện vẫn giữ 2 cột. Khi thêm copy dài phải kiểm t
 5. Feedback.
 6. Action tiếp theo nếu cần.
 
+### Phản hồi đúng/sai (`feedback.css`)
+
+- ✓ trắng trên nền xanh `#51a978`, ✗ trắng trên nền đỏ `#e0526c`. Luôn kèm ký hiệu, không chỉ đổi màu.
+- Ô `?` khi đúng: nền xanh, viền liền, ✓ trắng phóng 180 ms (`fb-pop`), con số hiện từ 200 ms (`fb-fade-in`).
+- Huy hiệu góc 30 px (`fb-check-badge`) và 26 px (`fb-miss`), viền trắng 2 px.
+- Pill chuỗi vàng `#ffe58a`, bay lên 24 px và tan trong 600 ms (`fb-rise`).
+- Nhịp chuyển câu 450 ms. Với `prefers-reduced-motion`, animation tắt và `fb-check-fill` ẩn để trạng thái cuối vẫn đúng.
+
 ### HUD
 
 - Mỗi chỉ số nằm trong ô trắng mờ, radius 12–14 px.

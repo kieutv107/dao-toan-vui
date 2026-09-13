@@ -7,9 +7,11 @@ test('home template has no stray patch markers between its sections',async()=>{
   assert.doesNotMatch(source,/\n\+\s+<(?:section|div)\b/);
 });
 
-test('home introduces the 11–15 starting level',async()=>{
+test('home introduces the current curriculum stage and lists every level',async()=>{
   const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
-  assert.match(source,/bắt đầu với các phép tính từ 11 đến 15/);
+  assert.doesNotMatch(source,/từ 11 đến 15/);
+  assert.match(source,/Chặng \$\{p\.level\} · \$\{stage\.title\}/);
+  assert.match(source,/p\.levels\.map\(/);
 });
 
 test('journey card invites the child to practice with an animated CTA',async()=>{
@@ -60,7 +62,7 @@ test('greater-number game is registered and styled',async()=>{
     readFile(new URL('../dist/index.html',import.meta.url),'utf8')
   ]);
   assert.match(app,/id:'compare'/);assert.match(app,/mountCompare/);
-  assert.match(index,/compare\.css/);assert.match(index,/6 trò chơi/);
+  assert.match(index,/compare\.css/);assert.match(index,/7 trò chơi/);
 });
 
 test('obstacle runner is absent from the island',async()=>{
@@ -69,7 +71,7 @@ test('obstacle runner is absent from the island',async()=>{
     readFile(new URL('../dist/index.html',import.meta.url),'utf8')
   ]);
   assert.doesNotMatch(app,/id:'runner'|mountRunner/);
-  assert.doesNotMatch(index,/runner\.css|7 trò chơi/);
+  assert.doesNotMatch(index,/runner\.css/);
 });
 
 test('greater-number game keeps duration out of its menu and intro labels',async()=>{
@@ -104,4 +106,24 @@ test('greater-number timer counts the full active frame interval',async()=>{
   const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
   assert.match(source,/const dt=last\?\(now-last\)\/1000:0/);
   assert.doesNotMatch(source,/Math\.min\(\.25,\(now-last\)\/1000\)/);
+});
+
+test('Nunito starts from HTML preconnects instead of a CSS import',async()=>{
+  const [index,css]=await Promise.all([
+    readFile(new URL('../dist/index.html',import.meta.url),'utf8'),
+    readFile(new URL('../dist/style.css',import.meta.url),'utf8')
+  ]);
+  assert.match(index,/<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">/);
+  assert.match(index,/<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>/);
+  assert.match(index,/href="https:\/\/fonts\.googleapis\.com\/css2\?family=Nunito:wght@400;600;700;800;900;1000&display=swap"/);
+  assert.ok(index.indexOf('fonts.googleapis.com')<index.indexOf('style.css'));
+  assert.doesNotMatch(css,/@import\s+url\(['"]https:\/\/fonts\.googleapis\.com/);
+  assert.match(css,/font-family:'Nunito'/);
+});
+
+test('answer beep is a short ding, not a three-note fanfare',async()=>{
+  const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const fn=source.match(/function beep\(win=true\)\{[\s\S]*?\n/)[0];
+  assert.doesNotMatch(fn,/\[0,\.12,\.24\]/);
+  assert.match(fn,/520/);assert.match(fn,/780/);assert.match(fn,/200/);
 });

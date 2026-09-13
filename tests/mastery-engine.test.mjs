@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {factCatalog,factId,factFamilyId,createProfile,getFactState,recordEvidence,progressSummary,responseBenchmark} from '../dist/mastery-engine.mjs';
+import {factCatalog,factId,factFamilyId,formKey,createProfile,getFactState,recordEvidence,migrateProfile,responseBenchmark} from '../dist/mastery-engine.mjs';
 
 test('catalog contains stable valid mixed facts through 20',()=>{
   const facts=factCatalog();
@@ -48,12 +48,33 @@ test('benchmark uses recent median after four samples',()=>{
   assert.equal(responseBenchmark(p,'practice',0),2500);
 });
 
-test('progress summary counts statuses without creating stored facts',()=>{
+test('reading state never creates stored facts',()=>{
   const p=createProfile(),fact={a:2,b:3,sign:'+',answer:5};
-  assert.equal(Object.keys(p.facts).length,0);
   assert.equal(getFactState(p,factId(fact)).status,'new');
   assert.equal(Object.keys(p.facts).length,0);
-  recordEvidence(p,{fact,result:'correct',elapsedMs:1000,context:'practice',sessionId:'a'});
-  const s=progressSummary(p);
-  assert.equal(s.learning,1);assert.equal(s.mastered,0);assert.equal(s.total,462);
+});
+
+test('commuted addition shares one progress record while subtraction keeps its own',()=>{
+  const p=createProfile();
+  recordEvidence(p,{fact:{a:8,b:5,sign:'+',answer:13},result:'correct',elapsedMs:1000,context:'practice',sessionId:'a'});
+  assert.equal(getFactState(p,'5+8').strength,2);assert.equal(getFactState(p,{a:5,b:8,sign:'+'}).correct,1);
+  assert.equal(getFactState(p,'13−8').status,'new');
+  assert.equal(formKey('8+5'),'5+8=13:+');assert.equal(formKey('13−5'),'5+8=13:−');
+  assert.deepEqual(Object.keys(p.facts),['5+8=13:+']);
+});
+
+test('version one profiles merge per-question states into form states',()=>{
+  const old={version:1,createdAt:5,updatedAt:9,timings:{'practice:2':[1000]},facts:{
+    '8+5':{strength:2,status:'learning',correct:1,wrong:1,hints:0,reviews:0,fastSessions:['a'],lastSeen:3,dueAt:3},
+    '5+8':{strength:4,status:'strong',correct:3,wrong:0,hints:1,reviews:0,fastSessions:['a','b'],lastSeen:7,dueAt:99},
+    '13−8':{strength:1,status:'learning',correct:1,wrong:0,hints:0,reviews:0,fastSessions:[],lastSeen:2,dueAt:2},
+    'junk':{strength:9}
+  }};
+  const p=migrateProfile(old);
+  assert.equal(p.version,2);assert.deepEqual(p.timings,{'practice:2':[1000]});assert.equal(p.createdAt,5);
+  const add=p.facts['5+8=13:+'];
+  assert.equal(add.strength,4);assert.equal(add.correct,4);assert.equal(add.wrong,1);assert.equal(add.hints,1);
+  assert.deepEqual(add.fastSessions,['a','b']);assert.equal(add.lastSeen,7);assert.equal(add.dueAt,99);assert.equal(add.status,'strong');
+  assert.equal(p.facts['5+8=13:−'].strength,1);assert.equal(Object.keys(p.facts).length,2);
+  assert.equal(migrateProfile(p),p);
 });

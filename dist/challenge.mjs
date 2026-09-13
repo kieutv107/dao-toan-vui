@@ -1,5 +1,6 @@
 import {question,choices} from './math.mjs';
 import {createChallenge,challengeDifficulty,recordAnswer,elapse,beginMemoryBoard,completeMemoryBoard,selectMemoryCard,closeMemoryMismatch} from './challenge-engine.mjs';
+import {showCheck,showMiss,showStreak,announce,NEXT_DELAY_MS} from './feedback.mjs';
 
 export function mountChallenge(app,{mode,settings,home,award,beep,learning,scores}) {
   const g=createChallenge(mode.id,20),$=s=>app.querySelector(s);
@@ -20,10 +21,10 @@ export function mountChallenge(app,{mode,settings,home,award,beep,learning,score
   function hint(){if(locked||paused)return;g.clean=false;g.streak=0;hud();$('#hint').disabled=true;$('#hint-content').innerHTML=`<p>${q.sign==='+'?`Đếm ${q.a} chấm, thêm ${q.b} chấm.`:`Có ${q.a} chấm, bớt ${q.b} chấm bị gạch.`} Câu có gợi ý nhận 5 điểm.</p><div class="dots">${Array.from({length:q.sign==='+'?q.answer:q.a},(_,i)=>`<i class="${q.sign==='+'?(i>=q.a?'added':''):(i>=q.answer?'removed':'')}"></i>`).join('')||'<b>Không còn chấm nào: 0</b>'}</div>`}
   function freezeAnswers(){app.querySelectorAll('[data-answer]').forEach(b=>b.disabled=true);if($('#hint'))$('#hint').disabled=true}
   function answer(value,button){if(locked||paused||disposed||g.over||bad.includes(value))return;const expected=mode.id==='mystery'?q.b:q.answer;
-    if(value!==expected){bad.push(value);recordAnswer(g,false);learning.record({fact:q,result:'wrong',elapsedMs:performance.now()-questionStarted,context:mode.id,sessionId});button.disabled=true;button.classList.add('wrong','challenge-shake');beep(false);feedback(g.lives!==null?'Chưa đúng. Mất 1 mạng — bé thử lại nhé!':mode.id==='rocket'?'Chưa đúng. −3 giây — bé thử lại nhé!':'Chưa đúng. Bé thử lại nhé!','miss');hud();if(g.over){locked=true;freezeAnswers();later(1000,finish)}return}
-    locked=true;const points=recordAnswer(g,true);learning.record({fact:q,result:'correct',elapsedMs:performance.now()-questionStarted,context:mode.id,sessionId});award();beep();button.classList.add('right','challenge-pop');freezeAnswers();feedback(`Chính xác! +${points} điểm${g.streak>1?` · Chuỗi ${g.streak}`:''}`,'success');hud();
+    if(value!==expected){bad.push(value);recordAnswer(g,false);learning.record({fact:q,result:'wrong',elapsedMs:performance.now()-questionStarted,context:mode.id,sessionId});button.disabled=true;button.classList.add('wrong','challenge-shake');showMiss(button);beep(false);feedback(g.lives!==null?'Chưa đúng. Mất 1 mạng — bé thử lại nhé!':mode.id==='rocket'?'Chưa đúng. −3 giây — bé thử lại nhé!':'Chưa đúng. Bé thử lại nhé!','miss');hud();if(g.over){locked=true;freezeAnswers();later(1000,finish)}return}
+    locked=true;const points=recordAnswer(g,true);learning.record({fact:q,result:'correct',elapsedMs:performance.now()-questionStarted,context:mode.id,sessionId});award();beep();button.classList.add('right','challenge-pop');freezeAnswers();showCheck($('.unknown'),expected);if(g.streak>0&&g.streak%3===0)showStreak($('.unknown'),g.streak);feedback('','success');announce($('#feedback'),`Chính xác, +${points} điểm`);hud();
     const go=()=>{if(mode.id==='practice'&&g.correct>=12)finish();else newQuestion()};
-    if(mode.id==='practice'){$('#challenge-next').innerHTML='<button class="primary" id="next">Tiếp theo →</button>';$('#next').onclick=()=>{if(!paused)go()};$('#next').focus()}else later(Math.max(650,1100-difficulty().level*80),go);
+    if(mode.id==='practice'){$('#challenge-next').innerHTML='<button class="primary" id="next">Tiếp theo →</button>';$('#next').onclick=()=>{if(!paused)go()};$('#next').focus()}else later(NEXT_DELAY_MS,go);
   }
   function timeout(){if(locked||g.over)return;locked=true;recordAnswer(g,false);learning.record({fact:q,result:'wrong',elapsedMs:performance.now()-questionStarted,context:mode.id,sessionId});freezeAnswers();beep(false);feedback(`Hết giờ! ${q.a} ${q.sign} ${q.b} = ${q.answer}. ${g.lives!==null?'Mất 1 mạng.':'−3 giây.'}`,'miss');hud();later(1700,()=>g.over?finish():newQuestion())}
   function memoryBoard(){beginMemoryBoard(g);delay=null;selected=[];matched=new Set();locked=false;g.clean=true;const d=difficulty();const unique=new Map();let tries=0;

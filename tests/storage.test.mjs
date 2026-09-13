@@ -12,6 +12,13 @@ test('learning store round trips and recovers from corrupt data',()=>{
   assert.deepEqual(createLearningStore(storage).load().facts,{});
 });
 
+test('learning store upgrades a stored version one profile and writes it back',()=>{
+  const storage=memoryStorage({'toan-learning-v1':JSON.stringify({version:1,facts:{'8+5':{strength:2,correct:1,wrong:0,hints:0,reviews:0,fastSessions:[],lastSeen:1,dueAt:1}},timings:{}})});
+  const p=createLearningStore(storage).load();
+  assert.equal(p.version,2);assert.equal(p.facts['5+8=13:+'].strength,2);assert.equal(p.facts['8+5'],undefined);
+  assert.equal(JSON.parse(storage.getItem('toan-learning-v1')).version,2);
+});
+
 test('learning store remains usable when browser storage throws',()=>{
   const storage={getItem(){throw Error('blocked')},setItem(){throw Error('blocked')},removeItem(){throw Error('blocked')}};
   const store=createLearningStore(storage),p=store.load();p.facts.x={strength:1};assert.doesNotThrow(()=>store.save(p));assert.equal(store.load().facts.x.strength,1);assert.doesNotThrow(()=>store.reset());

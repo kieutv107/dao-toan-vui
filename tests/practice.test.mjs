@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import {createProfile} from '../dist/mastery-engine.mjs';
 import {createPractice,current,answer,markHint} from '../dist/practice-engine.mjs';
 
-test('practice creates an 18-question mixed session without adjacent duplicates',()=>{
+test('practice creates an 18-question session from the current level without adjacent duplicates',()=>{
   const g=createPractice({profile:createProfile(),sessionId:'s1',random:()=>.2});
-  assert.equal(g.questions.length,18);assert.ok(g.questions.some(q=>q.sign==='+'));assert.ok(g.questions.some(q=>q.sign==='−'));
+  assert.equal(g.questions.length,18);assert.ok(g.questions.every(q=>q.sign==='+'));
   for(let i=1;i<g.questions.length;i++)assert.notEqual(g.questions[i].id,g.questions[i-1].id);
 });
 
