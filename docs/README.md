@@ -31,6 +31,15 @@ Chạy local bằng một static server trỏ vào `dist/`, ví dụ:
 python3 -m http.server -d dist
 ```
 
+## Deploy lên Vercel
+
+Cấu hình nằm trong `vercel.json` ở thư mục gốc: không có bước build, Vercel phục vụ trực tiếp thư mục `dist/` (`outputDirectory`). `.vercelignore` loại `tests/`, `docs/` khỏi bản upload.
+
+- Qua dashboard: Import repo → Framework Preset để **Other** → bấm Deploy (không cần chỉnh Build/Output, `vercel.json` đã khai báo).
+- Qua CLI: `npx vercel` (preview) hoặc `npx vercel --prod` (production).
+
+Tên file không có hash nên mọi file được gửi với `Cache-Control: max-age=0, must-revalidate` để trình duyệt luôn lấy phiên bản mới sau mỗi lần deploy.
+
 ## Nguyên tắc phát triển
 
 - Luật game nằm trong các module `*-engine.mjs` thuần, không truy cập DOM.
