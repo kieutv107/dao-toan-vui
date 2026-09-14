@@ -31,7 +31,7 @@
 Menu lấy từ mảng `modes` trong `dist/app.js`. Mỗi mode có `id`, `zone`, icon, tiêu đề, mô tả, tag, màu và nhãn CTA. Trang chủ chia hai khu, ngăn cách bằng đường nét đứt:
 
 - **Khu luyện tập** (`zone:'practice'`): Vườn luyện tập và Phiếu 20 phép, lưới 2 cột.
-- **Khu trò chơi** (`zone:'game'`) bên dưới: Mưa phép tính, Bắt bong bóng, Lật thẻ thần kỳ, Số nào trốn mất?, Số nào lớn hơn?, kèm thẻ lời khuyên lấp ô cuối lưới 3 cột.
+- **Khu trò chơi** (`zone:'game'`) bên dưới: Mưa phép tính, Bắt bong bóng, Lật thẻ thần kỳ, Số nào trốn mất?, Số nào lớn hơn?, Đúng hay sai?, kèm thẻ lời khuyên lấp ô cuối lưới 3 cột.
 
 Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Trên điện thoại (≤ 520 px) mỗi thẻ chiếm một dòng. Cuối trang chủ, dưới Khu trò chơi, có khối “Về dự án”: dự án cá nhân, phi lợi nhuận của một người bố có con trai học tiểu học; ứng dụng không cam kết điều gì và người dùng tự chịu trách nhiệm. Khối này chỉ có ở trang chủ, không nằm trong footer chung. Router hiện ánh xạ:
 
@@ -40,6 +40,7 @@ Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Trên điện 
 | `practice` | `mountPractice` |
 | `rain` | `mountRain` |
 | `compare` | `mountCompare` |
+| `truefalse` | `mountTrueFalse` |
 | `sheet` | `mountSheet` |
 | `bubble`, `memory`, `mystery` | `mountChallenge` |
 
@@ -47,7 +48,7 @@ Khi chuyển game hoặc về trang chủ, shell gọi cleanup của game đang 
 
 ### Kỷ lục
 
-- Các game có điểm (Bắt bong bóng, Tìm số bí ẩn, Phép tính tìm bạn, Mưa phép tính, Số nào lớn hơn?) hiện ô “Kỷ lục” trong HUD với kỷ lục trước lượt chơi. Khi đang chơi, ô này không đổi nhãn, màu hay giá trị dù bé đã vượt kỷ lục.
+- Các game có điểm (Bắt bong bóng, Tìm số bí ẩn, Phép tính tìm bạn, Mưa phép tính, Số nào lớn hơn?, Đúng hay sai?) hiện ô “Kỷ lục” trong HUD với kỷ lục trước lượt chơi. Khi đang chơi, ô này không đổi nhãn, màu hay giá trị dù bé đã vượt kỷ lục.
 - Khi lượt chơi kết thúc với điểm lớn hơn kỷ lục cũ, màn kết thúc ăn mừng: cúp 🏆 bật lên kèm vầng sáng, tiêu đề “Kỷ lục mới!” trồi lên và confetti rơi khắp màn hình (`celebrateRecord` trong `feedback.mjs`). Ô “Kỷ lục” trong HUD lúc đó mới cập nhật sang điểm mới.
 - Bảng “5 điểm cao nhất” ở màn kết thúc highlight điểm của lượt vừa chơi (nền vàng) và gắn nhãn “Lượt chơi hiện tại” cạnh điểm. Lượt không lọt top 5 thì không có dòng nào được highlight.
 
@@ -204,7 +205,40 @@ Mục tiêu: so sánh hai thẻ và chọn thẻ trên, thẻ dưới hoặc “
 - `Escape`: tạm dừng.
 - Tab bị ẩn sẽ tự tạm dừng.
 
-## 8. Phiếu 20 phép
+## 8. Đúng hay sai?
+
+Mục tiêu: nhìn một phép tính và chọn thật nhanh thẻ Đúng hoặc Sai.
+
+### Thời lượng và chặng
+
+- Mỗi lượt kéo dài 90 giây hoạt động; tạm dừng không làm giảm giờ.
+- Chặng mở theo thời gian đã chơi: 0–30 giây là chặng 1, 30–60 giây là chặng 2, từ giây 60 là chặng 3.
+- Mỗi round có xác suất 50% là phép tính đúng.
+- Chặng 1: `a ± b = c`, câu sai lệch 3–5. Chặng 2: câu sai lệch 1–2. Chặng 3: nửa số câu một vế lệch đúng 1, nửa còn lại hai vế `a ± b = c ± d` chênh 1–2.
+- Mọi số trong 0–20. Vế trái lấy từ learning service (context `truefalse`); vế phải của dạng hai vế do engine tạo và không trùng vế trái.
+
+### Thích ứng trong game
+
+- Hai câu sai liên tiếp hạ một chặng nếu có thể; sau khi bị hạ, ba câu đúng liên tiếp hồi một chặng.
+- Chặng không vượt chặng đồng hồ đã mở. Khi đồng hồ mở chặng mới trong lúc đang bị hạ, chặng thực tế tăng theo nhưng vẫn thấp hơn đúng mức đang bị hạ.
+
+### Điểm và feedback
+
+- Sai không trừ điểm, không trừ giờ, chỉ reset streak.
+- Đúng nhận 10 điểm, multiplier tăng mỗi 5 streak và tối đa 40 điểm.
+- Top 5 điểm được lưu riêng cho mode `truefalse`. Phép tính vế trái được ghi `review` khi round trả lời đúng.
+- Đúng: thẻ vừa chọn xanh, ✓ xanh lớn bật lên giữa ô chơi rồi mờ trong 600 ms; không hiện kết quả; lượt mới sau 450 ms.
+- Sai: ✗ trên thẻ đã chọn, thẻ còn lại xanh, một ô vàng nhỏ hiện kết quả thật ở giữa phía trên mỗi phép tính (dạng hai vế có hai ô). Không có dòng chữ; trình đọc màn hình nghe “Chưa đúng. 7 + 5 = 12”. Lượt mới sau 1 giây. Hạ chặng không có thông báo.
+- HUD có Điểm, Kỷ lục, Thời gian, Chuỗi đúng; không có ô chặng.
+
+### Input
+
+- Click/chạm thẻ Đúng hoặc Sai.
+- `ArrowLeft`: Đúng. `ArrowRight`: Sai.
+- `Escape`: tạm dừng.
+- Tab bị ẩn sẽ tự tạm dừng.
+
+## 9. Phiếu 20 phép
 
 Mục tiêu: một “tờ bài tập” điền cả 20 kết quả rồi chấm một lượt, dành cho lúc bé muốn làm bình tĩnh, không tương tác từng câu.
 
@@ -222,7 +256,7 @@ Mục tiêu: một “tờ bài tập” điền cả 20 kết quả rồi chấ
 - Mỗi câu ghi `correct` hoặc `wrong` (ô trống tính là sai) với context `sheet`, không có `elapsedMs`, nên câu đúng chỉ tăng strength 1 như câu đúng chậm: phiếu củng cố kiến thức, không tính là phản xạ.
 - Chấm lần hai không ghi thêm evidence.
 
-## 9. Học thích ứng và tiến độ dùng chung
+## 10. Học thích ứng và tiến độ dùng chung
 
 Mỗi phép tính có trạng thái `new`, `learning`, `strong` hoặc `mastered`. Các game gửi evidence theo context riêng để benchmark tốc độ phản hồi phù hợp từng kiểu chơi.
 
@@ -230,10 +264,11 @@ Mỗi phép tính có trạng thái `new`, `learning`, `strong` hoặc `mastered
 - Mưa, Bắt bong bóng và Số trốn mất ghi đúng/sai với context của game.
 - Lật thẻ ghi `review` cho cặp đúng.
 - Số nào lớn hơn ghi `review` cho phép tính trong round đúng.
+- Đúng hay sai ghi `review` cho phép tính vế trái trong round đúng.
 
 Tiến độ và bảng điểm lưu trên thiết bị hiện tại bằng `localStorage`; app không có tài khoản, đồng bộ cloud hoặc backend dữ liệu.
 
-## 10. Khả năng engine chưa được đăng ký trong menu
+## 11. Khả năng engine chưa được đăng ký trong menu
 
 `challenge-engine.mjs` và `challenge.mjs` vẫn chứa hai nhánh tương thích:
 

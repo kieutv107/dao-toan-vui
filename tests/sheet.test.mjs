@@ -60,7 +60,7 @@ test('sheet mode is registered and styled',async()=>{
     readFile(new URL('../dist/index.html',import.meta.url),'utf8')
   ]);
   assert.match(app,/id:'sheet'/);assert.match(app,/mountSheet/);
-  assert.match(index,/sheet\.css/);assert.match(index,/7 trò chơi/);
+  assert.match(index,/sheet\.css/);assert.match(index,/8 trò chơi/);
 });
 
 test('rows carry no question number',async()=>{

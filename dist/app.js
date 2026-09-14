@@ -2,6 +2,7 @@ import {mountRain} from './rain.mjs';
 import {mountPractice} from './practice.mjs';
 import {mountChallenge} from './challenge.mjs';
 import {mountCompare} from './compare.mjs';
+import {mountTrueFalse} from './truefalse.mjs';
 import {mountSheet} from './sheet.mjs';
 import {createLearningService} from './learning-service.mjs';
 import {createHighScoreStore} from './high-scores.mjs';
@@ -18,7 +19,8 @@ const modes=[
   {id:'bubble',zone:'game',icon:'🫧',title:'Bắt bong bóng',desc:'Tìm đáp án đúng, chạm và… bụp!',tag:'NHANH TAY · TINH MẮT',color:'blue',label:'Chơi ngay'},
   {id:'memory',zone:'game',icon:'🧩',title:'Lật thẻ thần kỳ',desc:'Ghép phép tính với đáp án. Thử tài trí nhớ!',tag:'GHI NHỚ · KHÁM PHÁ',color:'orange',label:'Lật thẻ'},
   {id:'mystery',zone:'game',icon:'🔎',title:'Số nào trốn mất?',desc:'Làm thám tử, tìm con số còn thiếu.',tag:'SUY LUẬN · TÌM TÒI',color:'pink',label:'Khám phá'},
-  {id:'compare',zone:'game',icon:'⚖️',title:'Số nào lớn hơn?',desc:'So sánh hai thẻ và tính thật nhanh!',tag:'SO SÁNH · TÍNH NHẨM',color:'purple',label:'So tài'}
+  {id:'compare',zone:'game',icon:'⚖️',title:'Số nào lớn hơn?',desc:'So sánh hai thẻ và tính thật nhanh!',tag:'SO SÁNH · TÍNH NHẨM',color:'purple',label:'So tài'},
+  {id:'truefalse',zone:'game',icon:'✅',title:'Đúng hay sai?',desc:'Nhìn phép tính, chọn Đúng hoặc Sai thật nhanh!',tag:'KIỂM TRA · TÍNH NHẨM',color:'yellow',label:'Thử tài'}
 ];
 const practiceModes=modes.filter(m=>m.zone==='practice'),gameModes=modes.filter(m=>m.zone==='game');
 function card(m,i){return `<button class="game-card ${m.color}" data-mode="${m.id}"><div class="card-top"><span class="game-icon">${m.icon}</span><span class="card-num">0${i+1}</span></div><span class="tag">${m.tag}</span><h3>${m.title}</h3><p>${m.desc}</p><span class="card-cta">${m.label} <span>↗</span></span></button>`}
@@ -41,6 +43,6 @@ function home(){
   app.querySelectorAll('[data-level]').forEach(b=>b.onclick=()=>start('practice',{focusLevel:Number(b.dataset.level)}));
   app.querySelector('#details-close').onclick=()=>{details.hidden=true;more.setAttribute('aria-expanded','false');more.focus()};
 }
-function start(id,{focusLevel}={}){stopGame?.();stopGame=null;const mode=modes.find(m=>m.id===id),common={settings,home,award,beep,learning,scores};stopGame=id==='rain'?mountRain(app,common):id==='practice'?mountPractice(app,{...common,startGame:start,games:gameModes,focusLevel}):id==='sheet'?mountSheet(app,{...common,startGame:start}):id==='compare'?mountCompare(app,common):mountChallenge(app,{...common,mode})}
+function start(id,{focusLevel}={}){stopGame?.();stopGame=null;const mode=modes.find(m=>m.id===id),common={settings,home,award,beep,learning,scores};stopGame=id==='rain'?mountRain(app,common):id==='practice'?mountPractice(app,{...common,startGame:start,games:gameModes,focusLevel}):id==='sheet'?mountSheet(app,{...common,startGame:start}):id==='compare'?mountCompare(app,common):id==='truefalse'?mountTrueFalse(app,common):mountChallenge(app,{...common,mode})}
 updateStars();updateSound();home();
 registerOffline(navigator);

@@ -62,6 +62,7 @@ Mỗi class màu khai báo bốn CSS custom properties: `--bg`, `--border`, `--a
 | Orange / Memory | `#fff2e6` | `#f1dec9` | `#ad6b24` | `#ffe5c4` |
 | Pink / Mystery | `#fff0f4` | `#f1d6e1` | `#b7557e` | `#ffdae9` |
 | Teal / Rain | `#e1f7f5` | `#b5e2dd` | `#126e71` | `#bde9e4` |
+| Yellow / Sheet, Đúng hay sai | `#fff9e3` | `#efe1ae` | `#8a6512` | `#ffeeb5` |
 
 Khi thêm mode, tạo palette đủ bốn biến và kiểm tra contrast cho chữ accent trên `--bg` và nền trắng.
 
@@ -83,7 +84,7 @@ Khi thêm mode, tạo palette đủ bốn biến và kiểm tra contrast cho ch�
 | `min-width: 1500px` | tăng top padding của main |
 | `max-width: 1200px` | main có margin ngang 32 px |
 | `max-width: 800px` | card còn 2 cột, hero nhỏ hơn, ẩn rocket track |
-| `max-width: 650px` | Rain chuyển sang một cột; Compare HUD còn 2 cột |
+| `max-width: 650px` | Rain chuyển sang một cột; HUD của Compare và Đúng hay sai còn 2 cột |
 | `max-width: 520px` | card trang chủ còn 1 cột (cả hai khu); header, card, play, equation, answers và kết quả thu gọn |
 
 Từ 520 px trở xuống, card trang chủ xếp 1 cột, mỗi card một dòng, và bỏ `min-height` của tiêu đề/mô tả (chỉ cần khi 2 card đứng cạnh nhau). Từ 521 đến 800 px vẫn 2 cột.
@@ -192,6 +193,7 @@ Không gắn hover translate cho control cần vị trí tuyệt đối trong ga
 | Record trophy | 1 s, vầng sáng 1,6 s lặp | cúp ở màn kết thúc có kỷ lục mới |
 | Record title | 500 ms, trễ 350 ms | tiêu đề “Kỷ lục mới!” |
 | Compare transition | 650 ms đúng, 1 s sai | giữ nhịp đọc feedback |
+| Đúng hay sai transition | 450 ms đúng, 1 s sai | ô kết quả chỉ hiện khi sai |
 
 `@media (prefers-reduced-motion: reduce)` tắt toàn bộ animation và transition, đồng thời ẩn confetti. Feature mới phải hoạt động đúng khi animation bị tắt.
 
@@ -204,6 +206,7 @@ Không gắn hover translate cho control cần vị trí tuyệt đối trong ga
 - Game có timer tự pause khi document bị ẩn.
 - Rain có keypad cảm ứng và mapping bàn phím đầy đủ.
 - Compare có mapping hướng vị trí rõ ràng.
+- Đúng hay sai: `ArrowLeft` là Đúng, `ArrowRight` là Sai, khớp vị trí hai thẻ.
 - Escape dùng nhất quán để pause ở các game có pause.
 - Game mới phải trả focus hợp lý sau intro, pause, restart và khi sinh câu mới.
 
