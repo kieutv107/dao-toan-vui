@@ -14,5 +14,5 @@
 .placement-offer-actions{display:flex;gap:10px;flex-wrap:wrap}
 .level-check{margin-top:14px;width:100%;padding:12px;border:2px dashed #cfe0ff;border-radius:14px;background:#f7faff;font-weight:700;cursor:pointer}
 .level-check:hover{background:#eef4ff}
-.play.placement{display:flex;flex-direction:column}.play.placement #placement-body{flex:1;display:flex;flex-direction:column;justify-content:center}.play.placement .equation{margin:18px 0}
+.play.placement{display:flex;flex-direction:column}.play.placement #placement-body{flex:1;display:flex;flex-direction:column;justify-content:center}.play.placement .equation{margin:18px 0}.play.placement .answers{width:100%}
 @media(max-width:520px){.cards,.cards.zone-practice{grid-template-columns:1fr}.game-card h3,.game-card p{min-height:0}}
