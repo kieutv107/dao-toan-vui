@@ -74,7 +74,7 @@ Khi thêm mode, tạo palette đủ bốn biến và kiểm tra contrast cho ch�
 - Main: rộng tối đa 1.136 px.
 - Play surface chung: rộng tối đa 900 px, min-height 550 px.
 - Rain surface: rộng tối đa 980 px vì có field và keypad song song.
-- Card grid desktop: 3 cột, gap 20 px. Khu luyện tập dùng 2 cột; Khu trò chơi 3 cột với 6 game; thẻ lời khuyên trải hết một hàng (`grid-column:1/-1`) thành dải ngang, chữ xếp một dòng và bỏ ngắt dòng.
+- Card grid desktop: 3 cột, gap 20 px. Khu luyện tập dùng 2 cột; Khu trò chơi 3 cột với 6 game; thẻ lời khuyên trải hết một hàng (`grid-column:1/-1`) thành dải ngang, chữ nằm trên một hàng khi đủ rộng và tự xuống dòng trên màn hình hẹp, bỏ ngắt dòng.
 - Mỗi khu có nhãn nhỏ viết hoa (`zone-label`, 11 px, letter-spacing 1,6 px) trên tiêu đề `h2`, không có dòng chú thích bên cạnh. Khu trò chơi cách khu luyện tập 44 px và một đường nét đứt `#e5dfef` 2 px.
 
 ### Breakpoints

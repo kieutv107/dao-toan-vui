@@ -10,15 +10,16 @@ Tài liệu này mô tả trạng thái đang chạy của Đảo Toán Vui. App
 
 ## Trạng thái sản phẩm
 
-App hiện có 7 game được đăng ký trong menu:
+App hiện có 8 game được đăng ký trong menu:
 
 1. Vườn luyện tập
-2. Mưa phép tính
-3. Bắt bong bóng
-4. Lật thẻ thần kỳ
-5. Số nào trốn mất?
-6. Số nào lớn hơn?
-7. Đúng hay sai?
+2. Phiếu 20 phép
+3. Mưa phép tính
+4. Bắt bong bóng
+5. Lật thẻ thần kỳ
+6. Số nào trốn mất?
+7. Số nào lớn hơn?
+8. Đúng hay sai?
 
 Mã nguồn nằm trực tiếp trong `dist/`; đây đồng thời là source và artifact được deploy. Không có package manager, bundler hay bước build. Chạy toàn bộ test bằng:
 

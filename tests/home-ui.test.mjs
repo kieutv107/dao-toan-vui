@@ -200,6 +200,8 @@ test('true-or-false intro and HUD leave out duration and stage',async()=>{
   const hud=game.match(/function hud\(\)\{([\s\S]*?)\n  \}/)?.[1]||'';
   assert.match(hud,/<span>Kỷ lục<\/span><b>\$\{bestAtStart\}<\/b>/);
   assert.doesNotMatch(hud,/Chặng|Độ khó|BẬC|new-record|Kỷ lục mới/);
+  assert.match(game,/id="tf-statement" role="group" aria-label="\$\{round\.left\.label\} = \$\{round\.right\.label\}"/);
+  assert.equal((game.match(/aria-describedby="tf-statement"/g)||[]).length,2);
 });
 
 test('true-or-false shows the real result only on a miss and holds for one second',async()=>{

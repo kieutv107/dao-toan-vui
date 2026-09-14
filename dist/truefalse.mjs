@@ -3,7 +3,7 @@ import {showCenterCheck,showMiss,announce,NEXT_DELAY_MS,celebrateRecord} from '.
 
 const MISS_DELAY_MS=1000;
 // An expression carries its real result, hidden until a miss; a plain number has none.
-const side=part=>part.kind==='fact'?`<span class="tf-part tf-expression"><span class="tf-result" hidden>${part.value}</span>${part.label}</span>`:`<span class="tf-part">${part.label}</span>`;
+const side=part=>part.kind==='fact'?`<span class="tf-part tf-expression" aria-hidden="true"><span class="tf-result" hidden>${part.value}</span>${part.label}</span>`:`<span class="tf-part" aria-hidden="true">${part.label}</span>`;
 
 export function mountTrueFalse(app,{home,award,beep,learning,scores}){
   const g=createTrueFalseGame(),$=selector=>app.querySelector(selector);
@@ -22,7 +22,7 @@ export function mountTrueFalse(app,{home,award,beep,learning,scores}){
 
   function newRound(){
     if(disposed||g.over)return;locked=false;delayAction=null;round=createTrueFalseRound(g,{fact:()=>learning.nextFact({context:'truefalse'})});
-    $('#tf-body').innerHTML=`<div class="play-label">LƯỢT ${g.attempts+1}</div><h2>Phép tính này đúng hay sai?</h2><div class="tf-card${round.right.kind==='fact'?' two-sided':''}">${side(round.left)}<span class="tf-equals">=</span>${side(round.right)}</div><div class="tf-choices"><button class="tf-choice" data-tf-choice="true"><b aria-hidden="true">✓</b> Đúng</button><button class="tf-choice" data-tf-choice="false"><b aria-hidden="true">✗</b> Sai</button></div><div class="sr-only" id="tf-feedback" role="status" aria-live="polite"></div>`;
+    $('#tf-body').innerHTML=`<div class="play-label">LƯỢT ${g.attempts+1}</div><h2>Phép tính này đúng hay sai?</h2><div class="tf-card${round.right.kind==='fact'?' two-sided':''}" id="tf-statement" role="group" aria-label="${round.left.label} = ${round.right.label}">${side(round.left)}<span class="tf-equals" aria-hidden="true">=</span>${side(round.right)}</div><div class="tf-choices"><button class="tf-choice" data-tf-choice="true" aria-describedby="tf-statement"><b aria-hidden="true">✓</b> Đúng</button><button class="tf-choice" data-tf-choice="false" aria-describedby="tf-statement"><b aria-hidden="true">✗</b> Sai</button></div><div class="sr-only" id="tf-feedback" role="status" aria-live="polite"></div>`;
     app.querySelectorAll('[data-tf-choice]').forEach(button=>button.onclick=()=>choose(button.dataset.tfChoice==='true'));hud();
   }
 
