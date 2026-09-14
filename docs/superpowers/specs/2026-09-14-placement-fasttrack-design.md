@@ -65,29 +65,55 @@ Engine API (pure functions, mirrors other engines):
 | `recordPlacement(state, correct)` | Advance the ladder; returns updated state (mutated in place, matching engine convention). |
 | `placementResult(state)` | `{done, level}`. |
 
-The controller supplies the actual questions: `learning.nextFact({focusLevel: placementStage(state), kind: 'new'})`. `focusLevel` already restricts selection to that stage, including locked ones (`dist/adaptive-selector.mjs:22-25`).
+The controller supplies the actual questions:
+
+```js
+learning.nextFact({ focusLevel: placementStage(state), context: 'placement', excludeIds: asked })
+```
+
+- `focusLevel` restricts selection to that stage, including locked ones (`dist/adaptive-selector.mjs:22-25`); every stage 1–5 always has forms, so a probe is always available.
+- **No `kind: 'new'`.** On a re-run the child has already played, so a stage may have zero `new` facts; `selectFact` with `focusLevel` is strict (no fallback outside the focus level) and would return `undefined`. Dropping `kind` draws any fact at that stage — seen or not — so placement works at any point in the profile's life.
+- `excludeIds: asked` (the ids probed so far this quiz) plus a dedicated `context: 'placement'` avoid repeats within the quiz.
+- **Probe answers do NOT record evidence.** The controller never calls `learning.record()` for a probe; probe results drive the ladder only. This keeps the quiz side-effect-free except for the final seeding, and it is what makes a wrong probe answer unable to lower any existing fact (see §5, monotonic re-run).
 
 ## 5. Seeding (`placeAt(level)`)
 
-New learning-service method. For every form **below** `level` (`formsBelowLevel(level)`), write fact state via a new `seedForm(profile, form, now)`:
+New learning-service method. Two guarantees drive its definition: **never overwrite real evidence** and **re-run is monotonic (only fast-tracks up, never resets or lowers)**.
+
+### 5.1 `seedForm(profile, form, now)` — fill blanks only
+
+`seedForm` seeds a form **only if it has no prior evidence** (`seen(state) === false`, i.e. status `new`). If the form already carries any evidence — weak or strong — it is **left untouched**. When it does seed, it writes:
 
 ```js
 { strength: 3, status: 'strong', correct: 1, wrong: 0, hints: 0,
   reviews: 0, fastSessions: [], lastSeen: now, dueAt: now }
 ```
 
-Then persist and record `toan-placement-v1 = {done:true, level, at: now}`.
+This means seeding can only *add* strong evidence to previously-blank facts; it can never reduce a mastered fact to strength 3, and it never fabricates over a fact the child has genuinely struggled with (that fact stays `learning`, and honestly so).
 
-Consequences (verified against current logic):
+### 5.2 `placeAt(level)` — monotonic placement
 
-- `ready(state)` is true for `strong`/`mastered`, so `levelReadiness` of every seeded stage = 100% ≥ `UNLOCK`.
-- `currentLevel()` walks up while readiness ≥ `UNLOCK` and therefore **returns `level` with no new field or floor logic** — placement falls out of the existing readiness walk. The stage at `level` itself is not seeded, so the child actually practices it.
-- `dueAt: now` makes each seeded fact **strong (unlocks the stage) but immediately due**, so the selector's review weighting (`+3 if due & seen`, `dist/adaptive-selector.mjs:36`) resurfaces them. A mis-placement self-corrects: a wrong answer drops strength and the fact falls back to `learning`.
+```
+effective = max(level, currentLevel(profile))     // never below where the child already is
+for each form in formsBelowLevel(effective): seedForm(form)   // fills blanks only
+persist profile
+toan-placement-v1 = { done: true, level: max(effective, prevStoredLevel), at: now }
+```
 
-Edge cases:
+`effective` clamps the requested level up to at least the current earned level, so a careless or unlucky re-run that computes a *lower* place is a no-op rather than a demotion.
 
-- `place === 1` → `formsBelowLevel(1)` is empty → nothing seeded, normal stage-1 start.
-- `place === 5` (`MIXED_LEVEL`) → seed stages 1–4; `currentLevel` caps at 5 as today.
+### 5.3 Consequences (verified against current logic)
+
+- `ready(state)` is true for `strong`/`mastered`, so `levelReadiness` of a fully-seeded stage = 100% ≥ `UNLOCK`.
+- `currentLevel()` walks up while readiness ≥ `UNLOCK` and therefore **returns `effective` with no new field or floor logic** — placement falls out of the existing readiness walk. The stage at `effective` itself is not seeded, so the child actually practices it.
+- `dueAt: now` makes each seeded fact **strong (unlocks the stage) but immediately due**, so the selector's review weighting (`+3 if due & seen`, `dist/adaptive-selector.mjs:36`) resurfaces it. A mis-placement self-corrects: a wrong answer during play drops strength and the fact falls back to `learning`.
+- **Monotonicity, end to end:** probe answers record no evidence (§4), seeding only fills blanks (§5.1), and `effective` never dips below `currentLevel` (§5.2). Together these make it impossible for a re-run to lower `currentLevel` or clobber any fact — it can only raise the level or do nothing.
+
+### 5.4 Edge cases
+
+- `place === 1` and `currentLevel === 1` → `formsBelowLevel(1)` is empty → nothing seeded, normal stage-1 start.
+- `place === 5` (`MIXED_LEVEL`) → seed blanks in stages 1–4; `currentLevel` caps at 5 as today.
+- Re-run after real play where a lower stage has weak (non-blank) evidence → those facts are preserved; the rest of that stage is filled, and if readiness still clears `UNLOCK` the level rises, otherwise it honestly stays (never drops).
 
 ## 6. Adaptive fast-track
 
@@ -117,7 +143,11 @@ All three knobs, in `dist/mastery-engine.mjs` and `dist/adaptive-selector.mjs`.
 ## 8. Testing (`node:test`, no DOM runner — per `docs/ENGINE.md` §10)
 
 - `tests/placement-engine.test.mjs` — ladder converges: all-correct → 5, all-wrong → 1, scripted mixed patterns → exact stage; question count ≤ 4; deterministic.
-- `tests/learning-service.test.mjs` — `placeAt(4)` ⇒ `currentLevel === 4`; forms below 4 are `strong` and due; stage-4 forms remain `new`; `placeAt(1)` seeds nothing.
+- `tests/learning-service.test.mjs`:
+  - `placeAt(4)` ⇒ `currentLevel === 4`; blank forms below 4 are `strong` and due; stage-4 forms remain `new`; `placeAt(1)` on a fresh profile seeds nothing.
+  - **Non-overwrite:** a lower-stage fact pre-set to `mastered` (strength 6) is unchanged after `placeAt`; a lower-stage fact with weak real evidence (`learning`) is left as `learning`, not raised to `strong`.
+  - **Monotonic re-run:** with `currentLevel === 4` from real play, `placeAt(2)` leaves `currentLevel === 4` (no demotion) and mutates no existing fact; `placeAt(5)` raises to 5 by filling only the blanks.
+  - **Probe fetch on a played profile:** `nextFact({focusLevel: s, context:'placement', excludeIds})` returns a fact for every stage 1–5 even when that stage has no `new` facts left.
 - `tests/mastery-engine.test.mjs` — clean first-try fast correct → `strong` in one rep; mastery reached at 2 fast sessions; wrong still caps strength at 4; non-clean fast correct still `+2`.
 - `tests/adaptive-selector.test.mjs` — stage unlocks at 0.6 readiness.
 - `tests/home-ui.test.mjs` — offer present on a fresh profile, hidden once `toan-placement-v1.done`, re-run button present in details.
