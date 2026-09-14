@@ -301,14 +301,14 @@ High score luôn chuẩn hóa score về số không âm, sort giảm dần, gi�
 
 | Hàm | Vai trò |
 | --- | --- |
-| `createPlacement()` | Khởi tạo state ladder `{lo:1, hi:5, place:1, step:0, done:false, level:null}` |
+| `createPlacement()` | Khởi tạo state ladder `{lo:1, hi:5, place:1, step:0, done:false, level:null, perStage:3, pass:2, hits:0, asked:0}` |
 | `placementStage(state)` | Trả chặng cần hỏi tiếp (`floor((lo+hi)/2)`), hoặc `null` nếu đã xong |
-| `recordPlacement(state, correct)` | Ghi nhận câu trả lời, cập nhật `lo`/`hi`/`place`, đặt `done=true` khi `lo > hi` |
+| `recordPlacement(state, correct)` | Ghi nhận một câu; sau đủ `perStage` câu ở chặng hiện tại, xét đa số (`hits >= pass`) để cập nhật `lo`/`hi`/`place`, đặt `done=true` khi `lo > hi` |
 | `placementResult(state)` | Trả `{done, level}` |
 
-Thuật toán binary search trên 5 chặng, tối đa 3 câu hỏi, mỗi chặng được hỏi tối đa một lần. Câu hỏi probe lấy qua `learning.nextFact({focusLevel:stage, context:'placement'})` — không gọi `learning.record()`, nên probe không ghi evidence vào profile.
+Thuật toán binary search trên 5 chặng, **mỗi chặng được hỏi `PER_STAGE` (mặc định 3) câu và tính là qua chặng khi đúng đa số (`PASS` = 2)**. Nhờ vậy kết quả phản ánh khả năng thật thay vì một câu may/rủi; mỗi chặng vẫn chỉ được thăm dò một lần và tổng số câu dao động trong khoảng 6–9 (dừng sớm khi đã rõ trình độ). Câu hỏi probe lấy qua `learning.nextFact({focusLevel:stage, context:'placement'})` — không gọi `learning.record()`, nên probe không ghi evidence vào profile.
 
-`placement.mjs` là controller: mount UI vào `#app`, gọi `ask()` → `render()` → `choose()` → `finish()`. Khi xong, gọi `learning.placeAt(placementResult(state).level)` và hiển thị chặng đã hạ cánh từ `learning.summary().level`.
+`placement.mjs` là controller: mount UI vào `#app`, gọi `ask()` → `render()` → `choose()` → `finish()`. Mỗi câu hiển thị nhãn “CÂU {step}” (không mẫu số vì tổng câu thay đổi theo trình độ) và phản hồi kiểu luyện tập qua `#feedback` (`success`/`miss`). Khi xong, gọi `learning.placeAt(placementResult(state).level)`, hiển thị chặng đã hạ cánh từ `learning.summary().level`, và có nút “↻ Làm lại bài test” (`restart()`) cạnh nút “Bắt đầu →”.
 
 Test: `tests/placement-engine.test.mjs`.
 
