@@ -271,7 +271,7 @@ weight = 1
 
 ### placeAt, skipPlacement, placement
 
-`placeAt(level)`: tính `target = max(level, currentLevel(profile))`, sau đó seed tất cả form còn `new` trong `formsBelowLevel(target)` (với `target = 5` thì seed form ở chặng 1–4 vì `formsBelowLevel(5)` không rỗng; hàm persist profile rồi ghi `toan-placement-v1 = {done:true, level:max(target, prevStoredLevel), at}`. Với profile đã có tiến độ thật, `currentLevel()` có thể lớn hơn `level` truyền vào, nên hàm không đảm bảo `currentLevel() === level` sau khi gọi.
+`placeAt(level)`: tính `target = max(level, currentLevel(profile))`, sau đó seed tất cả form còn `new` bên dưới `target`. Với `target` từ 1–4 dùng `formsBelowLevel(target)`; với `target = 5` (`MIXED_LEVEL`) không dùng `formsBelowLevel(5)` vì hàm này trả `[]`, mà dùng `coreForms()` lọc theo `level < 5` (tức tất cả form ở chặng 1–4). Cả hai nhánh đều seed đúng các chặng bên dưới target. Sau đó hàm persist profile rồi ghi `toan-placement-v1 = {done:true, level:max(target, prevStoredLevel), at}`. Với profile đã có tiến độ thật, `currentLevel()` có thể lớn hơn `level` truyền vào, nên hàm không đảm bảo `currentLevel() === level` sau khi gọi.
 
 `skipPlacement()`: ghi `toan-placement-v1 = {done:true, level:1, at}` mà không đụng đến facts.
 
