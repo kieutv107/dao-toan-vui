@@ -36,10 +36,10 @@ test('new profile starts at level one with addition only',()=>{
   for(let i=1;i<qs.length;i++)assert.notEqual(qs[i].id,qs[i-1].id);
 });
 
-test('seventy percent of a level unlocks the next one',()=>{
-  const p=createProfile();master(p,formsAtLevel(1),.6);
+test('sixty percent of a level unlocks the next one',()=>{
+  const p=createProfile();master(p,formsAtLevel(1),.5);
   assert.equal(currentLevel(p),1);
-  master(p,formsAtLevel(1),.7);assert.ok(levelReadiness(p,1)>=.7);assert.equal(currentLevel(p),2);
+  master(p,formsAtLevel(1),.6);assert.ok(levelReadiness(p,1)>=.6);assert.equal(currentLevel(p),2);
   master(p,formsAtLevel(2));assert.equal(currentLevel(p),3);
   master(p,formsAtLevel(3));assert.equal(currentLevel(p),4);
   master(p,formsAtLevel(4));assert.equal(currentLevel(p),5);
