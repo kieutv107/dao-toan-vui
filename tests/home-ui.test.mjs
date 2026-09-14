@@ -15,7 +15,7 @@ test('home introduces the current curriculum stage and lists every level',async(
 });
 
 test('home splits practice and worksheet into a practice zone above the game zone',async()=>{
-  const [app,style,rain]=await Promise.all(['app.js','style.css','rain.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
   const zones=Object.fromEntries([...app.matchAll(/\{id:'(\w+)',zone:'(\w+)'/g)].map(m=>[m[1],m[2]]));
   assert.deepEqual(zones,{practice:'practice',sheet:'practice',rain:'game',bubble:'game',memory:'game',mystery:'game',compare:'game',truefalse:'game'});
   const practiceZone=app.indexOf('KHU LUYỆN TẬP'),gameZone=app.indexOf('KHU TRÒ CHƠI');
@@ -28,8 +28,8 @@ test('home splits practice and worksheet into a practice zone above the game zon
   assert.match(style,/\.zone-games\{[^}]*border-top:2px dashed/);
   // on phones every card, in both zones, takes a full row; equal-height padding from the 2-column layout goes away
   assert.match(style,/@media\(max-width:520px\)\{\.cards,\.cards\.zone-practice\{grid-template-columns:1fr\}\.game-card h3,\.game-card p\{min-height:0\}\}\s*$/);
-  // five games plus the tip fill two rows of three, so the tip no longer spans a row of its own
-  assert.doesNotMatch(rain,/\.cards>\.tip\{grid-column:1\/-1/);
+  // six games leave the tip alone on the last row, so it spans the row as a slim band
+  assert.match(style,/\.cards>\.tip\{grid-column:1\/-1;/);
 });
 
 test('home ends with a non-profit, no-warranty disclaimer below the game zone',async()=>{
