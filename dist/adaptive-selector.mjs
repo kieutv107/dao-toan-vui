@@ -37,10 +37,12 @@ export function selectFact({profile,kind='normal',excludeIds=[],excludeAnswers=[
   for(let i=0;i<pool.length;i++){n-=weights[i];if(n<=0)return pool[i]}return pool.at(-1);
 }
 const SESSION_KINDS=['weak','weak','weak','weak','weak','weak','weak','learning','learning','learning','learning','learning','due','due','due','due','new','new'];
-export function buildPracticeSession({profile,random=Math.random,now=Date.now(),count=SESSION_KINDS.length,focusLevel}={}){
+export function buildPracticeSession({profile,random=Math.random,now=Date.now(),count=SESSION_KINDS.length,focusLevel,unique=false}={}){
   const kinds=Array.from({length:count},(_,i)=>SESSION_KINDS[i%SESSION_KINDS.length]),out=[],used=[];
   for(const kind of kinds){
     let q=selectFact({profile,kind,excludeIds:used,strict:true,focusLevel,random,now});
+    // unique sessions (the worksheet) never repeat: once the open curriculum runs out, borrow the next levels in order.
+    for(let level=(focusLevel??currentLevel(profile))+1;!q&&unique&&level<=MIXED_LEVEL;level++)q=selectFact({profile,excludeIds:used,focusLevel:level,random,now});
     if(!q)q=selectFact({profile,kind,excludeIds:used.slice(-3),strict:true,focusLevel,random,now});
     if(!q)q=selectFact({profile,excludeIds:used.slice(-1),focusLevel,random,now});
     out.push({...q});used.push(q.id);

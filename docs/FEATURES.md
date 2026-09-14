@@ -33,7 +33,7 @@ Menu lấy từ mảng `modes` trong `dist/app.js`. Mỗi mode có `id`, `zone`,
 - **Khu luyện tập** (`zone:'practice'`): Vườn luyện tập và Phiếu 20 phép, lưới 2 cột.
 - **Khu trò chơi** (`zone:'game'`) bên dưới: Mưa phép tính, Bắt bong bóng, Lật thẻ thần kỳ, Số nào trốn mất?, Số nào lớn hơn?, kèm thẻ lời khuyên lấp ô cuối lưới 3 cột.
 
-Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Router hiện ánh xạ:
+Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Trên điện thoại (≤ 520 px) mỗi thẻ chiếm một dòng. Router hiện ánh xạ:
 
 | Mode | Controller |
 | --- | --- |
@@ -210,7 +210,7 @@ Mục tiêu: một “tờ bài tập” điền cả 20 kết quả rồi chấ
 
 ### Flow
 
-1. `sheet-engine.mjs` lấy 20 câu qua `buildPracticeSession({count:20})`, nên theo đúng chặng giáo trình và tỉ lệ 75% trọng tâm / 25% ôn như Vườn luyện tập. Ở chặng 1 pool chỉ có 13 câu nên phiếu lặp vài câu, tránh lặp liền kề.
+1. `sheet-engine.mjs` lấy 20 câu qua `buildPracticeSession({count:20,unique:true})`, nên theo đúng chặng giáo trình và tỉ lệ 75% trọng tâm / 25% ôn như Vườn luyện tập. Một phiếu không bao giờ lặp phép tính. Ở chặng 1 pool chỉ có 13 câu, nên phiếu dùng đủ 13 câu đó rồi mượn 7 câu của chặng 2 (Số đôi và gần số đôi); chặng hiện tại không đổi.
 2. Lưới 3 cột (2 cột dưới 900px), mỗi dòng `a ± b =` và một ô `input type=number`, không đánh số câu. Phép tính là một flex row `justify-content:space-evenly` chiếm hết bề rộng còn lại của dòng, nên số hạng và dấu dàn đều từ mép trái tới ô nhập.
 3. Enter hoặc mũi tên xuống chuyển ô kế; mũi tên lên quay lại. Dòng trạng thái đếm số ô đã điền.
 4. “Chấm bài” chấm đúng một lần: ô đúng xanh có ✓, ô sai đỏ gạch ngang và hiện `✗ sai → đáp án`, ô trống hiện `trống → đáp án` (nhãn nằm dòng riêng dưới phép tính). Ô khóa lại; phiếu tự cuộn tới câu sai đầu tiên.

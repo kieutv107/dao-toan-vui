@@ -74,7 +74,7 @@ Khi thêm mode, tạo palette đủ bốn biến và kiểm tra contrast cho ch�
 - Play surface chung: rộng tối đa 900 px, min-height 550 px.
 - Rain surface: rộng tối đa 980 px vì có field và keypad song song.
 - Card grid desktop: 3 cột, gap 20 px. Khu luyện tập dùng 2 cột; Khu trò chơi 3 cột với 5 game và thẻ lời khuyên lấp ô cuối.
-- Mỗi khu có nhãn nhỏ viết hoa (`zone-label`, 11 px, letter-spacing 1,6 px) trên tiêu đề `h2`. Khu trò chơi cách khu luyện tập 44 px và một đường nét đứt `#e5dfef` 2 px.
+- Mỗi khu có nhãn nhỏ viết hoa (`zone-label`, 11 px, letter-spacing 1,6 px) trên tiêu đề `h2`, không có dòng chú thích bên cạnh. Khu trò chơi cách khu luyện tập 44 px và một đường nét đứt `#e5dfef` 2 px.
 
 ### Breakpoints
 
@@ -84,9 +84,9 @@ Khi thêm mode, tạo palette đủ bốn biến và kiểm tra contrast cho ch�
 | `max-width: 1200px` | main có margin ngang 32 px |
 | `max-width: 800px` | card còn 2 cột, hero nhỏ hơn, ẩn rocket track |
 | `max-width: 650px` | Rain chuyển sang một cột; Compare HUD còn 2 cột |
-| `max-width: 520px` | header, card, play, equation, answers và kết quả thu gọn |
+| `max-width: 520px` | card trang chủ còn 1 cột (cả hai khu); header, card, play, equation, answers và kết quả thu gọn |
 
-Mobile card grid hiện vẫn giữ 2 cột. Khi thêm copy dài phải kiểm tra chiều cao card ở 520 px trở xuống.
+Từ 520 px trở xuống, card trang chủ xếp 1 cột, mỗi card một dòng, và bỏ `min-height` của tiêu đề/mô tả (chỉ cần khi 2 card đứng cạnh nhau). Từ 521 đến 800 px vẫn 2 cột.
 
 ## 6. Components
 

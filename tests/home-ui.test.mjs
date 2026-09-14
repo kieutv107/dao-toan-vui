@@ -20,10 +20,14 @@ test('home splits practice and worksheet into a practice zone above the game zon
   assert.deepEqual(zones,{practice:'practice',sheet:'practice',rain:'game',bubble:'game',memory:'game',mystery:'game',compare:'game'});
   const practiceZone=app.indexOf('KHU LUYỆN TẬP'),gameZone=app.indexOf('KHU TRÒ CHƠI');
   assert.ok(practiceZone>0&&gameZone>practiceZone,'practice zone renders first');
+  // zone heads show only the small label and the title, no side subtitle
+  assert.doesNotMatch(app,/Không đếm giờ, không áp lực|Luôn luyện cộng & trừ trong phạm vi 20/);
   assert.match(app,/<section class="cards zone-practice" aria-label="Khu luyện tập">\$\{practiceModes\.map\(card\)\.join\(''\)\}<\/section>/);
   assert.match(app,/<section class="cards" aria-label="Khu trò chơi">\$\{gameModes\.map\(card\)\.join\(''\)\}<aside class="tip">/);
   assert.match(style,/\.cards\.zone-practice\{grid-template-columns:repeat\(2,1fr\)\}/);
   assert.match(style,/\.zone-games\{[^}]*border-top:2px dashed/);
+  // on phones every card, in both zones, takes a full row; equal-height padding from the 2-column layout goes away
+  assert.match(style,/@media\(max-width:520px\)\{\.cards,\.cards\.zone-practice\{grid-template-columns:1fr\}\.game-card h3,\.game-card p\{min-height:0\}\}\s*$/);
   // five games plus the tip fill two rows of three, so the tip no longer spans a row of its own
   assert.doesNotMatch(rain,/\.cards>\.tip\{grid-column:1\/-1/);
 });

@@ -4,12 +4,23 @@ import {readFile} from 'node:fs/promises';
 import {createProfile,recordEvidence} from '../dist/mastery-engine.mjs';
 import {formsAtLevel,formOf} from '../dist/core-facts.mjs';
 import {createSheet,setAnswer,filledCount,grade,SHEET_SIZE} from '../dist/sheet-engine.mjs';
+import {currentLevel} from '../dist/adaptive-selector.mjs';
 
-test('sheet holds twenty questions from the open curriculum without adjacent repeats',()=>{
-  const g=createSheet({profile:createProfile(),sessionId:'s',random:()=>.3});
+test('a level-one sheet uses all 13 level-one questions once and borrows 7 from level two instead of repeating',()=>{
+  const profile=createProfile(),g=createSheet({profile,sessionId:'s',random:()=>.3});
   assert.equal(SHEET_SIZE,20);assert.equal(g.questions.length,20);assert.equal(g.answers.length,20);
-  assert.ok(g.questions.every(q=>q.sign==='+'&&formOf(q).level===1));
-  for(let i=1;i<20;i++)assert.notEqual(g.questions[i].id,g.questions[i-1].id);
+  assert.equal(new Set(g.questions.map(q=>q.id)).size,20);
+  assert.equal(g.questions.filter(q=>formOf(q).level===1).length,13);
+  assert.equal(g.questions.filter(q=>formOf(q).level===2).length,7);
+  assert.equal(currentLevel(profile),1);
+});
+
+test('no sheet ever repeats a question, whatever the random draw',()=>{
+  const draws=[()=>0,()=>.999,()=>.5,...Array.from({length:30},()=>Math.random)];
+  for(const random of draws){
+    const g=createSheet({profile:createProfile(),sessionId:'s',random});
+    assert.equal(new Set(g.questions.map(q=>q.id)).size,20);
+  }
 });
 
 test('at a later level the sheet mixes the focus level with review',()=>{
