@@ -36,10 +36,10 @@ test('new profile starts at level one with addition only',()=>{
   for(let i=1;i<qs.length;i++)assert.notEqual(qs[i].id,qs[i-1].id);
 });
 
-test('seventy percent of a level unlocks the next one',()=>{
-  const p=createProfile();master(p,formsAtLevel(1),.6);
+test('sixty percent of a level unlocks the next one',()=>{
+  const p=createProfile();master(p,formsAtLevel(1),.5);
   assert.equal(currentLevel(p),1);
-  master(p,formsAtLevel(1),.7);assert.ok(levelReadiness(p,1)>=.7);assert.equal(currentLevel(p),2);
+  master(p,formsAtLevel(1),.6);assert.ok(levelReadiness(p,1)>=.6);assert.equal(currentLevel(p),2);
   master(p,formsAtLevel(2));assert.equal(currentLevel(p),3);
   master(p,formsAtLevel(3));assert.equal(currentLevel(p),4);
   master(p,formsAtLevel(4));assert.equal(currentLevel(p),5);
@@ -81,8 +81,8 @@ test('progress summary counts open forms and reports every level',()=>{
   assert.equal(s0.level,1);assert.equal(s0.total,9);assert.equal(s0.new,9);
   assert.equal(s0.levels.length,5);assert.deepEqual(s0.levels.map(l=>l.unlocked),[true,false,false,false,false]);
   recordEvidence(p,{fact:{a:1,b:9,sign:'+',answer:10},result:'correct',elapsedMs:1000,context:'practice',sessionId:'a'});
-  const s1=progressSummary(p);assert.equal(s1.learning,1);assert.equal(s1.levels[0].ready,0);
+  const s1=progressSummary(p);assert.equal(s1.strong,1);assert.equal(s1.levels[0].ready,1);
   master(p,formsAtLevel(1));const s2=progressSummary(p);
   assert.equal(s2.level,2);assert.equal(s2.levels[0].ready,9);assert.equal(s2.total,23);
-  assert.equal(getFactState(p,{a:9,b:1,sign:'+',answer:10}).status,'strong');
+  assert.equal(getFactState(p,{a:9,b:1,sign:'+',answer:10}).status,'mastered');
 });

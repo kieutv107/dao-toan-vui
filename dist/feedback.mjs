@@ -9,8 +9,15 @@ function insert(target,tag,className,text,hidden=true){
 }
 
 // One big check in the middle of the play surface; the ? box is left untouched.
-export function showCenterCheck(surface){
+// Pass an anchor element to float the check just above it instead of dead-centre.
+export function showCenterCheck(surface,anchor){
   const check=insert(surface,'i','fb-check fb-check-center','✓');
+  if(anchor){
+    check.classList.add('fb-check-above');
+    const s=surface.getBoundingClientRect(),a=anchor.getBoundingClientRect();
+    check.style.left=`${a.left+a.width/2-s.left-surface.clientLeft}px`;
+    check.style.top=`${a.top-s.top-surface.clientTop}px`;
+  }
   setTimeout(()=>check.remove(),CENTER_MS);
 }
 

@@ -1,7 +1,7 @@
 import {getFactState} from './mastery-engine.mjs';
 import {LEVELS,MIXED_LEVEL,coreForms,formsAtLevel,formsBelowLevel} from './core-facts.mjs';
 
-const UNLOCK=.7,FOCUS_SHARE=.75;
+const UNLOCK=.6,FOCUS_SHARE=.75;
 const ready=s=>['strong','mastered'].includes(s.status);
 function seen(s){return s.correct+s.wrong+s.hints+s.reviews>0}
 function formState(profile,form){return getFactState(profile,form.questions[0])}

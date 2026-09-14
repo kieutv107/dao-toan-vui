@@ -181,11 +181,14 @@ State của từng form:
 
 | Result | Ảnh hưởng |
 | --- | --- |
-| Correct nhanh | `correct +1`, `strength +2`, ghi session nhanh |
+| Correct nhanh, lần đầu sạch | `correct +1`, `strength +3`, ghi session nhanh |
+| Correct nhanh (không phải lần đầu sạch) | `correct +1`, `strength +2`, ghi session nhanh |
 | Correct chậm | `correct +1`, `strength +1` |
 | Wrong | `wrong +1`, `strength −1`, sàn 0 và trần sau sai là 4 |
 | Hint | `hints +1`, không tăng strength |
 | Review | `reviews +1`, không tăng strength |
+
+"Lần đầu sạch" là khi form chưa từng có evidence (`correct===0 && wrong===0 && hints===0`) và được trả lời nhanh — tức là lần đầu tiên làm form đó, không dùng gợi ý và trả lời đủ nhanh. Trường hợp này `strength +3`, đạt `strong` ngay trong một lần. Trần tổng `strength` là 6; trần sau sai là 4; không đổi.
 
 Một câu được coi là nhanh khi `elapsedMs` không vượt benchmark của đúng `context:band`.
 
@@ -199,8 +202,10 @@ Một câu được coi là nhanh khi `elapsedMs` không vượt benchmark của
 | --- | --- |
 | Chưa có evidence | `new` |
 | `strength ≤ 2` | `learning` |
-| `strength 3–4`, hoặc chưa đủ 3 fast session | `strong` |
-| `strength ≥ 5` và ít nhất 3 fast session | `mastered` |
+| `strength 3–4`, hoặc chưa đủ `MASTERY_SESSIONS` fast session | `strong` |
+| `strength ≥ 5` và ít nhất `MASTERY_SESSIONS` fast session | `mastered` |
+
+`MASTERY_SESSIONS = 2` (hằng số export từ `mastery-engine.mjs`, dùng bởi cả `statusOf` và `schedule`): cần 2 session nhanh riêng biệt để đạt `mastered`.
 
 ### Lịch ôn
 
@@ -212,7 +217,7 @@ Một câu được coi là nhanh khi `elapsedMs` không vượt benchmark của
 
 ## 6. Adaptive selector
 
-`currentLevel(profile)` bắt đầu ở chặng 1; chặng N+1 mở khi ít nhất 70% form của chặng N đạt `strong` hoặc `mastered` (`levelReadiness`). Tối đa chặng 5.
+`currentLevel(profile)` bắt đầu ở chặng 1; chặng N+1 mở khi ít nhất 60% form của chặng N đạt `strong` hoặc `mastered` (`levelReadiness`, hằng số `UNLOCK = 0.6`). Tối đa chặng 5.
 
 `selectFact()` mỗi lần gọi chọn pool **focus** (form của chặng hiện tại) với xác suất 75%, còn lại pool **review** (form các chặng trước); chặng 1 và chặng 5 không có review nên luôn focus. Từ pool form lấy ra các câu biến thể rồi lọc theo filter; thứ tự `a+b` / `b+a` ngẫu nhiên vì mỗi biến thể là một câu riêng nhưng chung tiến độ.
 
@@ -256,6 +261,21 @@ weight = 1
 | `save()` | Persist profile hiện tại |
 | `reset()` | Tạo profile mới và xóa storage |
 | `newSessionId()` | ID duy nhất theo timestamp + sequence |
+| `placeAt(level)` | Xếp lịch học từ chặng cho trước (xem bên dưới) |
+| `skipPlacement()` | Bỏ qua placement, ghi record tối thiểu |
+| `placement()` | Trả record placement đã lưu hoặc `null` |
+
+### seedForm (mastery-engine.mjs)
+
+`seedForm(profile, fact, now)` điền một form còn ở trạng thái `new` (chưa có evidence) với `{strength:3, status:'strong', correct:1, dueAt:now, lastSeen:now, ...}`. Nếu form đã có evidence (`correct + wrong + hints + reviews > 0`), hàm trả về state hiện tại mà không chạm vào dữ liệu — seeding chỉ thêm vào chỗ trống, không bao giờ ghi đè hay hạ cấp tiến độ thật.
+
+### placeAt, skipPlacement, placement
+
+`placeAt(level)`: tính `target = max(level, currentLevel(profile))`, sau đó seed tất cả form còn `new` bên dưới `target`. Với `target` từ 1–4 dùng `formsBelowLevel(target)`; với `target = 5` (`MIXED_LEVEL`) không dùng `formsBelowLevel(5)` vì hàm này trả `[]`, mà dùng `coreForms()` lọc theo `level < 5` (tức tất cả form ở chặng 1–4). Cả hai nhánh đều seed đúng các chặng bên dưới target. Sau đó hàm persist profile rồi ghi `toan-placement-v1 = {done:true, level:max(target, prevStoredLevel), at}`. Với profile đã có tiến độ thật, `currentLevel()` có thể lớn hơn `level` truyền vào, nên hàm không đảm bảo `currentLevel() === level` sau khi gọi.
+
+`skipPlacement()`: ghi `toan-placement-v1 = {done:true, level:1, at}` mà không đụng đến facts.
+
+`placement()`: trả record đang lưu hoặc `null`. Schema `toan-placement-v1` được quản lý hoàn toàn bởi learning service.
 
 ### Storage keys
 
@@ -265,12 +285,32 @@ weight = 1
 | `toan-high-scores-v1` | Top 5 điểm theo game |
 | `toan-stars` | Tổng sao toàn app |
 | `toan-sound` | Âm thanh `on`/`off`; thiếu key thì coi là bật |
+| `toan-placement-v1` | Record placement `{done, level, at}`; schema do learning service sở hữu |
 
 Storage module clone dữ liệu khi load/save, kiểm tra schema tối thiểu và tự phục hồi bằng memory fallback nếu JSON hỏng, API storage thiếu hoặc thao tác storage ném lỗi.
 
 High score luôn chuẩn hóa score về số không âm, sort giảm dần, giữ tối đa 5 giá trị. Chỉ score lớn hơn kỷ lục cũ và lớn hơn 0 mới là kỷ lục mới. `record(gameId, score)` trả về `{scores, newRecord, previousBest, rank}`; `rank` là vị trí của lượt vừa ghi trong `scores` (điểm bằng nhau thì lượt mới đứng sau lượt cũ) hoặc `-1` nếu không lọt top 5, dùng để highlight “Lượt chơi hiện tại” ở màn kết thúc.
 
 ## 8. Engine API theo game
+
+### Placement engine
+
+`placement-engine.mjs` (thuần) và `placement.mjs` (controller) triển khai kiểm tra trình độ đầu phiên.
+
+`placement-engine.mjs` là pure module: nhận state/input, trả state/result, không có DOM, timer hay storage.
+
+| Hàm | Vai trò |
+| --- | --- |
+| `createPlacement()` | Khởi tạo state ladder `{lo:1, hi:5, place:1, step:0, done:false, level:null, perStage:3, pass:2, hits:0, asked:0}` |
+| `placementStage(state)` | Trả chặng cần hỏi tiếp (`floor((lo+hi)/2)`), hoặc `null` nếu đã xong |
+| `recordPlacement(state, correct)` | Ghi nhận một câu; sau đủ `perStage` câu ở chặng hiện tại, xét đa số (`hits >= pass`) để cập nhật `lo`/`hi`/`place`, đặt `done=true` khi `lo > hi` |
+| `placementResult(state)` | Trả `{done, level}` |
+
+Thuật toán binary search trên 5 chặng, **mỗi chặng được hỏi `PER_STAGE` (mặc định 3) câu và tính là qua chặng khi đúng đa số (`PASS` = 2)**. Nhờ vậy kết quả phản ánh khả năng thật thay vì một câu may/rủi; mỗi chặng vẫn chỉ được thăm dò một lần và tổng số câu dao động trong khoảng 6–9 (dừng sớm khi đã rõ trình độ). Câu hỏi probe lấy qua `learning.nextFact({focusLevel:stage, context:'placement'})` — không gọi `learning.record()`, nên probe không ghi evidence vào profile.
+
+`placement.mjs` là controller: mount UI vào `#app`, gọi `ask()` → `render()` → `choose()` → `finish()`. Mỗi câu hiển thị nhãn “CÂU {step}” (không mẫu số vì tổng câu thay đổi theo trình độ) và phản hồi kiểu luyện tập qua `#feedback` (`success`/`miss`). Khi xong, gọi `learning.placeAt(placementResult(state).level)`, hiển thị chặng đã hạ cánh từ `learning.summary().level`, và có nút “↻ Làm lại bài test” (`restart()`) cạnh nút “Bắt đầu →”.
+
+Test: `tests/placement-engine.test.mjs`.
 
 ### Rain engine
 
@@ -355,4 +395,5 @@ Test dùng `node:test` và `node:assert/strict`; không có DOM test runner.
 - Engine test phải inject clock/random/fact supplier khi cần tính xác định.
 - Test ưu tiên hành vi: score, lives, progression, range, retry, storage recovery và cleanup state.
 - `home-ui.test.mjs` chỉ giữ một số guard tích hợp ở mức source cho registration, metadata và các quyết định UI từng bị regression.
+- `placement-engine.test.mjs` kiểm tra toàn bộ hành vi binary-search: path đúng hết, sai hết, sai rồi đúng, và giới hạn 3 câu / 1 lần mỗi chặng.
 - Mọi thay đổi engine phải chạy `node --test` toàn bộ trước khi deploy.

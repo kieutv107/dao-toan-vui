@@ -1,6 +1,9 @@
 import {createLearningStore} from './learning-store.mjs';
-import {recordEvidence} from './mastery-engine.mjs';
-import {selectFact,progressSummary} from './adaptive-selector.mjs';
+import {recordEvidence,seedForm} from './mastery-engine.mjs';
+import {selectFact,progressSummary,currentLevel} from './adaptive-selector.mjs';
+import {formsBelowLevel,MIXED_LEVEL,coreForms} from './core-facts.mjs';
+
+const PLACEMENT_KEY='toan-placement-v1';
 
 export function createLearningService({storage=globalThis.localStorage,now=Date.now,random=Math.random}={}){
   const store=createLearningStore(storage);let profile=store.load(),sequence=0;const lastSeen={};
@@ -16,6 +19,8 @@ export function createLearningService({storage=globalThis.localStorage,now=Date.
     if(q)lastSeen[context]=q.id;
     return q;
   }
+  function readPlacement(){try{const raw=storage?.getItem(PLACEMENT_KEY);if(raw){const v=JSON.parse(raw);if(v&&typeof v==='object')return v}}catch{}return null}
+  function writePlacement(rec){try{storage?.setItem(PLACEMENT_KEY,JSON.stringify(rec))}catch{}return rec}
   return {
     get profile(){return profile},
     summary(){return progressSummary(profile,now())},
@@ -24,6 +29,16 @@ export function createLearningService({storage=globalThis.localStorage,now=Date.
     record(event){const state=recordEvidence(profile,{now:now(),...event});store.save(profile);return state},
     save(){return store.save(profile)},
     reset(){profile=store.reset();for(const k in lastSeen)delete lastSeen[k];return profile},
-    newSessionId(){return `${now()}-${++sequence}`}
+    newSessionId(){return `${now()}-${++sequence}`},
+    placement(){return readPlacement()},
+    placeAt(level){
+      const at=now(),target=Math.max(level,currentLevel(profile));
+      const toSeed=target>=MIXED_LEVEL?coreForms().filter(f=>f.level<MIXED_LEVEL):formsBelowLevel(target);
+      for(const form of toSeed)seedForm(profile,form.questions[0],at);
+      store.save(profile);
+      const prevLevel=readPlacement()?.level||0;
+      return writePlacement({done:true,level:Math.max(target,prevLevel),at});
+    },
+    skipPlacement(){return writePlacement({done:true,level:1,at:now()})}
   };
 }

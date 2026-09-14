@@ -262,3 +262,31 @@ test('answer beep is a short ding, not a three-note fanfare',async()=>{
   assert.doesNotMatch(fn,/\[0,\.12,\.24\]/);
   assert.match(fn,/520/);assert.match(fn,/780/);assert.match(fn,/200/);
 });
+
+test('a first-run placement offer invites, starts or is skipped through the service',async()=>{
+  const app=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  // registered in the dispatcher
+  assert.match(app,/import \{mountPlacement\} from '\.\/placement\.mjs'/);
+  assert.match(app,/id==='placement'\?mountPlacement\(app,common\)/);
+  // offer only on a fresh profile that has not placed or skipped yet
+  assert.match(app,/const showOffer=started===0&&!learning\.placement\(\)/);
+  assert.match(app,/id="placement-start">Bắt đầu<\/button>/);
+  assert.match(app,/id="placement-skip">Bỏ qua<\/button>/);
+  assert.match(app,/Con muốn thử vài câu để bắt đầu đúng chỗ không\?/);
+  // start runs the quiz; skip goes through the service, never writing storage directly
+  assert.match(app,/#placement-start'\)\.onclick=\(\)=>start\('placement'\)/);
+  assert.match(app,/#placement-skip'\)\.onclick=\(\)=>\{learning\.skipPlacement\(\);home\(\)\}/);
+  assert.doesNotMatch(app,/setItem\('toan-placement-v1'/);
+});
+
+test('the journey details modal offers a re-run of the placement check',async()=>{
+  const app=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  assert.match(app,/id="placement-rerun">🧭 Kiểm tra trình độ<\/button>/);
+  assert.match(app,/#placement-rerun'\)\.onclick=\(\)=>start\('placement'\)/);
+});
+
+test('placement styles exist for the offer card and quiz screen',async()=>{
+  const style=await readFile(new URL('../dist/style.css',import.meta.url),'utf8');
+  assert.match(style,/\.placement-offer\{/);
+  assert.match(style,/\.placement-offer-actions\{/);
+});
