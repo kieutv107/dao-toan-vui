@@ -32,22 +32,28 @@ test('home splits practice and worksheet into a practice zone above the game zon
   assert.match(style,/\.cards>\.tip\{grid-column:1\/-1;/);
 });
 
-test('home ends with a non-profit, no-warranty disclaimer below the game zone',async()=>{
+test('home links to a non-profit, no-warranty disclaimer that opens in a modal',async()=>{
   const [app,index,style]=await Promise.all(['app.js','index.html','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
   const home=app.match(/function home\(\)\{[\s\S]*?\n\}/)?.[0]??'';
-  const disclaimer=home.match(/<aside class="disclaimer"[\s\S]*?<\/aside>/)?.[0]??'';
-  assert.ok(home.indexOf('class="disclaimer"')>home.indexOf('aria-label="Khu trò chơi"'),'sits after the game zone');
-  assert.match(disclaimer,/aria-labelledby="disclaimer-title"><b id="disclaimer-title">Về dự án<\/b>/);
-  for(const phrase of ['dự án cá nhân','phi lợi nhuận','một người bố có con trai đang học tiểu học','không cam kết bất kỳ điều gì','tự chịu trách nhiệm'])assert.ok(disclaimer.includes(phrase),phrase);
+  const dialog=home.match(/<dialog class="disclaimer-modal"[\s\S]*?<\/dialog>/)?.[0]??'';
+  assert.ok(home.indexOf('id="disclaimer-open"')>home.indexOf('aria-label="Khu trò chơi"'),'the trigger sits after the game zone');
+  assert.match(home,/id="disclaimer-open">Tuyên bố trách nhiệm<\/button>/,'a link, not a wall of text');
+  assert.match(dialog,/aria-labelledby="disclaimer-title"[\s\S]*<b id="disclaimer-title">Tuyên bố trách nhiệm<\/b>/);
+  for(const phrase of ['dự án cá nhân','phi lợi nhuận','một người bố có con đang học tiểu học','như hiện có','không chịu trách nhiệm','đồng ý với tuyên bố trách nhiệm'])assert.ok(dialog.includes(phrase),phrase);
+  assert.match(home,/#disclaimer-open'\)\.onclick=\(\)=>\w+\.showModal\(\)/,'clicking the link opens the modal');
   assert.doesNotMatch(index,/disclaimer/,'home only, not the shared footer');
-  assert.match(style,/\.disclaimer\{[^}]*border-top:2px dashed #e5dfef/);
+  assert.match(style,/\.disclaimer-modal::backdrop\{/);
 });
 
-test('progress details close with a button and no longer offer a data reset',async()=>{
+test('progress details open in a modal that closes with a button, backdrop or Esc',async()=>{
   const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
-  assert.match(app,/<div class="journey-details" id="journey-details" hidden><div class="details-head"><strong>Chi tiết hành trình<\/strong><button class="details-close" id="details-close" aria-label="Đóng chi tiết">✕<\/button><\/div>/);
-  assert.match(app,/app\.querySelector\('#details-close'\)\.onclick=\(\)=>\{details\.hidden=true;more\.setAttribute\('aria-expanded','false'\);more\.focus\(\)\}/);
+  assert.match(app,/<dialog class="journey-modal" id="journey-details" aria-labelledby="journey-details-title"><div class="details-head"><strong id="journey-details-title">Chi tiết hành trình<\/strong><button class="details-close" id="details-close" aria-label="Đóng chi tiết">✕<\/button><\/div><div class="journey-details-body">/);
+  assert.match(app,/more\.onclick=\(\)=>\{details\.showModal\(\);more\.setAttribute\('aria-expanded','true'\)\}/,'the link opens the modal');
+  assert.match(app,/details\.addEventListener\('close',\(\)=>\{more\.setAttribute\('aria-expanded','false'\);more\.focus\(\)\}\)/,'every close path resets the trigger and returns focus');
+  assert.match(app,/app\.querySelector\('#details-close'\)\.onclick=\(\)=>details\.close\(\)/);
+  assert.match(app,/details\.onclick=e=>\{if\(e\.target===details\)details\.close\(\)\}/,'a backdrop click closes it');
   assert.doesNotMatch(app,/reset-progress|Đặt lại dữ liệu|learning\.reset\(\)|scores\.reset\(\)/);
+  assert.match(style,/\.journey-modal::backdrop\{/);
   assert.match(style,/\.details-close\{/);
   assert.doesNotMatch(style,/\.reset-progress/);
 });

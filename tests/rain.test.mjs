@@ -71,6 +71,16 @@ test('adaptive suppliers create normal drops and hardest gold drops',()=>{
   g.solved=6;g.spawnIn=0;g.goldGap=0;engine.advance(g,.1,()=>0,{normalFact:()=>normal,hardestFact:()=>hard});assert.equal(g.drops.find(x=>x.special).factId,'hard');
 });
 
+test('a new drop never duplicates an equation already falling',()=>{
+  const facts=[{a:1,b:1,sign:'+',answer:2,id:'a'},{a:1,b:2,sign:'+',answer:3,id:'b'},{a:1,b:3,sign:'+',answer:4,id:'c'}];
+  const supplier=exclude=>facts.find(f=>!(exclude||[]).includes(f.id))||facts[0];
+  const g=engine.createGame();g.solved=18; // level 4 lets three drops share the field
+  for(let i=0;i<3;i++){g.spawnIn=0;engine.advance(g,0,()=>.9,{normalFact:supplier,hardestFact:supplier})}
+  const ids=g.drops.map(d=>d.factId);
+  assert.ok(ids.length>1,'several drops coexist at this level');
+  assert.equal(new Set(ids).size,ids.length,'no two on-screen drops share an equation');
+});
+
 test('learning evidence returns only the correctly targeted drop',()=>{
   const g=engine.createGame();g.drops=[{id:1,answer:5,y:.8},{id:2,answer:5,y:.2},{id:3,answer:9,y:.1,special:true}];
   const ordinary=engine.submit(g,'5');assert.equal(engine.learningFact(ordinary).id,1);

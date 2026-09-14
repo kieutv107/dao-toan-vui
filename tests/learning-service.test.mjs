@@ -24,3 +24,17 @@ test('service supplies normal and hardest adaptive facts',()=>{
   learning.record({fact:weak,result:'wrong',context:'practice',sessionId:'a'});
   assert.ok(learning.nextFact({context:'bubble'}).id);assert.equal(formKey(learning.hardestFact({context:'rain'})),formKey(weak));
 });
+
+test('a game never poses the same equation twice in a row within one context',()=>{
+  // random:()=>0 makes the weighted pick fully deterministic, so without the guard every draw
+  // would return the very same fact.
+  const learning=createLearningService({storage:storage(),random:()=>0});
+  let prev=null;
+  for(let i=0;i<12;i++){const q=learning.nextFact({context:'bubble'});assert.ok(q?.id);assert.notEqual(q.id,prev,'no consecutive repeat');prev=q.id}
+});
+
+test('the no-repeat guard is scoped per context',()=>{
+  const learning=createLearningService({storage:storage(),random:()=>0});
+  // independent memory per context: two different games may each open on the same first fact
+  assert.equal(learning.nextFact({context:'rain'}).id,learning.nextFact({context:'compare'}).id);
+});

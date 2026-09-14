@@ -25,7 +25,9 @@ export function advance(g,dt,random=Math.random,{normalFact,hardestFact}={}) {
     const limit=Math.min(g.limit,10+(d.level-1)*2);
     const special=d.maxDrops>1&&g.drops.length>0&&g.goldGap===0&&!g.drops.some(x=>x.special)&&random()<d.goldChance;
     g.goldGap=special?5:Math.max(0,g.goldGap-1);
-    const fact=(special?hardestFact?.():normalFact?.())||question(limit,g.op);
+    // Skip equations already on screen so two identical drops never fall together.
+    const busy=g.drops.map(x=>x.factId);
+    const fact=(special?hardestFact?.(busy):normalFact?.(busy))||question(limit,g.op);
     g.drops.push({...fact,factId:fact.id,id:g.nextId++,lane,y:0,special});
     g.spawnIn=d.interval;
   }
