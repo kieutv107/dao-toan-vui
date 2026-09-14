@@ -11,16 +11,19 @@ flowchart TD
   Shell --> Rain[rain.mjs]
   Shell --> Challenge[challenge.mjs]
   Shell --> Compare[compare.mjs]
+  Shell --> TrueFalse[truefalse.mjs]
 
   Practice --> PracticeEngine[practice-engine.mjs]
   Rain --> RainEngine[rain-engine.mjs]
   Challenge --> ChallengeEngine[challenge-engine.mjs]
   Compare --> CompareEngine[compare-engine.mjs]
+  TrueFalse --> TrueFalseEngine[truefalse-engine.mjs]
 
   Practice --> Learning[learning-service.mjs]
   Rain --> Learning
   Challenge --> Learning
   Compare --> Learning
+  TrueFalse --> Learning
   Learning --> Selector[adaptive-selector.mjs]
   Learning --> Mastery[mastery-engine.mjs]
   Learning --> LearningStore[learning-store.mjs]
@@ -66,6 +69,7 @@ Mỗi controller tuân theo lifecycle:
 | `rain.mjs` | `requestAnimationFrame` | cancel frame, feedback timeout, keyboard và visibility listener |
 | `challenge.mjs` | `setInterval(..., 100)` | clear interval, pending delay, keyboard và visibility listener |
 | `compare.mjs` | `requestAnimationFrame` | cancel frame, pending delay, keyboard và visibility listener |
+| `truefalse.mjs` | `requestAnimationFrame` | cancel frame, pending delay, keyboard và visibility listener |
 | `practice.mjs` | `setTimeout` khi chuyển câu | clear timeout và keyboard listener |
 
 Các controller chặn double submit bằng `locked`, `bad`, `paused`, `disposed` và `g.over` tùy flow.
@@ -323,13 +327,25 @@ State được mutate tại chỗ. `advance` nhận random và fact supplier đ�
 | `createCompareRound(g, suppliers)` | Sinh number/mixed/fact round và đáp án |
 | `reviewFacts(round, correct)` | Facts đủ điều kiện ghi review |
 
+### True/false engine
+
+| Hàm | Vai trò |
+| --- | --- |
+| `createTrueFalseGame()` | Khởi tạo run 90 giây |
+| `unlockedTrueFalseStage(g)` | Stage mở theo thời gian đã chơi 0/30/60 giây |
+| `trueFalseStage(g)` | Stage thực tế sau penalty |
+| `recordTrueFalseAnswer(g, good)` | Score, streak, hạ/hồi stage |
+| `elapseTrueFalse(g, seconds)` | Đếm active time |
+| `createTrueFalseRound(g, suppliers)` | Vế trái từ fact supplier, vế phải là số hoặc phép tính, và `truth` |
+| `reviewFacts(round, correct)` | Phép tính vế trái khi round đúng |
+
 ## 9. Timer và pause
 
 - Controller tự quản lý wall-clock; engine chỉ nhận delta giây.
 - Rain giới hạn mỗi frame delta tối đa 0,1 giây để tránh giọt nhảy xa sau lag.
 - Challenge giới hạn tick delta tối đa 0,25 giây.
-- Compare cố ý dùng toàn bộ active frame delta để đồng hồ 120 giây không bị kéo dài khi tab/frame chậm.
-- Khi document bị ẩn, Rain, Challenge và Compare tự pause.
+- Compare và Đúng hay sai cố ý dùng toàn bộ active frame delta để đồng hồ 90 giây không bị kéo dài khi tab/frame chậm.
+- Khi document bị ẩn, Rain, Challenge, Compare và Đúng hay sai tự pause.
 - Pending feedback delay chỉ chạy khi game không pause.
 
 ## 10. Testing contract

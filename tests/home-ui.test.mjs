@@ -15,9 +15,9 @@ test('home introduces the current curriculum stage and lists every level',async(
 });
 
 test('home splits practice and worksheet into a practice zone above the game zone',async()=>{
-  const [app,style,rain]=await Promise.all(['app.js','style.css','rain.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
   const zones=Object.fromEntries([...app.matchAll(/\{id:'(\w+)',zone:'(\w+)'/g)].map(m=>[m[1],m[2]]));
-  assert.deepEqual(zones,{practice:'practice',sheet:'practice',rain:'game',bubble:'game',memory:'game',mystery:'game',compare:'game'});
+  assert.deepEqual(zones,{practice:'practice',sheet:'practice',rain:'game',bubble:'game',memory:'game',mystery:'game',compare:'game',truefalse:'game'});
   const practiceZone=app.indexOf('KHU LUYỆN TẬP'),gameZone=app.indexOf('KHU TRÒ CHƠI');
   assert.ok(practiceZone>0&&gameZone>practiceZone,'practice zone renders first');
   // zone heads show only the small label and the title, no side subtitle
@@ -28,8 +28,8 @@ test('home splits practice and worksheet into a practice zone above the game zon
   assert.match(style,/\.zone-games\{[^}]*border-top:2px dashed/);
   // on phones every card, in both zones, takes a full row; equal-height padding from the 2-column layout goes away
   assert.match(style,/@media\(max-width:520px\)\{\.cards,\.cards\.zone-practice\{grid-template-columns:1fr\}\.game-card h3,\.game-card p\{min-height:0\}\}\s*$/);
-  // five games plus the tip fill two rows of three, so the tip no longer spans a row of its own
-  assert.doesNotMatch(rain,/\.cards>\.tip\{grid-column:1\/-1/);
+  // six games leave the tip alone on the last row, so it spans the row as a slim band
+  assert.match(style,/\.cards>\.tip\{grid-column:1\/-1;/);
 });
 
 test('home links to a non-profit, no-warranty disclaimer that opens in a modal',async()=>{
@@ -103,7 +103,7 @@ test('journey card invites the child to practice with an animated CTA',async()=>
 const read=file=>readFile(new URL(`../dist/${file}`,import.meta.url),'utf8');
 
 test('in-game HUDs show only the best score from before the run',async()=>{
-  const [challenge,rain,...css]=await Promise.all(['challenge.mjs','rain.mjs','challenge.css','rain.css','compare.css'].map(read));
+  const [challenge,rain,...css]=await Promise.all(['challenge.mjs','rain.mjs','challenge.css','rain.css','compare.css','truefalse.css'].map(read));
   const hud=challenge.match(/function hud\(\)\{[^\n]*/)?.[0]??'',stats=rain.match(/function stats\(\)\{[^\n]*/)?.[0]??'';
   assert.match(hud,/<span>Kỷ lục<\/span><b>\$\{bestAtStart\}<\/b>/);
   assert.match(stats,/\$\('#rain-record'\)\.textContent=bestAtStart;/);
@@ -114,7 +114,7 @@ test('in-game HUDs show only the best score from before the run',async()=>{
 });
 
 test('every game celebrates a new record only on its finish screen',async()=>{
-  for(const [file,fn] of [['challenge.mjs','finish'],['compare.mjs','finish'],['rain.mjs','end']]){
+  for(const [file,fn] of [['challenge.mjs','finish'],['compare.mjs','finish'],['truefalse.mjs','finish'],['rain.mjs','end']]){
     const source=await read(file);
     const body=source.match(new RegExp(`function ${fn}\\(\\)\\{[\\s\\S]*?\\n  (?:\\}|function|//)`))?.[0]??'';
     assert.match(source,/import \{[^}]*celebrateRecord[^}]*\} from '\.\/feedback\.mjs'/,file);
@@ -127,7 +127,7 @@ test('every game celebrates a new record only on its finish screen',async()=>{
 });
 
 test('finish screens highlight this run in the top five with a "Lượt chơi hiện tại" label',async()=>{
-  for(const [file,fn,index] of [['challenge.mjs','finish','i'],['compare.mjs','finish','index'],['rain.mjs','end','i']]){
+  for(const [file,fn,index] of [['challenge.mjs','finish','i'],['compare.mjs','finish','index'],['truefalse.mjs','finish','index'],['rain.mjs','end','i']]){
     const source=await read(file);
     const body=source.match(new RegExp(`function ${fn}\\(\\)\\{[\\s\\S]*?\\n  (?:\\}|function|//)`))?.[0]??'';
     assert.match(body,new RegExp(`${index}===\\w+\\.rank\\?\`<span class="current-run">`),file);
@@ -144,7 +144,7 @@ test('greater-number game is registered and styled',async()=>{
     readFile(new URL('../dist/index.html',import.meta.url),'utf8')
   ]);
   assert.match(app,/id:'compare'/);assert.match(app,/mountCompare/);
-  assert.match(index,/compare\.css/);assert.match(index,/7 trò chơi/);
+  assert.match(index,/compare\.css/);assert.match(index,/8 trò chơi/);
 });
 
 test('obstacle runner is absent from the island',async()=>{
@@ -188,6 +188,45 @@ test('greater-number timer counts the full active frame interval',async()=>{
   const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
   assert.match(source,/const dt=last\?\(now-last\)\/1000:0/);
   assert.doesNotMatch(source,/Math\.min\(\.25,\(now-last\)\/1000\)/);
+});
+
+test('true-or-false game is registered and styled',async()=>{
+  const [app,index]=await Promise.all(['app.js','index.html'].map(read));
+  assert.match(app,/\{id:'truefalse',zone:'game',icon:'✅',title:'Đúng hay sai\?'[^}]*color:'yellow'/);
+  assert.match(app,/import \{mountTrueFalse\} from '\.\/truefalse\.mjs';/);
+  assert.match(app,/id==='truefalse'\?mountTrueFalse\(app,common\)/);
+  assert.match(index,/<link rel="stylesheet" href="truefalse\.css\?v=2">/);
+});
+
+test('true-or-false intro and HUD leave out duration and stage',async()=>{
+  const [app,game]=await Promise.all(['app.js','truefalse.mjs'].map(read));
+  assert.match(game,/>Bắt đầu →<\/button>/);
+  assert.doesNotMatch(game,/90 giây|Bắt đầu 90/);
+  assert.doesNotMatch(app,/thật nhanh trong/);
+  const hud=game.match(/function hud\(\)\{([\s\S]*?)\n  \}/)?.[1]||'';
+  assert.match(hud,/<span>Kỷ lục<\/span><b>\$\{bestAtStart\}<\/b>/);
+  assert.doesNotMatch(hud,/Chặng|Độ khó|BẬC|new-record|Kỷ lục mới/);
+  assert.match(game,/id="tf-statement" role="group" aria-label="\$\{round\.left\.label\} = \$\{round\.right\.label\}"/);
+  assert.equal((game.match(/aria-describedby="tf-statement"/g)||[]).length,2);
+});
+
+test('true-or-false shows the real result only on a miss and holds for one second',async()=>{
+  const game=await read('truefalse.mjs');
+  assert.match(game,/const MISS_DELAY_MS=1000;/);
+  assert.match(game,/<span class="tf-result" hidden>\$\{part\.value\}<\/span>/);
+  const choose=game.match(/function choose\(saidTrue\)\{([\s\S]*?)\n  \}/)?.[1]||'';
+  const [hit,miss='']=choose.split('}else{');
+  assert.doesNotMatch(hit,/tf-result/);
+  assert.match(hit,/delayLeft=NEXT_DELAY_MS\/1000/);
+  assert.match(miss,/\.tf-result'\)\.forEach\(result=>result\.hidden=false\)/);
+  assert.match(miss,/delayLeft=MISS_DELAY_MS\/1000/);
+  assert.doesNotMatch(game,/Mình thử câu tiếp|Mình giảm một bậc/);
+});
+
+test('true-or-false counts the full frame interval and maps ArrowRight to true',async()=>{
+  const game=await read('truefalse.mjs');
+  assert.match(game,/const dt=last\?\(now-last\)\/1000:0/);
+  assert.match(game,/choose\(event\.key==='ArrowRight'\)/);
 });
 
 test('Nunito starts from HTML preconnects instead of a CSS import',async()=>{

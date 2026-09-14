@@ -10,14 +10,16 @@ Tài liệu này mô tả trạng thái đang chạy của Đảo Toán Vui. App
 
 ## Trạng thái sản phẩm
 
-App hiện có 6 game được đăng ký trong menu:
+App hiện có 8 game được đăng ký trong menu:
 
 1. Vườn luyện tập
-2. Mưa phép tính
-3. Bắt bong bóng
-4. Lật thẻ thần kỳ
-5. Số nào trốn mất?
-6. Số nào lớn hơn?
+2. Phiếu 20 phép
+3. Mưa phép tính
+4. Bắt bong bóng
+5. Lật thẻ thần kỳ
+6. Số nào trốn mất?
+7. Số nào lớn hơn?
+8. Đúng hay sai?
 
 Mã nguồn nằm trực tiếp trong `dist/`; đây đồng thời là source và artifact được deploy. Không có package manager, bundler hay bước build. Chạy toàn bộ test bằng:
 
@@ -65,6 +67,7 @@ Tên file không có hash nên mọi file được gửi với `Cache-Control: m
 | Vườn luyện tập | `dist/practice-engine.mjs`, `dist/practice.mjs` |
 | Bong bóng, số trốn mất, lật thẻ | `dist/challenge-engine.mjs`, `dist/challenge.mjs`, `dist/challenge.css` |
 | Số nào lớn hơn | `dist/compare-engine.mjs`, `dist/compare.mjs`, `dist/compare.css` |
+| Đúng hay sai | `dist/truefalse-engine.mjs`, `dist/truefalse.mjs`, `dist/truefalse.css` |
 | Nền tảng giao diện | `dist/style.css` |
 | Kiểm thử | `tests/*.test.mjs` |
 
