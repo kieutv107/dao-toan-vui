@@ -32,6 +32,17 @@ test('home splits practice and worksheet into a practice zone above the game zon
   assert.doesNotMatch(rain,/\.cards>\.tip\{grid-column:1\/-1/);
 });
 
+test('home ends with a non-profit, no-warranty disclaimer below the game zone',async()=>{
+  const [app,index,style]=await Promise.all(['app.js','index.html','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const home=app.match(/function home\(\)\{[\s\S]*?\n\}/)?.[0]??'';
+  const disclaimer=home.match(/<aside class="disclaimer"[\s\S]*?<\/aside>/)?.[0]??'';
+  assert.ok(home.indexOf('class="disclaimer"')>home.indexOf('aria-label="Khu trò chơi"'),'sits after the game zone');
+  assert.match(disclaimer,/aria-labelledby="disclaimer-title"><b id="disclaimer-title">Về dự án<\/b>/);
+  for(const phrase of ['dự án cá nhân','phi lợi nhuận','một người bố có con trai đang học tiểu học','không cam kết bất kỳ điều gì','tự chịu trách nhiệm'])assert.ok(disclaimer.includes(phrase),phrase);
+  assert.doesNotMatch(index,/disclaimer/,'home only, not the shared footer');
+  assert.match(style,/\.disclaimer\{[^}]*border-top:2px dashed #e5dfef/);
+});
+
 test('progress details close with a button and no longer offer a data reset',async()=>{
   const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
   assert.match(app,/<div class="journey-details" id="journey-details" hidden><div class="details-head"><strong>Chi tiết hành trình<\/strong><button class="details-close" id="details-close" aria-label="Đóng chi tiết">✕<\/button><\/div>/);

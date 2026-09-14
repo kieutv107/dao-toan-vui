@@ -33,7 +33,7 @@ Menu lấy từ mảng `modes` trong `dist/app.js`. Mỗi mode có `id`, `zone`,
 - **Khu luyện tập** (`zone:'practice'`): Vườn luyện tập và Phiếu 20 phép, lưới 2 cột.
 - **Khu trò chơi** (`zone:'game'`) bên dưới: Mưa phép tính, Bắt bong bóng, Lật thẻ thần kỳ, Số nào trốn mất?, Số nào lớn hơn?, kèm thẻ lời khuyên lấp ô cuối lưới 3 cột.
 
-Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Trên điện thoại (≤ 520 px) mỗi thẻ chiếm một dòng. Router hiện ánh xạ:
+Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Trên điện thoại (≤ 520 px) mỗi thẻ chiếm một dòng. Cuối trang chủ, dưới Khu trò chơi, có khối “Về dự án”: dự án cá nhân, phi lợi nhuận của một người bố có con trai học tiểu học; ứng dụng không cam kết điều gì và người dùng tự chịu trách nhiệm. Khối này chỉ có ở trang chủ, không nằm trong footer chung. Router hiện ánh xạ:
 
 | Mode | Controller |
 | --- | --- |
