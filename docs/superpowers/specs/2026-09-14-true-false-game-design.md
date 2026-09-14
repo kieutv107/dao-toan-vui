@@ -46,7 +46,7 @@ Giữ cơ chế của Số nào lớn hơn?:
 
 - Màn chơi dùng màu `yellow`, khung giống Số nào lớn hơn?: thanh trên có “← Đảo trò chơi”, “✅ Đúng hay sai?” và “Tạm dừng”.
 - HUD 4 ô: Điểm, Kỷ lục (kỷ lục trước lượt), Thời gian, Chuỗi đúng. Không có ô chặng và không có thông báo khi đồng hồ mở chặng mới.
-- Thân màn: nhãn “LƯỢT n”, câu hỏi “Phép tính này đúng hay sai?”, một thẻ trắng lớn chứa phép tính (ví dụ `7 + 5 = 13`). Dạng hai vế dùng cỡ chữ nhỏ hơn một nấc để vừa màn hình 400 px.
+- Thân màn: nhãn “LƯỢT n”, câu hỏi “Phép tính này đúng hay sai?”, một thẻ trắng lớn chứa phép tính (ví dụ `7 + 5 = 13`). Dạng hai vế dùng cỡ chữ nhỏ hơn một nấc để vừa màn hình 400 px. Mỗi phần phép tính (`a ± b`) là một khối riêng để ô kết quả khi sai căn giữa phía trên nó; thẻ chừa sẵn chỗ cho ô này nên phép tính không bị đẩy xuống khi ô hiện ra.
 - Hai thẻ lớn nằm cạnh nhau ở mọi khổ màn hình: **✓ Đúng** bên trái, **✗ Sai** bên phải.
 - Màn giới thiệu: biểu tượng, câu “Nhìn phép tính rồi chọn Đúng hoặc Sai.”, nút “Bắt đầu →” và dòng phím tắt. Không ghi thời lượng ở menu và màn giới thiệu.
 
@@ -59,13 +59,13 @@ Giữ cơ chế của Số nào lớn hơn?:
 ## Phản hồi
 
 - Đúng: thẻ vừa chọn chuyển xanh, `showCenterCheck` bật ✓ lớn giữa màn, beep đúng, `award()` một sao, trình đọc màn hình nghe “Chính xác, +n điểm”. Câu mới sau `NEXT_DELAY_MS` (450 ms).
-- Sai: `showMiss` hiện ✗ trên thẻ đã chọn, thẻ đúng chuyển xanh, beep sai. Dòng giải thích nêu giá trị thật, rồi thêm “Mình thử câu tiếp nhé!”:
-  - Một vế, phép tính đúng mà bé chọn Sai: “7 + 5 = 12 là phép tính đúng.”
-  - Một vế, phép tính sai mà bé chọn Đúng: “7 + 5 = 12, không phải 13.”
-  - Hai vế bằng nhau mà bé chọn Sai: “Hai vế đều bằng 13.”
-  - Hai vế khác nhau mà bé chọn Đúng: “6 + 7 = 13, còn 9 + 5 = 14.”
-  - Nếu vừa bị hạ bậc, câu cuối thay bằng “Mình giảm một bậc để luyện chắc hơn nhé!”
-- Sau câu sai chờ 1,5 giây rồi sang câu mới. Đồng hồ vẫn chạy trong lúc chờ.
+- Sai: `showMiss` hiện ✗ trên thẻ đã chọn, thẻ đúng chuyển xanh, beep sai. Không có dòng chữ giải thích nào hiện ra. Thay vào đó, một ô kết quả nhỏ hiện ở giữa, ngay phía trên phần phép tính, ghi kết quả thật:
+  - Một vế `7 + 5 = 13`: ô `12` phía trên `7 + 5`.
+  - Hai vế `6 + 7 = 9 + 5`: ô `13` phía trên `6 + 7` và ô `14` phía trên `9 + 5`.
+  - Vế là số đơn (ví dụ `13` bên phải dấu `=`) không có ô.
+- Trình đọc màn hình nghe kết quả qua `.sr-only` (ví dụ “Chưa đúng. 7 + 5 = 12”, hoặc “Chưa đúng. 6 + 7 = 13, 9 + 5 = 14”); không có chữ nhìn thấy. Việc hạ bậc không có thông báo.
+- Sau câu sai chờ 1 giây rồi sang câu mới, giống Số nào lớn hơn?. Đồng hồ vẫn chạy trong lúc chờ.
+- Câu đúng không hiện ô kết quả, giữ quy ước “chỉ một tín hiệu” của các game khác.
 - Màn hết giờ và màn kỷ lục dùng lại cấu trúc của Số nào lớn hơn?: 🌟 “Hết giờ!” hoặc 🏆 “Kỷ lục mới!” kèm `celebrateRecord`, điểm, số lượt đúng, chuỗi tốt nhất, bảng “5 điểm cao nhất” highlight lượt hiện tại với nhãn “Lượt chơi hiện tại”, nút “↻ Chơi lại” và “Chọn trò khác”.
 
 ## Liên kết tiến độ học
@@ -113,4 +113,4 @@ Test engine:
 
 Test UI tĩnh trong `home-ui.test.mjs` và `offline.test.mjs` như mục Cấu trúc mã.
 
-Kiểm tra bằng tay trên desktop và khổ 400 px: màn giới thiệu, chọn cả hai thẻ, `ArrowLeft`/`ArrowRight`/`Escape`, tạm dừng, lời giải thích 1,5 giây, dạng hai vế không tràn, màn hết giờ và kỷ lục, dải lời khuyên ở lưới 3, 2 và 1 cột.
+Kiểm tra bằng tay trên desktop và khổ 400 px: màn giới thiệu, chọn cả hai thẻ, `ArrowLeft`/`ArrowRight`/`Escape`, tạm dừng, ô kết quả chỉ hiện khi sai và nằm giữa phía trên phép tính (cả hai vế ở dạng hai vế), khựng 1 giây khi sai và 450 ms khi đúng, dạng hai vế không tràn, màn hết giờ và kỷ lục, dải lời khuyên ở lưới 3, 2 và 1 cột.
