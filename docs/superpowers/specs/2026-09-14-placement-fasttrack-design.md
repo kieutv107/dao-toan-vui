@@ -95,7 +95,9 @@ This means seeding can only *add* strong evidence to previously-blank facts; it 
 
 ### 5.2 `placeAt(level)` — monotonic placement
 
-`level` is the **target placement level** the quiz asks for.
+`level` is the **target placement level** the quiz asks for — a target to seed toward, **not a guaranteed resulting `currentLevel()`**.
+
+`placeAt()` is **non-demoting**: it never intentionally lowers the child's existing `currentLevel()`, and it never resets or overwrites existing learning evidence. A placement operation may only *preserve or improve* the current placement state. `currentLevel()` itself remains a value derived normally from readiness (§5.3) — placement does not lock it, so it can still change later as the child keeps practicing.
 
 ```
 target = max(level, currentLevel(profile))     // never below where the child already is
@@ -123,6 +125,15 @@ toan-placement-v1 = { done: true, level: max(target, prevStoredLevel), at: now }
 - `target === 1` → `formsBelowLevel(1)` is empty → nothing seeded, normal stage-1 start.
 - `target === 5` (`MIXED_LEVEL`) → seed blanks in stages 1–4; `currentLevel` caps at 5 as today.
 - Re-run after real play where a lower stage has weak (non-blank) evidence → those facts are preserved; the rest of that stage is filled, and if readiness still clears `UNLOCK` the level rises, otherwise it honestly stays (never drops).
+
+### 5.5 Placement invariants (acceptance)
+
+Four principles the implementation must uphold:
+
+1. **Fresh profile:** target 4 → seed stages 1–3 → `currentLevel() === 4`.
+2. **Existing profile:** placement never overwrites evidence; `target` is only a goal for filling still-blank facts.
+3. **Non-demoting:** re-running placement with a lower result never loses progress or existing evidence.
+4. **Derived progression:** `currentLevel()` always reflects real readiness; placement neither forces nor locks the level.
 
 ## 6. Adaptive fast-track
 
@@ -156,7 +167,7 @@ All three knobs, in `dist/mastery-engine.mjs` and `dist/adaptive-selector.mjs`.
   - **Fresh profile:** `placeAt(4)` ⇒ `currentLevel === 4`; blank forms below 4 are `strong` and due; stage-4 forms remain `new`; `placeAt(1)` on a fresh profile seeds nothing.
   - **Non-overwrite:** a lower-stage fact pre-set to `mastered` (strength 6) is unchanged after `placeAt`; a lower-stage fact with weak real evidence (`learning`) is left as `learning`, not raised to `strong`.
   - **Existing profile does not force the number up:** with a lower stage holding enough weak (non-blank) evidence to stay below `UNLOCK`, `placeAt(5)` seeds only the still-`new` forms and `currentLevel()` does **not** exceed real readiness (may be < 5).
-  - **Monotonic re-run:** with `currentLevel === 4` from real play, `placeAt(2)` leaves `currentLevel === 4` (no demotion) and mutates no existing fact; `placeAt(5)` raises the level by filling only the blanks. Placement never downgrades `currentLevel`.
+  - **Monotonic re-run:** with `currentLevel === 4` from real play, `placeAt(2)` leaves `currentLevel === 4` (no demotion) and mutates no existing fact; **`placeAt(5)` fills only the still-new forms below 5 — it may raise `currentLevel()` if the resulting readiness clears `UNLOCK`, but never overwrites existing evidence or forces the level upward.** The test verifies: existing weak evidence remains unchanged; new forms below target are seeded; `currentLevel()` never exceeds what resulting readiness supports.
   - **Probe fetch on a played profile:** `nextFact({focusLevel: s, context:'placement'})` returns a fact for every stage 1–5 even when that stage has no `new` facts left.
   - **`skipPlacement()`** persists `toan-placement-v1 = {done:true, level:1, at:<now>}` and mutates no fact state.
 - `tests/mastery-engine.test.mjs` — clean first-try fast correct → `strong` in one rep; mastery reached at 2 fast sessions; wrong still caps strength at 4; non-clean fast correct still `+2`.
