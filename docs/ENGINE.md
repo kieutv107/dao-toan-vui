@@ -219,11 +219,12 @@ Một câu được coi là nhanh khi `elapsedMs` không vượt benchmark của
 - `excludeAnswers`: tạo nhiều đáp án khác nhau, dùng cho memory.
 - `sign`: chỉ cộng hoặc chỉ trừ.
 - `scope`: ép `focus` hoặc `review` thay vì rút ngẫu nhiên.
+- `focusLevel`: chặng bé tự chọn cho riêng một lượt (có thể là chặng chưa mở). Khi có, pool focus là form của chặng đó, không có review, và thang fallback dừng trong chặng: không gộp chặng khác, không mượn core pool, nên có thể trả `undefined` nếu đã loại hết câu. `currentLevel()` và điều kiện mở chặng không đổi; evidence ghi như bình thường.
 - `strict`: không nới rộng ra ngoài các chặng đang mở; trả `undefined` nếu hết câu.
 
 Thang fallback khi pool rỗng: bỏ `kind` → gộp focus + review → toàn bộ core pool mọi chặng → bỏ `sign`. `excludeIds` và `excludeAnswers` luôn được giữ. Nhờ vậy Lật thẻ ở chặng 1 (chỉ 5 đáp án khác nhau) vẫn đủ 6 cặp bằng cách mượn câu từ chặng sau.
 
-`buildPracticeSession()` tạo 18 slot theo kind (7 weak, 5 learning, 4 due, 2 new). Mỗi slot thử `strict` với toàn bộ câu đã dùng; nếu hết thì cho lặp nhưng tránh 3 câu liền kề; cuối cùng mới nới rộng.
+`buildPracticeSession()` tạo 18 slot theo kind (7 weak, 5 learning, 4 due, 2 new); nhận `focusLevel` và truyền xuống mọi lần gọi `selectFact()` (`createPractice({focusLevel})` dùng khi bé bấm “Luyện” ở một chặng). Mỗi slot thử `strict` với toàn bộ câu đã dùng; nếu hết thì cho lặp nhưng tránh 3 câu liền kề; cuối cùng mới nới rộng.
 
 ### Trọng số normal
 
@@ -259,10 +260,11 @@ weight = 1
 | `toan-learning-v1` | Profile mastery và timing |
 | `toan-high-scores-v1` | Top 5 điểm theo game |
 | `toan-stars` | Tổng sao toàn app |
+| `toan-sound` | Âm thanh `on`/`off`; thiếu key thì coi là bật |
 
 Storage module clone dữ liệu khi load/save, kiểm tra schema tối thiểu và tự phục hồi bằng memory fallback nếu JSON hỏng, API storage thiếu hoặc thao tác storage ném lỗi.
 
-High score luôn chuẩn hóa score về số không âm, sort giảm dần, giữ tối đa 5 giá trị. Chỉ score lớn hơn kỷ lục cũ và lớn hơn 0 mới là kỷ lục mới.
+High score luôn chuẩn hóa score về số không âm, sort giảm dần, giữ tối đa 5 giá trị. Chỉ score lớn hơn kỷ lục cũ và lớn hơn 0 mới là kỷ lục mới. `record(gameId, score)` trả về `{scores, newRecord, previousBest, rank}`; `rank` là vị trí của lượt vừa ghi trong `scores` (điểm bằng nhau thì lượt mới đứng sau lượt cũ) hoặc `-1` nếu không lọt top 5, dùng để highlight “Lượt chơi hiện tại” ở màn kết thúc.
 
 ## 8. Engine API theo game
 

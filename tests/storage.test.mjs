@@ -26,10 +26,21 @@ test('learning store remains usable when browser storage throws',()=>{
 
 test('high scores keep five descending scores per game',()=>{
   const store=createHighScoreStore(memoryStorage());
-  assert.deepEqual(store.record('rain',10),{scores:[10],newRecord:true,previousBest:0});
+  assert.deepEqual(store.record('rain',10),{scores:[10],newRecord:true,previousBest:0,rank:0});
   [40,20,50,30,5].forEach(x=>store.record('rain',x));
   assert.deepEqual(store.top('rain'),[50,40,30,20,10]);
   assert.deepEqual(store.top('bubble'),[]);
+});
+
+test('record ranks this run after equal older scores and returns -1 when it misses the top five',()=>{
+  const store=createHighScoreStore(memoryStorage());
+  [50,40,30,20,10].forEach(x=>store.record('bubble',x));
+  const tie=store.record('bubble',30);
+  assert.deepEqual(tie.scores,[50,40,30,30,20]);assert.equal(tie.rank,3);
+  assert.equal(store.record('bubble',5).rank,-1);
+  const bumped=store.record('bubble',20);
+  assert.equal(bumped.rank,-1);assert.deepEqual(bumped.scores,[50,40,30,30,20]);
+  assert.equal(store.record('bubble',60).rank,0);
 });
 
 test('equal best and zero are not new records',()=>{

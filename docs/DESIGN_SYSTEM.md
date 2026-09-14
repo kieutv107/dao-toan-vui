@@ -46,7 +46,6 @@ Trên mobile, hero giảm còn 37 px, phép tính khoảng 38–44 px và tiêu 
 | Success dark | `#237249` | feedback đúng |
 | Success fill | `#51a978` | đáp án đúng |
 | Error dark | `#a14660` | feedback sai |
-| Record fill | `#fff0bd` | kỷ lục mới trong HUD |
 | Star fill | `#fff0c5` | bộ đếm sao |
 
 Không chỉ dùng màu để báo trạng thái: nút còn đổi disabled state, animation và nội dung feedback.
@@ -74,7 +73,8 @@ Khi thêm mode, tạo palette đủ bốn biến và kiểm tra contrast cho ch�
 - Main: rộng tối đa 1.136 px.
 - Play surface chung: rộng tối đa 900 px, min-height 550 px.
 - Rain surface: rộng tối đa 980 px vì có field và keypad song song.
-- Card grid desktop: 3 cột, gap 20 px.
+- Card grid desktop: 3 cột, gap 20 px. Khu luyện tập dùng 2 cột; Khu trò chơi 3 cột với 5 game và thẻ lời khuyên lấp ô cuối.
+- Mỗi khu có nhãn nhỏ viết hoa (`zone-label`, 11 px, letter-spacing 1,6 px) trên tiêu đề `h2`. Khu trò chơi cách khu luyện tập 44 px và một đường nét đứt `#e5dfef` 2 px.
 
 ### Breakpoints
 
@@ -95,7 +95,6 @@ Mobile card grid hiện vẫn giữ 2 cột. Khi thêm copy dài phải kiểm t
 - Brand icon vuông bo 15 px, nền tím, xoay `-8deg`.
 - Bộ đếm sao là pill vàng.
 - Nút âm thanh hình tròn 44 px, giảm còn 37 px trên mobile.
-
 ### Game card
 
 - Nền mode, border 1 px, radius 23 px.
@@ -122,16 +121,18 @@ Mobile card grid hiện vẫn giữ 2 cột. Khi thêm copy dài phải kiểm t
 ### Phản hồi đúng/sai (`feedback.css`)
 
 - ✓ trắng trên nền xanh `#51a978`, ✗ trắng trên nền đỏ `#e0526c`. Luôn kèm ký hiệu, không chỉ đổi màu.
-- Ô `?` khi đúng: nền xanh, viền liền, ✓ trắng phóng 180 ms (`fb-pop`), con số hiện từ 200 ms (`fb-fade-in`).
-- Huy hiệu góc 30 px (`fb-check-badge`) và 26 px (`fb-miss`), viền trắng 2 px.
-- Pill chuỗi vàng `#ffe58a`, bay lên 24 px và tan trong 600 ms (`fb-rise`).
-- Nhịp chuyển câu 450 ms. Với `prefers-reduced-motion`, animation tắt và `fb-check-fill` ẩn để trạng thái cuối vẫn đúng.
+- Đúng ở game có ô `?`: ô `?` giữ nguyên, không hiện đáp án. Một ✓ trắng trong vòng tròn xanh 120 px (92 px dưới 520 px, viền trắng 4 px) hiện giữa play surface (`fb-check-center`), bật lên rồi mờ dần trong 600 ms (`fb-center`), `pointer-events:none` nên không chặn thao tác. Chỉ một tín hiệu để bé kịp nhìn.
+- Huy hiệu ✗ góc 26 px (`fb-miss`), viền trắng 2 px. Không còn huy hiệu ✓ ở góc: mọi game (kể cả Số nào lớn hơn?) dùng chung ✓ giữa màn hình.
+- Pill “⬆ Lên cấp N!” vàng `#ffe58a` (`fb-levelup`, chữ 16 px) chỉ hiện khi cấp độ tăng, không hiện theo chuỗi đúng. Pill hiện ngay trên ô “Cấp độ” của HUD (tâm pill trùng tâm ô) rồi bay lên; game không có ô cấp độ trên HUD (Số nào lớn hơn?, Vườn luyện tập) và Lật thẻ thần kỳ (cấp độ là chặng, đã có nút “Sang chặng tiếp”) thì không có pill. Pill là con của play surface và được đặt vị trí bằng script theo ô cấp độ, vì HUD vẽ lại mỗi tick. Pill hiện trong 1,4 s (`fb-rise`): trồi lên 200 ms, giữ rõ tới 70% rồi bay thêm và tan, tổng quãng bay 28 px.
+- Nhịp chuyển câu 450 ms; ✓ giữa màn hình mờ nốt 150 ms còn lại trên câu mới. Với `prefers-reduced-motion`, animation tắt, ✓ đứng yên 600 ms rồi biến mất.
+- Kỷ lục mới chỉ ăn mừng ở màn kết thúc: cúp 🏆 (`record-trophy`) bật lên, xoay nhẹ trong 1 s kèm vầng sáng vàng lan ra lặp mỗi 1,6 s (`record-glow`); tiêu đề “Kỷ lục mới!” (`record-title`) trồi lên sau 350 ms; `celebrateRecord(app)` thả 28 mảnh confetti vào `#confetti` trong 2,2 s. Reduced motion: không animation, không vầng sáng, không confetti.
 
 ### HUD
 
 - Mỗi chỉ số nằm trong ô trắng mờ, radius 12–14 px.
 - Nhãn nhỏ muted; giá trị lớn màu accent.
 - Dùng `font-variant-numeric: tabular-nums` cho score/time.
+- Ô “Kỷ lục” chỉ hiện kỷ lục trước lượt chơi, không đổi nhãn hay màu khi điểm vượt qua; ô cập nhật sang kỷ lục mới khi màn kết thúc hiện ra.
 - Mobile giảm padding và có thể chuyển 5 ô thành grid 3 cột hoặc 4 ô thành 2 cột.
 
 ### Equation
@@ -161,6 +162,7 @@ Overlay phủ bên trong play surface cho intro, pause và kết thúc. Nền g�
 
 - Kết quả chính dùng nhóm số lớn và label nhỏ.
 - Top 5 score là list/grid trên nền trắng mờ.
+- Điểm của lượt vừa chơi (nếu lọt top 5) được highlight nền vàng `#fff0bd`, viền trong `#f0c94c` 2 px, kèm nhãn nhỏ “Lượt chơi hiện tại” cạnh điểm (`.current-run`). Điểm bằng nhau thì lượt mới đứng sau lượt cũ.
 - Action kết thúc nằm ngang trên desktop, xếp dọc dưới 520 px.
 
 ## 7. Button behavior
@@ -186,7 +188,9 @@ Không gắn hover translate cho control cần vị trí tuyệt đối trong ga
 | Bubble float | 3 s → 1,4 s | tăng cảm giác tốc độ |
 | Welcome float | 4 s | trang trí nhẹ |
 | Rain score effect | 800 ms | điểm/mạng bay lên |
-| Confetti fall | 1,5 s | celebration toàn màn hình |
+| Confetti fall | 1,5 s, trễ tối đa 0,6 s | ăn mừng kỷ lục mới toàn màn hình |
+| Record trophy | 1 s, vầng sáng 1,6 s lặp | cúp ở màn kết thúc có kỷ lục mới |
+| Record title | 500 ms, trễ 350 ms | tiêu đề “Kỷ lục mới!” |
 | Compare transition | 650 ms đúng, 1 s sai | giữ nhịp đọc feedback |
 
 `@media (prefers-reduced-motion: reduce)` tắt toàn bộ animation và transition, đồng thời ẩn confetti. Feature mới phải hoạt động đúng khi animation bị tắt.

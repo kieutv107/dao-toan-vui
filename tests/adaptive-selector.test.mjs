@@ -10,6 +10,24 @@ function master(profile,forms,share=1){
 }
 function cycle(values){let i=0;return ()=>values[i++%values.length]}
 
+test('a chosen topic serves only that level, even when it is still locked',()=>{
+  const p=createProfile(),session=buildPracticeSession({profile:p,random:cycle([.1,.6,.9,.3]),focusLevel:4});
+  assert.equal(currentLevel(p),1);
+  assert.equal(session.length,18);
+  assert.ok(session.every(q=>formOf(q).level===4));
+  for(let i=1;i<session.length;i++)assert.notEqual(session[i].id,session[i-1].id);
+});
+
+test('a chosen topic skips review from lower levels and never borrows from other topics',()=>{
+  const p=createProfile();master(p,formsAtLevel(1));master(p,formsAtLevel(2));
+  assert.equal(currentLevel(p),3);
+  const random=cycle([.95,.2,.8,.5,.99,.1]);
+  for(let i=0;i<40;i++)assert.equal(formOf(selectFact({profile:p,focusLevel:2,random})).level,2);
+  const levelOne=formsAtLevel(1).flatMap(f=>f.questions).map(q=>q.id);
+  assert.equal(selectFact({profile:createProfile(),focusLevel:1,excludeIds:levelOne}),undefined);
+  assert.notEqual(selectFact({profile:createProfile(),excludeIds:levelOne}),undefined,'without a topic the selector still widens');
+});
+
 test('new profile starts at level one with addition only',()=>{
   const p=createProfile();assert.equal(currentLevel(p),1);
   const qs=buildPracticeSession({profile:p,random:()=>.1});

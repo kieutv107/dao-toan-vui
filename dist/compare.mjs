@@ -1,5 +1,5 @@
 import {createCompareGame,compareStage,createCompareRound,recordCompareAnswer,elapseCompare,reviewFacts} from './compare-engine.mjs';
-import {showCheck,showMiss,showStreak,announce,NEXT_DELAY_MS} from './feedback.mjs';
+import {showCenterCheck,showMiss,announce,NEXT_DELAY_MS,celebrateRecord} from './feedback.mjs';
 
 export function mountCompare(app,{home,award,beep,learning,scores}){
   const g=createCompareGame(),$=selector=>app.querySelector(selector);
@@ -24,17 +24,16 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
   }
 
   function highlight(answer,choice){
-    app.querySelectorAll('[data-compare-choice]').forEach(button=>{button.disabled=true;if(button.dataset.compareChoice===answer){button.classList.add('right');showCheck(button)}else if(button.dataset.compareChoice===choice){button.classList.add('wrong');showMiss(button)}});
+    app.querySelectorAll('[data-compare-choice]').forEach(button=>{button.disabled=true;if(button.dataset.compareChoice===answer)button.classList.add('right');else if(button.dataset.compareChoice===choice){button.classList.add('wrong');showMiss(button)}});
   }
 
   function choose(choice){
     if(!playing||paused||locked||disposed||g.over)return;
     const correct=choice===round.answer,beforeStage=compareStage(g),points=recordCompareAnswer(g,correct),afterStage=compareStage(g);
     locked=true;highlight(round.answer,choice);hud();
-    const chosen=app.querySelector(`[data-compare-choice="${choice}"]`),region=$('#compare-feedback');
+    const region=$('#compare-feedback');
     if(correct){
-      reviewFacts(round,true).forEach(fact=>learning.record({fact,result:'review',context:'compare',sessionId}));award();beep();
-      if(g.streak>0&&g.streak%3===0)showStreak(chosen,g.streak);
+      reviewFacts(round,true).forEach(fact=>learning.record({fact,result:'review',context:'compare',sessionId}));award();beep();showCenterCheck($('.compare-game'));
       if(afterStage>beforeStage)region.textContent='Tuyệt! Bé đã tăng một bậc.';else announce(region,`Chính xác, +${points} điểm`);
       region.className='compare-feedback success';delayLeft=NEXT_DELAY_MS/1000;
     }else{
@@ -47,9 +46,9 @@ export function mountCompare(app,{home,award,beep,learning,scores}){
 
   function finish(){
     if(disposed||scoreSaved)return;playing=false;locked=true;delayAction=null;pauseButton.disabled=true;
-    const result=scores.record('compare',g.score);scoreSaved=true;overlay.hidden=false;
-    overlay.innerHTML=`<span class="compare-symbol">${result.newRecord?'🏆':'🌟'}</span><h2>${result.newRecord?'Kỷ lục mới!':'Hết giờ!'}</h2><p>${result.newRecord?`Bé vừa vượt kỷ lục ${result.previousBest} điểm!<br>`:''}<strong>${g.score} điểm</strong> · ${g.correct} lượt đúng<br>Chuỗi tốt nhất: ${g.bestStreak}</p><div class="score-board"><h3>5 điểm cao nhất</h3>${result.scores.map((score,index)=>`<span><b>${index+1}</b> ${score} điểm</span>`).join('')}</div><div class="finish-actions"><button class="primary" id="compare-again">↻ Chơi lại</button><button class="back" id="compare-home">Chọn trò khác</button></div>`;
-    $('#compare-again').onclick=restart;$('#compare-home').onclick=home;$('#compare-again').focus();hud();
+    const result=scores.record('compare',g.score);scoreSaved=true;bestAtStart=result.scores[0]||0;overlay.hidden=false;
+    overlay.innerHTML=`<span class="compare-symbol${result.newRecord?' record-trophy':''}">${result.newRecord?'🏆':'🌟'}</span><h2${result.newRecord?' class="record-title"':''}>${result.newRecord?'Kỷ lục mới!':'Hết giờ!'}</h2><p>${result.newRecord?`Bé vừa vượt kỷ lục ${result.previousBest} điểm!<br>`:''}<strong>${g.score} điểm</strong> · ${g.correct} lượt đúng<br>Chuỗi tốt nhất: ${g.bestStreak}</p><div class="score-board"><h3>5 điểm cao nhất</h3>${result.scores.map((score,index)=>index===result.rank?`<span class="current-run"><b>${index+1}</b><small>Lượt chơi hiện tại</small>${score} điểm</span>`:`<span><b>${index+1}</b> ${score} điểm</span>`).join('')}</div><div class="finish-actions"><button class="primary" id="compare-again">↻ Chơi lại</button><button class="back" id="compare-home">Chọn trò khác</button></div>`;
+    $('#compare-again').onclick=restart;$('#compare-home').onclick=home;$('#compare-again').focus();hud();if(result.newRecord)celebrateRecord(app);
   }
 
   function tick(now){

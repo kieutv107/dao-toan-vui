@@ -1,16 +1,19 @@
-.is-check,.has-miss,.has-streak{position:relative}
+.has-miss,.has-levelup{position:relative}
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
-.unknown.is-check{background:#51a978;border-color:#3e9864;border-style:solid;color:#fff;display:inline-grid;place-items:center}
-.fb-check-fill{grid-area:1/1;font-style:normal;font-weight:1000;line-height:1;animation:fb-pop .18s ease-out both}
-.fb-answer{grid-area:1/1;font-weight:1000;animation:fb-fade-in .2s ease-out .2s both}
-.fb-check-badge{position:absolute;top:-10px;right:-10px;width:30px;height:30px;border-radius:50%;background:#51a978;color:#fff;border:2px solid #fff;font-style:normal;font-size:18px;font-weight:1000;line-height:26px;text-align:center;box-shadow:0 2px 6px #2e805644;animation:fb-badge .3s ease-out both}
+.fb-check-center{position:absolute;left:50%;top:50%;z-index:3;width:120px;height:120px;border-radius:50%;background:#51a978;color:#fff;border:4px solid #fff;box-shadow:0 8px 24px #2e805655;font-style:normal;font-size:76px;font-weight:1000;line-height:112px;text-align:center;pointer-events:none;transform:translate(-50%,-50%);animation:fb-center .6s ease-out both}
+@media(max-width:520px){.fb-check-center{width:92px;height:92px;font-size:56px;line-height:84px}}
 .fb-miss{position:absolute;top:-10px;right:-10px;width:26px;height:26px;border-radius:50%;background:#e0526c;color:#fff;border:2px solid #fff;font-style:normal;font-size:15px;font-weight:1000;line-height:22px;text-align:center;animation:fb-pop .18s ease-out both}
 .answers button.wrong{transition:opacity .2s,transform .18s,box-shadow .18s}
 .answers button.wrong.has-miss{opacity:1}
 .bubbles button>.fb-miss{top:2px;right:2px}
-.fb-streak{position:absolute;left:50%;top:-16px;transform:translate(-50%,0);background:#ffe58a;color:#7a5a00;border:1px solid #f0c94c;border-radius:999px;padding:3px 10px;font-size:13px;font-weight:1000;white-space:nowrap;pointer-events:none;animation:fb-rise .6s ease-out both}
+.fb-levelup{position:absolute;left:50%;top:50%;margin-top:-18px;z-index:3;transform:translate(-50%,0);background:#ffe58a;color:#7a5a00;border:2px solid #f0c94c;border-radius:999px;padding:5px 14px;font-size:16px;font-weight:1000;white-space:nowrap;box-shadow:0 4px 12px #c8932533;pointer-events:none;animation:fb-rise 1.4s ease-out both}
 @keyframes fb-pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
-@keyframes fb-fade-in{0%{opacity:0}100%{opacity:1}}
-@keyframes fb-badge{0%{top:50%;right:50%;transform:translate(50%,-50%) scale(2.4);opacity:0}30%{opacity:1}100%{top:-10px;right:-10px;transform:translate(0,0) scale(1)}}
-@keyframes fb-rise{0%{opacity:0;transform:translate(-50%,6px)}25%{opacity:1}100%{opacity:0;transform:translate(-50%,-24px)}}
-@media(prefers-reduced-motion:reduce){.fb-check-fill{display:none}}
+@keyframes fb-center{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}30%{transform:translate(-50%,-50%) scale(1.1);opacity:1}45%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
+@keyframes fb-rise{0%{opacity:0;transform:translate(-50%,8px)}15%{opacity:1;transform:translate(-50%,0)}70%{opacity:1;transform:translate(-50%,-14px)}100%{opacity:0;transform:translate(-50%,-28px)}}
+.record-trophy{display:inline-block;position:relative;animation:record-trophy 1s cubic-bezier(.2,.8,.3,1.2) both}
+.record-trophy:before{content:'';position:absolute;inset:-25%;border-radius:50%;background:radial-gradient(circle,#ffe58a 0,#ffe58a00 70%);z-index:-1;opacity:0;pointer-events:none;animation:record-glow 1.6s ease-out .6s infinite}
+.record-title{animation:record-title .5s ease-out .35s both}
+@keyframes record-trophy{0%{transform:scale(0) rotate(-25deg);opacity:0}50%{transform:scale(1.3) rotate(10deg);opacity:1}70%{transform:scale(.92) rotate(-6deg)}85%{transform:scale(1.05) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
+@keyframes record-glow{0%{transform:scale(.7);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+@keyframes record-title{0%{transform:translateY(12px) scale(.9);opacity:0}100%{transform:none;opacity:1}}
+@media(prefers-reduced-motion:reduce){.record-trophy:before{display:none}}

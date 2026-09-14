@@ -7,7 +7,8 @@ export function createHighScoreStore(storage=globalThis.localStorage){
   const save=()=>{try{storage?.setItem(KEY,JSON.stringify(data))}catch{}};
   return {
     top(gameId){return [...(data.games[gameId]||[])]},
-    record(gameId,score){score=Math.max(0,Number(score)||0);const previousBest=data.games[gameId]?.[0]||0,newRecord=score>previousBest&&score>0;data.games[gameId]=[...(data.games[gameId]||[]),score].sort((a,b)=>b-a).slice(0,5);save();return{scores:[...data.games[gameId]],newRecord,previousBest}},
+    // rank: index of this run in the returned top five (after equal older scores), or -1 when it did not make the list.
+    record(gameId,score){score=Math.max(0,Number(score)||0);const previous=data.games[gameId]||[],previousBest=previous[0]||0,newRecord=score>previousBest&&score>0,position=previous.filter(x=>x>=score).length;data.games[gameId]=[...previous,score].sort((a,b)=>b-a).slice(0,5);save();return{scores:[...data.games[gameId]],newRecord,previousBest,rank:position<5?position:-1}},
     reset(){data={version:1,games:{}};try{storage?.removeItem(KEY)}catch{}},
     snapshot(){return clone(data)}
   };

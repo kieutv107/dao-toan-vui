@@ -8,18 +8,32 @@
 
 - Logo “Đảo Toán Vui” quay về màn hình chính.
 - Bộ đếm ⭐ dùng chung cho các game có thưởng.
-- Nút bật/tắt âm thanh. Trạng thái âm thanh chỉ tồn tại trong phiên hiện tại.
+- Nút bật/tắt âm thanh. Lựa chọn được lưu vào `localStorage` (`toan-sound`: `on`/`off`) và giữ nguyên ở lần mở sau. Lần đầu mở app, hoặc khi trình duyệt chặn storage, âm thanh bật (nút hiện 🔊).
+
+### Chạy offline
+
+- App không có nút cài riêng: bé lưu về màn hình bằng tính năng sẵn có của trình duyệt (Safari: Chia sẻ → Thêm vào MH chính; Chrome: Cài đặt ứng dụng / Thêm vào màn hình chính). `site.webmanifest` và các thẻ `apple-mobile-web-app-*` giúp app mở toàn màn hình với tên “Toán Vui” và icon riêng.
+- `dist/offline.mjs` đăng ký `dist/sw.js`; service worker lưu sẵn toàn bộ file của app trong lần mở đầu tiên khi có mạng. Sau đó app mở và chơi được khi không có mạng, kể cả khi mở từ màn hình chính trên iPad/điện thoại.
+- File của app luôn lấy bản mới từ mạng trước; mất mạng hoặc mạng chậm quá 3 giây thì dùng bản đã lưu. Vì vậy bản deploy mới đến tay bé ngay khi có mạng, không cần đổi phiên bản cache.
+- Font Nunito được lưu lại ở lần tải đầu; nếu chưa kịp lưu, app dùng font hệ thống.
+- Khi thêm file mới vào `dist`, phải thêm vào `ASSETS` trong `sw.js`; test `offline.test.mjs` sẽ báo nếu thiếu.
 
 ### Hành trình của bé
 
 - Hiển thị chặng hiện tại của giáo trình (ví dụ “Chặng 1 · Bù về 10 và số đôi nhỏ”), số phép đang đến hạn ôn, đã thuộc và đang luyện.
 - Nút “Luyện tập ngay” mở thẳng Vườn luyện tập. Animation ở trạng thái tĩnh cố ý tinh tế: bóng đổ “thở” chậm, và cứ 5 giây có một “khoảnh khắc mời gọi” dài khoảng 0,7 giây: nút nhấc nhẹ, vệt sáng quét ngang, tên lửa nhún, mũi tên nhích theo và một vòng sáng mỏng lan ra rồi tan. Chu kỳ được dịch pha (`--cta-phase`) để khoảnh khắc đầu tiên xuất hiện chỉ ~0,8 giây sau khi bé vào trang. Ngoài khoảnh khắc đó nút đứng yên; hover thì dừng animation và nhấc nút lên. Tắt hoàn toàn khi hệ thống bật `prefers-reduced-motion`.
 - Link nhỏ “Chi tiết ›” trong dòng tóm tắt mở chi tiết bốn trạng thái (đã thuộc, đang vững, đang học, chưa khám phá) và thanh tiến độ `vững/tổng` của từng chặng trong giáo trình; chặng chưa mở hiện mờ.
-- “Đặt lại dữ liệu” yêu cầu bấm hai lần, sau đó xóa tiến độ học, bảng điểm và tổng sao.
+- Mỗi chặng có nút “Luyện” (kể cả chặng chưa mở). Bấm vào sẽ mở một lượt Vườn luyện tập chỉ gồm câu của chặng đó. Lựa chọn chỉ áp dụng cho lượt ấy: kết quả vẫn ghi vào tiến độ chung, nhưng chặng hiện tại và điều kiện mở chặng không đổi. Cuối lượt, “↻ Luyện thêm chặng này” mở tiếp một lượt cùng chặng; vào Vườn luyện tập từ trang chủ thì quay lại theo chương trình.
+- Bảng chi tiết có hàng tiêu đề “Chi tiết hành trình” với nút ✕ để đóng; đóng xong focus quay về link “Chi tiết ›”. App không còn nút đặt lại dữ liệu.
 
 ### Danh sách game
 
-Menu lấy từ mảng `modes` trong `dist/app.js`. Mỗi mode có `id`, icon, tiêu đề, mô tả, tag, màu và nhãn CTA. Router hiện ánh xạ:
+Menu lấy từ mảng `modes` trong `dist/app.js`. Mỗi mode có `id`, `zone`, icon, tiêu đề, mô tả, tag, màu và nhãn CTA. Trang chủ chia hai khu, ngăn cách bằng đường nét đứt:
+
+- **Khu luyện tập** (`zone:'practice'`): Vườn luyện tập và Phiếu 20 phép, lưới 2 cột.
+- **Khu trò chơi** (`zone:'game'`) bên dưới: Mưa phép tính, Bắt bong bóng, Lật thẻ thần kỳ, Số nào trốn mất?, Số nào lớn hơn?, kèm thẻ lời khuyên lấp ô cuối lưới 3 cột.
+
+Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Router hiện ánh xạ:
 
 | Mode | Controller |
 | --- | --- |
@@ -30,6 +44,12 @@ Menu lấy từ mảng `modes` trong `dist/app.js`. Mỗi mode có `id`, icon, t
 | `bubble`, `memory`, `mystery` | `mountChallenge` |
 
 Khi chuyển game hoặc về trang chủ, shell gọi cleanup của game đang chạy trước khi mount màn hình mới.
+
+### Kỷ lục
+
+- Các game có điểm (Bắt bong bóng, Tìm số bí ẩn, Phép tính tìm bạn, Mưa phép tính, Số nào lớn hơn?) hiện ô “Kỷ lục” trong HUD với kỷ lục trước lượt chơi. Khi đang chơi, ô này không đổi nhãn, màu hay giá trị dù bé đã vượt kỷ lục.
+- Khi lượt chơi kết thúc với điểm lớn hơn kỷ lục cũ, màn kết thúc ăn mừng: cúp 🏆 bật lên kèm vầng sáng, tiêu đề “Kỷ lục mới!” trồi lên và confetti rơi khắp màn hình (`celebrateRecord` trong `feedback.mjs`). Ô “Kỷ lục” trong HUD lúc đó mới cập nhật sang điểm mới.
+- Bảng “5 điểm cao nhất” ở màn kết thúc highlight điểm của lượt vừa chơi (nền vàng) và gắn nhãn “Lượt chơi hiện tại” cạnh điểm. Lượt không lọt top 5 thì không có dòng nào được highlight.
 
 ## 2. Vườn luyện tập
 
@@ -43,7 +63,7 @@ Mục tiêu: luyện đúng phần trẻ đang yếu mà không tạo áp lực 
 4. Dùng gợi ý hiển thị chiến lược tính nhẩm của phép đó (xem `strategies.mjs`: bù về 10 với khung 10 ô, số đôi, gần số đôi, qua 10 kiểu “8 + 2 = 10, 10 + 3 = 13”) kèm chấm trực quan; phép tính cũng được xếp lại để bé làm lại ngay sau khi hiểu.
 5. Trả lời đúng chuyển sang câu sau sau 700 ms.
 6. Session có thể dài hơn 18 câu vì các câu sai hoặc dùng gợi ý được thêm lại.
-7. Màn kết thúc hiển thị số câu đúng và thay đổi mastery; có thể luyện tiếp, sang Bắt bong bóng hoặc nghỉ.
+7. Màn kết thúc hiển thị số câu đúng và thay đổi mastery; có thể luyện tiếp, chơi một game gợi ý hoặc nghỉ. Game gợi ý được chọn ngẫu nhiên mỗi lần trong Khu trò chơi (không gợi ý Phiếu 20 phép), nút ghi icon và tên game đó.
 
 ### Quy tắc
 
@@ -57,7 +77,7 @@ Mục tiêu: luyện đúng phần trẻ đang yếu mà không tạo áp lực 
 
 - Chạm/click đáp án.
 - Bàn phím số hỗ trợ trực tiếp các đáp án một chữ số đang hiển thị.
-- Đúng: nút xanh và pop; ô `?` chuyển xanh, dấu ✓ phóng lên trong 180 ms rồi hóa thành đáp án từ 200 ms. Không có dòng chữ; trình đọc màn hình vẫn nghe "Chính xác, a + b = c" qua `.sr-only`. Câu mới sau 450 ms (`NEXT_DELAY_MS` trong `feedback.mjs`).
+- Đúng: nút xanh và pop; một dấu ✓ xanh lớn bật lên giữa ô chơi rồi mờ trong 600 ms. Ô `?` giữ nguyên, không hiện đáp án, để bé chỉ cần nhìn một tín hiệu. Không có dòng chữ; trình đọc màn hình vẫn nghe "Chính xác, a + b = c" qua `.sr-only`. Câu mới sau 450 ms (`NEXT_DELAY_MS` trong `feedback.mjs`).
 - Sai: nút rung, hiện ✗ đỏ ở góc trong 300 ms rồi mờ; dòng "Chưa đúng. Bé thử lại nhé!" giữ nguyên.
 
 ## 3. Mưa phép tính
@@ -75,7 +95,7 @@ Mục tiêu: tính nhẩm liên tục trong khi các phép tính rơi xuống b�
 
 ### Độ khó
 
-- Cấp độ tăng sau mỗi 6 câu đúng.
+- Cấp độ tăng sau mỗi 6 câu đúng; lúc đó pill "⬆ Lên cấp n!" hiện trên ô “Cấp độ” của HUD và bay lên chậm trong 1,4 s.
 - Tốc độ rơi cố định `0.055` và nhịp spawn cố định `3.8` giây ở mọi cấp.
 - Độ khó tăng bằng số giọt cùng lúc: từ 1 lên tối đa 4.
 - Engine tính giới hạn fallback tăng từ 10, mỗi cấp thêm 2, tối đa 20. Trong flow hiện tại, phép tính chính đến từ learning service theo chặng giáo trình (xem ENGINE.md mục 6); giới hạn fallback chỉ dùng khi supplier không trả fact.
@@ -109,7 +129,7 @@ Mục tiêu: chọn nhanh kết quả đúng trong 4 bong bóng chuyển động
 - Chuyển động bong bóng bắt đầu chu kỳ 3 giây, nhanh dần và tối thiểu 1,4 giây.
 - Trả lời sai hoặc hết giờ: mất 1 mạng, trừ 5 điểm, ngắt streak; cùng câu vẫn cho thử lại nếu còn mạng.
 - Trả lời đúng: 10 điểm nhân multiplier streak, tối đa 40 điểm; nếu câu đã sai trước đó thì nhận 5 điểm.
-- Sau câu đúng, ✓ điền vào ô kết quả rồi thành số; câu mới sau 450 ms ở mọi cấp. Mỗi 3 câu đúng liên tiếp có pill "Chuỗi n" bay lên từ ô kết quả.
+- Sau câu đúng, ✓ xanh lớn hiện giữa ô chơi (ô `?` giữ nguyên); câu mới sau 450 ms ở mọi cấp. Khi lên cấp (mỗi 4 câu đúng) có pill "⬆ Lên cấp n!" hiện ngay trên ô “Cấp độ” của HUD và bay lên chậm trong 1,4 s, không bị cắt khi sang câu mới. Chuỗi đúng không còn pill riêng.
 
 ## 5. Số nào trốn mất?
 
@@ -123,7 +143,7 @@ Mục tiêu: tìm số hạng hoặc số trừ còn thiếu trong biểu thức
 - Bốn đáp án được tạo quanh giá trị `b` cần tìm.
 - Sai hoặc hết giờ: mất 1 mạng, trừ 5 điểm và ngắt streak.
 - Đúng lần đầu nhận điểm theo streak; đúng sau khi đã sai nhận 5 điểm.
-- Phản hồi giống Bắt bong bóng: ✓ điền vào ô số hạng còn thiếu, câu mới sau 450 ms, pill chuỗi mỗi 3 câu đúng.
+- Phản hồi giống Bắt bong bóng: ✓ xanh lớn giữa ô chơi (ô `?` giữ nguyên), câu mới sau 450 ms, pill "⬆ Lên cấp n!" trên ô “Cấp độ” khi lên cấp.
 
 ## 6. Lật thẻ thần kỳ
 
@@ -173,7 +193,7 @@ Mục tiêu: so sánh hai thẻ và chọn thẻ trên, thẻ dưới hoặc “
 - Đúng nhận 10 điểm, tăng multiplier mỗi 5 streak và tối đa 40 điểm.
 - Các phép tính trên thẻ chỉ được ghi nhận là `review` khi round trả lời đúng.
 - Top 5 điểm được lưu riêng cho mode `compare`.
-- Đúng: thẻ (hoặc nút "Hai thẻ bằng nhau") xanh, ✓ phóng giữa thẻ rồi thu về góc; lượt mới sau 450 ms. Sai: ✗ trên thẻ đã chọn, ✓ trên thẻ đúng, chờ 1 giây để bé đọc lời giải thích.
+- Đúng: thẻ (hoặc nút "Hai thẻ bằng nhau") xanh và ✓ xanh lớn bật lên giữa ô chơi rồi mờ trong 600 ms, giống các game khác; lượt mới sau 450 ms. HUD không có ô cấp độ nên không có pill lên cấp khi tăng bậc. Sai: ✗ trên thẻ đã chọn, thẻ đúng chuyển xanh (không có ✓), chờ 1 giây để bé đọc lời giải thích.
 
 ### Input
 
