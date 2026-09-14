@@ -28,3 +28,36 @@ export function recordTrueFalseAnswer(g,good){
 export function elapseTrueFalse(g,seconds){
   if(g.over)return;g.remaining=Math.max(0,g.remaining-seconds);if(g.remaining<.000001){g.remaining=0;g.over=true}
 }
+
+const MAX=20,FALSE_GAPS={1:[3,5],2:[1,2],3:[1,1]};
+const randomInt=(low,high,random)=>low+Math.floor(random()*(high-low+1));
+const pick=(list,random)=>list[Math.floor(random()*list.length)];
+const inRange=n=>Number.isInteger(n)&&n>=0&&n<=MAX;
+const valueOf=({a,b,sign})=>sign==='+'?a+b:a-b;
+const usable=f=>!!f&&(f.sign==='+'||f.sign==='−')&&inRange(f.a)&&inRange(f.b)&&inRange(valueOf(f))&&f.answer===valueOf(f);
+const expression=fact=>({kind:'fact',value:fact.answer,label:`${fact.a} ${fact.sign} ${fact.b}`,fact});
+const number=value=>({kind:'number',value,label:String(value)});
+
+function factsForValue(value){
+  const out=[];
+  for(let a=0;a<=value;a++)out.push({a,b:value-a,sign:'+',answer:value,id:`${a}+${value-a}`});
+  for(let b=1;value+b<=MAX;b++)out.push({a:value+b,b,sign:'−',answer:value,id:`${value+b}−${b}`});
+  return out;
+}
+
+// Moves away by a gap in [low, high]; flips direction when the preferred one would leave 0–20.
+function shifted(value,[low,high],random){
+  const gap=randomInt(low,high,random),up=random()<.5;
+  if(up&&value+gap<=MAX)return value+gap;
+  return value-gap>=0?value-gap:value+gap;
+}
+
+export function createTrueFalseRound(g,{fact,random=Math.random}={}){
+  const stage=trueFalseStage(g),truth=random()<.5,twoSided=stage===3&&random()<.5,supplied=fact?.();
+  const left=expression(usable(supplied)?supplied:pick(factsForValue(randomInt(0,MAX,random)),random));
+  const target=truth?left.value:shifted(left.value,twoSided?[1,2]:FALSE_GAPS[stage],random);
+  const right=twoSided?expression(pick(factsForValue(target).filter(f=>f.id!==left.fact.id),random)):number(target);
+  return {stage,truth,left,right};
+}
+
+export function reviewFacts(round,correct){return correct?[round.left.fact]:[]}
