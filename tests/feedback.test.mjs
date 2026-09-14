@@ -54,7 +54,7 @@ test('showMiss shows a red cross for 300 ms then cleans up',t=>{
   t.mock.timers.tick(1);assert.equal(byClass(button,'fb-miss').length,0);assert.ok(!button.classList.contains('has-miss'));
 });
 
-test('showLevelUp floats a "Lên cấp" pill centred on the HUD level cell for 1.4 s then cleans up',t=>{
+test('showLevelUp floats a "Lên cấp" pill centred on the HUD level cell for 600 ms then cleans up',t=>{
   t.mock.timers.enable({apis:['setTimeout']});
   const surface=element('section'),cell=element('div');
   Object.assign(surface,{clientLeft:1,clientTop:1,getBoundingClientRect:()=>({left:100,top:50,width:600,height:500})});
@@ -64,7 +64,7 @@ test('showLevelUp floats a "Lên cấp" pill centred on the HUD level cell for 1
   assert.equal(placed.style.left,'289px');assert.equal(placed.style.top,'39px');
   const [pill]=byClass(surface,'fb-levelup');assert.equal(pill.textContent,'⬆ Lên cấp 2!');assert.equal(pill.getAttribute('aria-hidden'),'true');
   assert.ok(surface.classList.contains('has-levelup'));
-  t.mock.timers.tick(1399);assert.equal(byClass(surface,'fb-levelup').length,1);
+  t.mock.timers.tick(599);assert.equal(byClass(surface,'fb-levelup').length,1);
   t.mock.timers.tick(1);assert.equal(byClass(surface,'fb-levelup').length,0);assert.ok(!surface.classList.contains('has-levelup'));
 });
 
@@ -136,7 +136,8 @@ test('feedback stylesheet defines the check, miss, streak and sr-only styles and
   assert.match(css,/\.has-miss,\.has-levelup\{position:relative/);
   assert.doesNotMatch(css,/fb-check-badge|fb-badge|is-check/);
   // the level-up pill is placed over the HUD level cell by script; CSS only centres it on that point
-  assert.match(css,/\.fb-levelup\{[^}]*margin-top:-18px[^}]*animation:fb-rise 1\.4s/);
+  // the CSS rise and the removal timer (LEVELUP_MS) share one 600 ms beat, so the pill never vanishes mid-flight
+  assert.match(css,/\.fb-levelup\{[^}]*margin-top:-18px[^}]*animation:fb-rise \.6s/);
   assert.doesNotMatch(css,/\.play>\.fb-levelup|\.rain-field>\.fb-levelup/);
   assert.doesNotMatch(css,/fb-streak|has-streak/);
   assert.match(css,/\.fb-check-center\{[^}]*position:absolute;left:50%;top:50%[^}]*pointer-events:none[^}]*animation:fb-center \.6s/);

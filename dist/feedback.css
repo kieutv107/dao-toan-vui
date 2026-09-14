@@ -6,7 +6,7 @@
 .answers button.wrong{transition:opacity .2s,transform .18s,box-shadow .18s}
 .answers button.wrong.has-miss{opacity:1}
 .bubbles button>.fb-miss{top:2px;right:2px}
-.fb-levelup{position:absolute;left:50%;top:50%;margin-top:-18px;z-index:3;transform:translate(-50%,0);background:#ffe58a;color:#7a5a00;border:2px solid #f0c94c;border-radius:999px;padding:5px 14px;font-size:16px;font-weight:1000;white-space:nowrap;box-shadow:0 4px 12px #c8932533;pointer-events:none;animation:fb-rise 1.4s ease-out both}
+.fb-levelup{position:absolute;left:50%;top:50%;margin-top:-18px;z-index:3;transform:translate(-50%,0);background:#ffe58a;color:#7a5a00;border:2px solid #f0c94c;border-radius:999px;padding:5px 14px;font-size:16px;font-weight:1000;white-space:nowrap;box-shadow:0 4px 12px #c8932533;pointer-events:none;animation:fb-rise .6s ease-out both}
 @keyframes fb-pop{0%{transform:scale(.4);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
 @keyframes fb-center{0%{transform:translate(-50%,-50%) scale(.4);opacity:0}30%{transform:translate(-50%,-50%) scale(1.1);opacity:1}45%{transform:translate(-50%,-50%) scale(1)}80%{opacity:1}100%{transform:translate(-50%,-50%) scale(1);opacity:0}}
 @keyframes fb-rise{0%{opacity:0;transform:translate(-50%,8px)}15%{opacity:1;transform:translate(-50%,0)}70%{opacity:1;transform:translate(-50%,-14px)}100%{opacity:0;transform:translate(-50%,-28px)}}

@@ -95,7 +95,7 @@ Mục tiêu: tính nhẩm liên tục trong khi các phép tính rơi xuống b�
 
 ### Độ khó
 
-- Cấp độ tăng sau mỗi 6 câu đúng; lúc đó pill "⬆ Lên cấp n!" hiện trên ô “Cấp độ” của HUD và bay lên chậm trong 1,4 s.
+- Cấp độ tăng sau mỗi 6 câu đúng; lúc đó pill "⬆ Lên cấp n!" hiện trên ô “Cấp độ” của HUD và bay lên trong 600 ms.
 - Tốc độ rơi cố định `0.055` và nhịp spawn cố định `3.8` giây ở mọi cấp.
 - Độ khó tăng bằng số giọt cùng lúc: từ 1 lên tối đa 4.
 - Engine tính giới hạn fallback tăng từ 10, mỗi cấp thêm 2, tối đa 20. Trong flow hiện tại, phép tính chính đến từ learning service theo chặng giáo trình (xem ENGINE.md mục 6); giới hạn fallback chỉ dùng khi supplier không trả fact.
@@ -129,7 +129,7 @@ Mục tiêu: chọn nhanh kết quả đúng trong 4 bong bóng chuyển động
 - Chuyển động bong bóng bắt đầu chu kỳ 3 giây, nhanh dần và tối thiểu 1,4 giây.
 - Trả lời sai hoặc hết giờ: mất 1 mạng, trừ 5 điểm, ngắt streak; cùng câu vẫn cho thử lại nếu còn mạng.
 - Trả lời đúng: 10 điểm nhân multiplier streak, tối đa 40 điểm; nếu câu đã sai trước đó thì nhận 5 điểm.
-- Sau câu đúng, ✓ xanh lớn hiện giữa ô chơi (ô `?` giữ nguyên); câu mới sau 450 ms ở mọi cấp. Khi lên cấp (mỗi 4 câu đúng) có pill "⬆ Lên cấp n!" hiện ngay trên ô “Cấp độ” của HUD và bay lên chậm trong 1,4 s, không bị cắt khi sang câu mới. Chuỗi đúng không còn pill riêng.
+- Sau câu đúng, ✓ xanh lớn hiện giữa ô chơi (ô `?` giữ nguyên); câu mới sau 450 ms ở mọi cấp. Khi lên cấp (mỗi 4 câu đúng) có pill "⬆ Lên cấp n!" hiện ngay trên ô “Cấp độ” của HUD và bay lên trong 600 ms, không bị cắt khi sang câu mới. Chuỗi đúng không còn pill riêng.
 
 ## 5. Số nào trốn mất?
 
