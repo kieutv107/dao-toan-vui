@@ -8,8 +8,8 @@ function storage(){const m=new Map();return{getItem:k=>m.get(k)??null,setItem:(k
 test('service persists evidence and exposes refreshed summary',()=>{
   const s=storage(),learning=createLearningService({storage:s,now:()=>100,random:()=>0}),fact={a:1,b:9,sign:'+',answer:10};
   learning.record({fact,result:'correct',elapsedMs:1000,context:'practice',sessionId:'a'});
-  assert.equal(learning.summary().learning,1);assert.equal(learning.summary().level,1);
-  assert.equal(getFactState(createLearningService({storage:s}).profile,fact).strength,2);
+  assert.equal(learning.summary().strong,1);assert.equal(learning.summary().level,1);
+  assert.equal(getFactState(createLearningService({storage:s}).profile,fact).strength,3);
 });
 
 test('service creates unique session ids and can reset',()=>{
