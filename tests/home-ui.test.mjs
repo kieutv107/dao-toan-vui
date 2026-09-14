@@ -223,10 +223,10 @@ test('true-or-false shows the real result only on a miss and holds for one secon
   assert.doesNotMatch(game,/Mình thử câu tiếp|Mình giảm một bậc/);
 });
 
-test('true-or-false counts the full frame interval and maps ArrowLeft to true',async()=>{
+test('true-or-false counts the full frame interval and maps ArrowRight to true',async()=>{
   const game=await read('truefalse.mjs');
   assert.match(game,/const dt=last\?\(now-last\)\/1000:0/);
-  assert.match(game,/choose\(event\.key==='ArrowLeft'\)/);
+  assert.match(game,/choose\(event\.key==='ArrowRight'\)/);
 });
 
 test('Nunito starts from HTML preconnects instead of a CSS import',async()=>{

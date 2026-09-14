@@ -12,7 +12,7 @@ export function mountTrueFalse(app,{home,award,beep,learning,scores}){
     <section class="play yellow tf-game" aria-label="Đúng hay sai">
       <div class="tf-hud" id="tf-hud"></div>
       <div id="tf-body"></div>
-      <div class="challenge-overlay tf-overlay" id="tf-overlay"><span class="tf-symbol">✅</span><h1>Đúng hay sai?</h1><p>Nhìn phép tính rồi chọn <strong>Đúng</strong> hoặc <strong>Sai</strong>.</p><button class="primary" id="tf-begin">Bắt đầu →</button><small>← Đúng · → Sai · Esc để tạm dừng</small></div>
+      <div class="challenge-overlay tf-overlay" id="tf-overlay"><span class="tf-symbol">✅</span><h1>Đúng hay sai?</h1><p>Nhìn phép tính rồi chọn <strong>Đúng</strong> hoặc <strong>Sai</strong>.</p><button class="primary" id="tf-begin">Bắt đầu →</button><small>← Sai · → Đúng · Esc để tạm dừng</small></div>
     </section>`;
   const overlay=$('#tf-overlay'),pauseButton=$('#tf-pause');
 
@@ -22,7 +22,7 @@ export function mountTrueFalse(app,{home,award,beep,learning,scores}){
 
   function newRound(){
     if(disposed||g.over)return;locked=false;delayAction=null;round=createTrueFalseRound(g,{fact:()=>learning.nextFact({context:'truefalse'})});
-    $('#tf-body').innerHTML=`<div class="play-label">LƯỢT ${g.attempts+1}</div><h2>Phép tính này đúng hay sai?</h2><div class="tf-card${round.right.kind==='fact'?' two-sided':''}" id="tf-statement" role="group" aria-label="${round.left.label} = ${round.right.label}">${side(round.left)}<span class="tf-equals" aria-hidden="true">=</span>${side(round.right)}</div><div class="tf-choices"><button class="tf-choice" data-tf-choice="true" aria-describedby="tf-statement"><b aria-hidden="true">✓</b> Đúng</button><button class="tf-choice" data-tf-choice="false" aria-describedby="tf-statement"><b aria-hidden="true">✗</b> Sai</button></div><div class="sr-only" id="tf-feedback" role="status" aria-live="polite"></div>`;
+    $('#tf-body').innerHTML=`<div class="play-label">LƯỢT ${g.attempts+1}</div><h2>Phép tính này đúng hay sai?</h2><div class="tf-card${round.right.kind==='fact'?' two-sided':''}" id="tf-statement" role="group" aria-label="${round.left.label} = ${round.right.label}">${side(round.left)}<span class="tf-equals" aria-hidden="true">=</span>${side(round.right)}</div><div class="tf-choices"><button class="tf-choice" data-tf-choice="false" aria-describedby="tf-statement"><b aria-hidden="true">✗</b> Sai</button><button class="tf-choice" data-tf-choice="true" aria-describedby="tf-statement"><b aria-hidden="true">✓</b> Đúng</button></div><div class="sr-only" id="tf-feedback" role="status" aria-live="polite"></div>`;
     app.querySelectorAll('[data-tf-choice]').forEach(button=>button.onclick=()=>choose(button.dataset.tfChoice==='true'));hud();
   }
 
@@ -69,7 +69,7 @@ export function mountTrueFalse(app,{home,award,beep,learning,scores}){
   }
   function key(event){
     if(event.repeat||event.ctrlKey||event.metaKey||event.altKey)return;if(event.key==='Escape'){event.preventDefault();togglePause();return}
-    if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();choose(event.key==='ArrowLeft')}
+    if(event.key==='ArrowLeft'||event.key==='ArrowRight'){event.preventDefault();choose(event.key==='ArrowRight')}
   }
   function visibility(){if(document.hidden&&playing&&!paused)togglePause()}
   function cleanup(){disposed=true;cancelAnimationFrame(frame);delayAction=null;document.removeEventListener('keydown',key);document.removeEventListener('visibilitychange',visibility)}
