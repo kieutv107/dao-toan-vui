@@ -37,6 +37,14 @@ export function recordEvidence(profile,event){
   s.lastSeen=now;schedule(s,now);
   profile.facts[key]=s;profile.updatedAt=now;return s;
 }
+// Fill a still-blank form with strong-but-reviewable evidence. Never touches a form that already
+// carries evidence, so seeding can only add to blanks — it never overwrites or demotes real progress.
+export function seedForm(profile,fact,now=Date.now()){
+  const key=formKey(fact),cur=getFactState(profile,fact);
+  if(cur.correct+cur.wrong+cur.hints+cur.reviews>0)return cur;
+  const s={strength:3,status:'strong',correct:1,wrong:0,hints:0,reviews:0,fastSessions:[],lastSeen:now,dueAt:now};
+  profile.facts[key]=s;profile.updatedAt=now;return s;
+}
 export function migrateProfile(old){
   if(!old||old.version===PROFILE_VERSION)return old;
   const profile={...createProfile(),timings:old.timings||{},createdAt:old.createdAt||Date.now(),updatedAt:old.updatedAt||Date.now()};

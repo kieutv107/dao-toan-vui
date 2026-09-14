@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {factCatalog,factId,factFamilyId,formKey,createProfile,getFactState,recordEvidence,migrateProfile,responseBenchmark} from '../dist/mastery-engine.mjs';
+import {factCatalog,factId,factFamilyId,formKey,createProfile,getFactState,recordEvidence,migrateProfile,responseBenchmark,seedForm} from '../dist/mastery-engine.mjs';
 
 test('catalog contains stable valid mixed facts through 20',()=>{
   const facts=factCatalog();
@@ -60,6 +60,24 @@ test('commuted addition shares one progress record while subtraction keeps its o
   assert.equal(getFactState(p,'13−8').status,'new');
   assert.equal(formKey('8+5'),'5+8=13:+');assert.equal(formKey('13−5'),'5+8=13:−');
   assert.deepEqual(Object.keys(p.facts),['5+8=13:+']);
+});
+
+test('seedForm fills a blank form as strong and immediately due',()=>{
+  const p=createProfile(),fact={a:1,b:9,sign:'+',answer:10};
+  const s=seedForm(p,fact,500);
+  assert.deepEqual(s,{strength:3,status:'strong',correct:1,wrong:0,hints:0,reviews:0,fastSessions:[],lastSeen:500,dueAt:500});
+  assert.equal(getFactState(p,factId(fact)).status,'strong');
+  assert.equal(p.updatedAt,500);
+});
+
+test('seedForm never overwrites existing evidence',()=>{
+  const p=createProfile(),fact={a:1,b:9,sign:'+',answer:10};
+  recordEvidence(p,{fact,result:'wrong',context:'practice',sessionId:'a',now:1}); // weak, status learning
+  const before={...getFactState(p,fact)};
+  const s=seedForm(p,fact,999);
+  assert.deepEqual(s,before);
+  assert.equal(getFactState(p,fact).status,'learning');
+  assert.equal(getFactState(p,fact).strength,0);
 });
 
 test('version one profiles merge per-question states into form states',()=>{
