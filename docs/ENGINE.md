@@ -318,7 +318,7 @@ State được mutate tại chỗ. `advance` nhận random và fact supplier đ�
 
 | Hàm | Vai trò |
 | --- | --- |
-| `createCompareGame()` | Khởi tạo run 120 giây |
+| `createCompareGame()` | Khởi tạo run 90 giây |
 | `unlockedCompareStage(g)` | Stage mở theo attempts 0/5/10 |
 | `compareStage(g)` | Stage thực tế sau penalty |
 | `recordCompareAnswer(g, good)` | Score, streak, hạ/hồi stage |

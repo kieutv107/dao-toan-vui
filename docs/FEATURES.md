@@ -175,7 +175,7 @@ Mục tiêu: so sánh hai thẻ và chọn thẻ trên, thẻ dưới hoặc “
 
 ### Thời lượng và stage
 
-- Mỗi lượt kéo dài 120 giây hoạt động; tạm dừng không làm giảm giờ.
+- Mỗi lượt kéo dài 90 giây hoạt động; tạm dừng không làm giảm giờ.
 - Lượt 1–5: hai thẻ đều là số.
 - Lượt 6–10: một phép tính và một số.
 - Từ lượt 11: cả hai thẻ là phép tính.

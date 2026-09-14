@@ -41,9 +41,9 @@ test('wrong answers keep score while correct streaks award up to forty points',(
   assert.equal(g.bestStreak,20);assert.equal(recordCompareAnswer(g,true),40);
 });
 
-test('two active minutes ends the run and later answers do nothing',()=>{
-  const g=createCompareGame();assert.equal(g.remaining,120);
-  elapseCompare(g,119.9);assert.equal(g.over,false);
+test('ninety active seconds ends the run and later answers do nothing',()=>{
+  const g=createCompareGame();assert.equal(g.remaining,90);
+  elapseCompare(g,89.9);assert.equal(g.over,false);
   elapseCompare(g,.1);assert.equal(g.remaining,0);assert.equal(g.over,true);
   assert.equal(recordCompareAnswer(g,true),0);assert.equal(g.attempts,0);
 });

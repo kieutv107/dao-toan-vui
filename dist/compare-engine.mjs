@@ -1,5 +1,5 @@
 export function createCompareGame(){
-  return {attempts:0,correct:0,score:0,streak:0,bestStreak:0,wrongRun:0,recoveryRun:0,stagePenalty:0,remaining:120,over:false};
+  return {attempts:0,correct:0,score:0,streak:0,bestStreak:0,wrongRun:0,recoveryRun:0,stagePenalty:0,remaining:90,over:false};
 }
 
 export function unlockedCompareStage(g){return g.attempts<5?1:g.attempts<10?2:3}
