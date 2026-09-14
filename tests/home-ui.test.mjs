@@ -45,11 +45,15 @@ test('home links to a non-profit, no-warranty disclaimer that opens in a modal',
   assert.match(style,/\.disclaimer-modal::backdrop\{/);
 });
 
-test('progress details close with a button and no longer offer a data reset',async()=>{
+test('progress details open in a modal that closes with a button, backdrop or Esc',async()=>{
   const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
-  assert.match(app,/<div class="journey-details" id="journey-details" hidden><div class="details-head"><strong>Chi tiết hành trình<\/strong><button class="details-close" id="details-close" aria-label="Đóng chi tiết">✕<\/button><\/div>/);
-  assert.match(app,/app\.querySelector\('#details-close'\)\.onclick=\(\)=>\{details\.hidden=true;more\.setAttribute\('aria-expanded','false'\);more\.focus\(\)\}/);
+  assert.match(app,/<dialog class="journey-modal" id="journey-details" aria-labelledby="journey-details-title"><div class="details-head"><strong id="journey-details-title">Chi tiết hành trình<\/strong><button class="details-close" id="details-close" aria-label="Đóng chi tiết">✕<\/button><\/div><div class="journey-details-body">/);
+  assert.match(app,/more\.onclick=\(\)=>\{details\.showModal\(\);more\.setAttribute\('aria-expanded','true'\)\}/,'the link opens the modal');
+  assert.match(app,/details\.addEventListener\('close',\(\)=>\{more\.setAttribute\('aria-expanded','false'\);more\.focus\(\)\}\)/,'every close path resets the trigger and returns focus');
+  assert.match(app,/app\.querySelector\('#details-close'\)\.onclick=\(\)=>details\.close\(\)/);
+  assert.match(app,/details\.onclick=e=>\{if\(e\.target===details\)details\.close\(\)\}/,'a backdrop click closes it');
   assert.doesNotMatch(app,/reset-progress|Đặt lại dữ liệu|learning\.reset\(\)|scores\.reset\(\)/);
+  assert.match(style,/\.journey-modal::backdrop\{/);
   assert.match(style,/\.details-close\{/);
   assert.doesNotMatch(style,/\.reset-progress/);
 });
