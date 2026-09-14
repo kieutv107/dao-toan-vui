@@ -1,7 +1,7 @@
 // Offline support: precache the whole app, then serve our own files network-first so a
 // deploy reaches the child as soon as there is signal, and fall back to the cache offline.
 const CACHE='dao-toan-vui-v1',FONT_CACHE='dao-toan-vui-fonts-v1',NETWORK_TIMEOUT_MS=3000;
-const ASSETS=['./','index.html','app.js','site.webmanifest','style.css','rain.css','challenge.css','compare.css','sheet.css','feedback.css','adaptive-selector.mjs','challenge-engine.mjs','challenge.mjs','compare-engine.mjs','compare.mjs','core-facts.mjs','feedback.mjs','high-scores.mjs','learning-service.mjs','learning-store.mjs','mastery-engine.mjs','math.mjs','offline.mjs','practice-engine.mjs','practice.mjs','rain-engine.mjs','rain.mjs','sheet-engine.mjs','sheet.mjs','strategies.mjs','favicon.ico','favicon-16x16.png','favicon-32x32.png','apple-touch-icon.png','android-chrome-192x192.png','android-chrome-512x512.png'];
+const ASSETS=['./','index.html','app.js','site.webmanifest','style.css','rain.css','challenge.css','compare.css','sheet.css','feedback.css','adaptive-selector.mjs','challenge-engine.mjs','challenge.mjs','compare-engine.mjs','compare.mjs','core-facts.mjs','feedback.mjs','high-scores.mjs','learning-service.mjs','learning-store.mjs','mastery-engine.mjs','math.mjs','offline.mjs','practice-engine.mjs','practice.mjs','rain-engine.mjs','rain.mjs','sheet-engine.mjs','sheet.mjs','strategies.mjs','truefalse-engine.mjs','favicon.ico','favicon-16x16.png','favicon-32x32.png','apple-touch-icon.png','android-chrome-192x192.png','android-chrome-512x512.png'];
 
 self.addEventListener('install',event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)).then(()=>self.skipWaiting()));
