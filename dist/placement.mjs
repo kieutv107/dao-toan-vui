@@ -36,7 +36,7 @@ export function mountPlacement(app,{home,beep,learning}){
     if(disposed)return;
     learning.placeAt(placementResult(state).level);
     const landed=learning.summary().level;
-    $('#placement-body').innerHTML=`<div class="finish-icon">🎉</div><h2>Bắt đầu ở Chặng ${landed}!</h2><p>Mình đã tìm được chỗ bắt đầu vừa sức cho bé. Cùng luyện nhé!</p><div class="finish-actions"><button class="back" id="placement-redo">↻ Làm lại bài test</button><button class="primary" id="placement-done">Bắt đầu →</button></div>`;
+    $('#placement-body').innerHTML=`<div class="finish-icon">🎉</div><h2>Bắt đầu ở Chặng ${landed}!</h2><p>Đã tìm được chỗ bắt đầu vừa sức cho bé. Cùng luyện nhé!</p><div class="finish-actions"><button class="back" id="placement-redo">↻ Làm lại bài test</button><button class="primary" id="placement-done">Bắt đầu →</button></div>`;
     $('#placement-done').onclick=home;$('#placement-redo').onclick=restart;$('#placement-done').focus();
   }
   ask();
