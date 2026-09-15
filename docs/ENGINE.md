@@ -233,7 +233,7 @@ Một câu được coi là nhanh khi `elapsedMs` không vượt benchmark của
 
 Thang fallback khi pool rỗng: bỏ `kind` → gộp focus + review → toàn bộ core pool mọi chặng → bỏ `sign`. `excludeIds` và `excludeAnswers` luôn được giữ. Nhờ vậy Lật thẻ ở chặng 1 (chỉ 5 đáp án khác nhau) vẫn đủ 6 cặp bằng cách mượn câu từ chặng sau.
 
-`buildPracticeSession()` tạo 18 slot theo kind (7 weak, 5 learning, 4 due, 2 new); nhận `focusLevel` và truyền xuống mọi lần gọi `selectFact()` (`createPractice({focusLevel})` dùng khi bé bấm “Luyện” ở một chặng). Với `unique: true` (Phiếu 20 phép), session không bao giờ lặp câu: khi chương trình đã mở hết câu chưa dùng, slot mượn câu của chặng kế tiếp theo thứ tự (chặng 1 chỉ có 13 câu nên phiếu chặng 1 lấy thêm 7 câu chặng 2) thay vì cho lặp. Chặng hiện tại không đổi. Mỗi slot thử `strict` với toàn bộ câu đã dùng; nếu hết thì cho lặp nhưng tránh 3 câu liền kề; cuối cùng mới nới rộng.
+`buildPracticeSession()` tạo 18 slot theo kind (7 weak, 5 learning, 4 due, 2 new); nhận `focusLevel` và truyền xuống mọi lần gọi `selectFact()` (`createPractice({focusLevel})` dùng khi bé bấm “Luyện” ở một chặng). Với `unique: true` (Phiếu phép tính), session không bao giờ lặp câu: khi chương trình đã mở hết câu chưa dùng, slot mượn câu của chặng kế tiếp theo thứ tự (ví dụ chặng 1 chỉ có 13 câu, nên một phiếu 20 câu sẽ lấy thêm 7 câu chặng 2) thay vì cho lặp. Chặng hiện tại không đổi. Mỗi slot thử `strict` với toàn bộ câu đã dùng; nếu hết thì cho lặp nhưng tránh 3 câu liền kề; cuối cùng mới nới rộng.
 
 ### Trọng số normal
 

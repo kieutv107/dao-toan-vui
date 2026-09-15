@@ -15,7 +15,7 @@ let stopGame=null,sound=true,ctx,total=0;
 try{total=Number(localStorage.getItem('toan-stars'))||0;sound=localStorage.getItem('toan-sound')!=='off'}catch{}
 const modes=[
   {id:'practice',zone:'practice',icon:'🌱',title:'Vườn luyện tập',desc:'Một lượt nhỏ dành riêng cho phần bé đang cần luyện.',tag:'LUYỆN THÍCH ỨNG · KHÔNG ÁP LỰC',color:'green',label:'Luyện hôm nay'},
-  {id:'sheet',zone:'practice',icon:'📝',title:'Phiếu 20 phép',desc:'Điền kết quả cả phiếu rồi chấm một lượt, như bài tập về nhà.',tag:'ĐIỀN KẾT QUẢ · KHÔNG ĐẾM GIỜ',color:'yellow',label:'Làm phiếu'},
+  {id:'sheet',zone:'practice',icon:'📝',title:'Phiếu phép tính',desc:'Điền kết quả cả phiếu rồi chấm một lượt, như bài tập về nhà.',tag:'ĐIỀN KẾT QUẢ · KHÔNG ĐẾM GIỜ',color:'yellow',label:'Làm phiếu'},
   {id:'rain',zone:'game',icon:'🌦️',title:'Mưa phép tính',desc:'Tính nhẩm, hứng điểm! Đừng để phép tính chạm đáy.',tag:'TÍNH NHẨM NHANH',color:'teal',label:'Đón cơn mưa'},
   {id:'bubble',zone:'game',icon:'🫧',title:'Bắt bong bóng',desc:'Tìm đáp án đúng, chạm và… bụp!',tag:'NHANH TAY · TINH MẮT',color:'blue',label:'Chơi ngay'},
   {id:'memory',zone:'game',icon:'🧩',title:'Lật thẻ thần kỳ',desc:'Ghép phép tính với đáp án. Thử tài trí nhớ!',tag:'GHI NHỚ · KHÁM PHÁ',color:'orange',label:'Lật thẻ'},

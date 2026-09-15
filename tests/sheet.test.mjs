@@ -6,9 +6,16 @@ import {formsAtLevel,formOf} from '../src/core-facts.mjs';
 import {createSheet,setAnswer,filledCount,grade,SHEET_SIZE} from '../src/sheet-engine.mjs';
 import {currentLevel} from '../src/adaptive-selector.mjs';
 
-test('a level-one sheet uses all 13 level-one questions once and borrows 7 from level two instead of repeating',()=>{
+test('a level-one sheet holds 12 distinct level-one questions',()=>{
   const profile=createProfile(),g=createSheet({profile,sessionId:'s',random:()=>.3});
-  assert.equal(SHEET_SIZE,20);assert.equal(g.questions.length,20);assert.equal(g.answers.length,20);
+  assert.equal(SHEET_SIZE,12);assert.equal(g.questions.length,12);assert.equal(g.answers.length,12);
+  assert.equal(new Set(g.questions.map(q=>q.id)).size,12);
+  assert.equal(g.questions.filter(q=>formOf(q).level===1).length,12);
+  assert.equal(currentLevel(profile),1);
+});
+
+test('a longer unique sheet borrows from the next level instead of repeating',()=>{
+  const profile=createProfile(),g=createSheet({profile,sessionId:'s',random:()=>.3,count:20});
   assert.equal(new Set(g.questions.map(q=>q.id)).size,20);
   assert.equal(g.questions.filter(q=>formOf(q).level===1).length,13);
   assert.equal(g.questions.filter(q=>formOf(q).level===2).length,7);
@@ -19,7 +26,7 @@ test('no sheet ever repeats a question, whatever the random draw',()=>{
   const draws=[()=>0,()=>.999,()=>.5,...Array.from({length:30},()=>Math.random)];
   for(const random of draws){
     const g=createSheet({profile:createProfile(),sessionId:'s',random});
-    assert.equal(new Set(g.questions.map(q=>q.id)).size,20);
+    assert.equal(new Set(g.questions.map(q=>q.id)).size,12);
   }
 });
 
@@ -27,8 +34,8 @@ test('at a later level the sheet mixes the focus level with review',()=>{
   const p=createProfile();
   for(const level of [1,2])for(const form of formsAtLevel(level))for(const sessionId of ['a','b'])recordEvidence(p,{fact:form.questions[0],result:'correct',elapsedMs:1000,context:'practice',sessionId});
   let i=0;const g=createSheet({profile:p,sessionId:'s',random:()=>[.1,.5,.1,.5,.1,.5,.8,.5][i++%8]});
-  assert.equal(new Set(g.questions.map(q=>q.id)).size,20);
-  assert.ok(g.questions.filter(q=>formOf(q).level===3).length>=12);
+  assert.equal(new Set(g.questions.map(q=>q.id)).size,12);
+  assert.ok(g.questions.filter(q=>formOf(q).level===3).length>=7);
 });
 
 test('answers accept integers only and can be cleared',()=>{
@@ -43,15 +50,15 @@ test('answers accept integers only and can be cleared',()=>{
 
 test('grading marks each question once, counts blanks as wrong and records evidence',()=>{
   const events=[],g=createSheet({profile:createProfile(),sessionId:'s',random:()=>.3,record:e=>events.push(e)});
-  g.questions.forEach((q,i)=>{if(i<15)setAnswer(g,i,q.answer);else if(i<18)setAnswer(g,i,q.answer+1)});
+  g.questions.forEach((q,i)=>{if(i<8)setAnswer(g,i,q.answer);else if(i<10)setAnswer(g,i,q.answer+1)});
   const r=grade(g);
-  assert.deepEqual(r,{correct:15,wrong:3,blank:2});
-  assert.equal(g.marks[0].correct,true);assert.equal(g.marks[15].correct,false);assert.equal(g.marks[15].given,g.questions[15].answer+1);
-  assert.equal(g.marks[18].blank,true);assert.equal(g.marks[18].expected,g.questions[18].answer);
-  assert.equal(events.length,20);assert.ok(events.every(e=>e.context==='sheet'&&e.sessionId==='s'&&e.elapsedMs===undefined));
-  assert.equal(events.filter(e=>e.result==='correct').length,15);assert.equal(events.filter(e=>e.result==='wrong').length,5);
-  assert.equal(setAnswer(g,19,'1'),false);
-  assert.equal(grade(g),r);assert.equal(events.length,20);
+  assert.deepEqual(r,{correct:8,wrong:2,blank:2});
+  assert.equal(g.marks[0].correct,true);assert.equal(g.marks[8].correct,false);assert.equal(g.marks[8].given,g.questions[8].answer+1);
+  assert.equal(g.marks[10].blank,true);assert.equal(g.marks[10].expected,g.questions[10].answer);
+  assert.equal(events.length,12);assert.ok(events.every(e=>e.context==='sheet'&&e.sessionId==='s'&&e.elapsedMs===undefined));
+  assert.equal(events.filter(e=>e.result==='correct').length,8);assert.equal(events.filter(e=>e.result==='wrong').length,4);
+  assert.equal(setAnswer(g,11,'1'),false);
+  assert.equal(grade(g),r);assert.equal(events.length,12);
 });
 
 test('sheet mode is registered and styled',async()=>{

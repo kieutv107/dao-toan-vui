@@ -13,7 +13,7 @@ Tài liệu này mô tả trạng thái đang chạy của Đảo Toán Vui. App
 App hiện có 8 game được đăng ký trong menu:
 
 1. Vườn luyện tập
-2. Phiếu 20 phép
+2. Phiếu phép tính
 3. Mưa phép tính
 4. Bắt bong bóng
 5. Lật thẻ thần kỳ

@@ -3,7 +3,7 @@ import {createSheet,setAnswer,filledCount,grade} from './sheet-engine.mjs';
 export function mountSheet(app,{home,beep,learning,startGame}){
   const g=createSheet({profile:learning.profile,sessionId:learning.newSessionId(),record:e=>learning.record(e)}),$=s=>app.querySelector(s),stage=learning.summary();
   let disposed=false;
-  app.innerHTML=`<div class="play-top"><button class="back" id="sheet-back">← Đảo trò chơi</button><span>📝 Phiếu 20 phép</span><span class="practice-badge">Chặng ${stage.level} · Không đếm giờ</span></div>
+  app.innerHTML=`<div class="play-top"><button class="back" id="sheet-back">← Đảo trò chơi</button><span>📝 Phiếu phép tính</span><span class="practice-badge">Chặng ${stage.level} · Không đếm giờ</span></div>
     <section class="play yellow sheet"><p class="challenge-rules">Điền kết quả vào từng ô, xong hết rồi bấm <b>Chấm bài</b>. Không tính giờ, không trừ điểm!</p>
       <ol class="sheet-grid" id="sheet-grid">${g.questions.map((q,i)=>`<li class="sheet-row"><label for="sheet-${i}"><span class="sheet-eq"><b class="sheet-term">${q.a}</b><i class="sheet-op">${q.sign}</i><b class="sheet-term">${q.b}</b><i class="sheet-op">=</i></span></label><input id="sheet-${i}" data-index="${i}" type="number" inputmode="numeric" min="0" max="20" autocomplete="off" aria-label="Kết quả câu ${i+1}: ${q.a} ${q.sign} ${q.b}"><span class="sheet-mark" aria-live="polite"></span></li>`).join('')}</ol>
       <div class="sheet-footer"><div id="sheet-status" role="status" aria-live="polite" class="challenge-feedback"></div><div class="finish-actions" id="sheet-actions"><button class="primary" id="sheet-grade">Chấm bài ✓</button></div></div>
