@@ -26,7 +26,7 @@
 ### Task 1: Fact catalog and mastery state transitions
 
 **Files:**
-- Create: `dist/mastery-engine.mjs`
+- Create: `src/mastery-engine.mjs`
 - Create: `tests/mastery-engine.test.mjs`
 
 **Interfaces:**
@@ -44,8 +44,8 @@
 ### Task 2: Versioned local storage and high scores
 
 **Files:**
-- Create: `dist/learning-store.mjs`
-- Create: `dist/high-scores.mjs`
+- Create: `src/learning-store.mjs`
+- Create: `src/high-scores.mjs`
 - Create: `tests/learning-store.test.mjs`
 - Create: `tests/high-scores.test.mjs`
 
@@ -65,8 +65,8 @@
 ### Task 3: Adaptive selection and 18-question practice sessions
 
 **Files:**
-- Create: `dist/adaptive-selector.mjs`
-- Modify: `dist/practice-engine.mjs`
+- Create: `src/adaptive-selector.mjs`
+- Modify: `src/practice-engine.mjs`
 - Modify: `tests/practice.test.mjs`
 - Create: `tests/adaptive-selector.test.mjs`
 
@@ -85,9 +85,9 @@
 ### Task 4: Shared learning service and home progress UI
 
 **Files:**
-- Create: `dist/learning-service.mjs`
-- Modify: `dist/app.js`
-- Modify: `dist/app.css`
+- Create: `src/learning-service.mjs`
+- Modify: `src/app.js`
+- Modify: `src/app.css`
 - Create: `tests/learning-service.test.mjs`
 
 **Interfaces:**
@@ -105,8 +105,8 @@
 ### Task 5: Rebuild Practice UI around mastery sessions
 
 **Files:**
-- Modify: `dist/practice.mjs`
-- Modify: `dist/challenge.css`
+- Modify: `src/practice.mjs`
+- Modify: `src/challenge.css`
 
 **Interfaces:**
 - Consumes `learning.newSessionId()`, adaptive practice state, and `learning.record(event)`.
@@ -122,10 +122,10 @@
 ### Task 6: Integrate adaptive facts and records into challenge games
 
 **Files:**
-- Modify: `dist/challenge.mjs`
-- Modify: `dist/challenge-engine.mjs`
+- Modify: `src/challenge.mjs`
+- Modify: `src/challenge-engine.mjs`
 - Modify: `tests/challenge.test.mjs`
-- Modify: `dist/challenge.css`
+- Modify: `src/challenge.css`
 
 **Interfaces:**
 - Challenge mount receives `{learning,scores}`.
@@ -143,10 +143,10 @@
 ### Task 7: Integrate adaptive rain and hardest gold facts
 
 **Files:**
-- Modify: `dist/rain-engine.mjs`
-- Modify: `dist/rain.mjs`
+- Modify: `src/rain-engine.mjs`
+- Modify: `src/rain.mjs`
 - Modify: `tests/rain.test.mjs`
-- Modify: `dist/rain.css`
+- Modify: `src/rain.css`
 
 **Interfaces:**
 - `advance` receives injected `normalFact()` and `hardestFact()` suppliers.

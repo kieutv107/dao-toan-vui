@@ -21,21 +21,21 @@ App hiện có 8 game được đăng ký trong menu:
 7. Số nào lớn hơn?
 8. Đúng hay sai?
 
-Mã nguồn nằm trực tiếp trong `dist/`; đây đồng thời là source và artifact được deploy. Không có package manager, bundler hay bước build. Chạy toàn bộ test bằng:
+Mã nguồn nằm trực tiếp trong `src/`; đây đồng thời là source và artifact được deploy. Không có package manager, bundler hay bước build. Chạy toàn bộ test bằng:
 
 ```bash
 node --test
 ```
 
-Chạy local bằng một static server trỏ vào `dist/`, ví dụ:
+Chạy local bằng một static server trỏ vào `src/`, ví dụ:
 
 ```bash
-python3 -m http.server -d dist
+python3 -m http.server -d src
 ```
 
 ## Deploy lên Vercel
 
-Cấu hình nằm trong `vercel.json` ở thư mục gốc: không có bước build, Vercel phục vụ trực tiếp thư mục `dist/` (`outputDirectory`). `.vercelignore` loại `tests/`, `docs/` khỏi bản upload.
+Cấu hình nằm trong `vercel.json` ở thư mục gốc: không có bước build, Vercel phục vụ trực tiếp thư mục `src/` (`outputDirectory`). `.vercelignore` loại `tests/`, `docs/` khỏi bản upload.
 
 - Qua dashboard: Import repo → Framework Preset để **Other** → bấm Deploy (không cần chỉnh Build/Output, `vercel.json` đã khai báo).
 - Qua CLI: `npx vercel` (preview) hoặc `npx vercel --prod` (production).
@@ -55,19 +55,19 @@ Tên file không có hash nên mọi file được gửi với `Cache-Control: m
 
 | Khu vực | File chính |
 | --- | --- |
-| HTML entrypoint | `dist/index.html` |
-| Shell, menu, router, sao và âm thanh | `dist/app.js` |
-| Sinh phép tính cơ bản | `dist/math.mjs` |
-| Hồ sơ học và mastery | `dist/mastery-engine.mjs` |
-| Chọn phép tính thích ứng | `dist/adaptive-selector.mjs` |
-| Facade học tập | `dist/learning-service.mjs` |
-| Lưu tiến độ | `dist/learning-store.mjs` |
-| Lưu bảng điểm | `dist/high-scores.mjs` |
-| Mưa phép tính | `dist/rain-engine.mjs`, `dist/rain.mjs`, `dist/rain.css` |
-| Vườn luyện tập | `dist/practice-engine.mjs`, `dist/practice.mjs` |
-| Bong bóng, số trốn mất, lật thẻ | `dist/challenge-engine.mjs`, `dist/challenge.mjs`, `dist/challenge.css` |
-| Số nào lớn hơn | `dist/compare-engine.mjs`, `dist/compare.mjs`, `dist/compare.css` |
-| Đúng hay sai | `dist/truefalse-engine.mjs`, `dist/truefalse.mjs`, `dist/truefalse.css` |
-| Nền tảng giao diện | `dist/style.css` |
+| HTML entrypoint | `src/index.html` |
+| Shell, menu, router, sao và âm thanh | `src/app.js` |
+| Sinh phép tính cơ bản | `src/math.mjs` |
+| Hồ sơ học và mastery | `src/mastery-engine.mjs` |
+| Chọn phép tính thích ứng | `src/adaptive-selector.mjs` |
+| Facade học tập | `src/learning-service.mjs` |
+| Lưu tiến độ | `src/learning-store.mjs` |
+| Lưu bảng điểm | `src/high-scores.mjs` |
+| Mưa phép tính | `src/rain-engine.mjs`, `src/rain.mjs`, `src/rain.css` |
+| Vườn luyện tập | `src/practice-engine.mjs`, `src/practice.mjs` |
+| Bong bóng, số trốn mất, lật thẻ | `src/challenge-engine.mjs`, `src/challenge.mjs`, `src/challenge.css` |
+| Số nào lớn hơn | `src/compare-engine.mjs`, `src/compare.mjs`, `src/compare.css` |
+| Đúng hay sai | `src/truefalse-engine.mjs`, `src/truefalse.mjs`, `src/truefalse.css` |
+| Nền tảng giao diện | `src/style.css` |
 | Kiểm thử | `tests/*.test.mjs` |
 

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createPlacement,placementStage,recordPlacement,placementResult,PER_STAGE,PASS} from '../dist/placement-engine.mjs';
+import {createPlacement,placementStage,recordPlacement,placementResult,PER_STAGE,PASS} from '../src/placement-engine.mjs';
 
 // Drive the ladder with a fixed answer script. Returns the resulting level, the number of
 // questions asked, and the stage probed for each question (in order).

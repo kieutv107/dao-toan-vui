@@ -1,10 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createProfile} from '../dist/mastery-engine.mjs';
+import {createProfile} from '../src/mastery-engine.mjs';
 import {readFile} from 'node:fs/promises';
-import {createPractice,current,answer,markHint,pickGame} from '../dist/practice-engine.mjs';
-import {formOf} from '../dist/core-facts.mjs';
-import {currentLevel} from '../dist/adaptive-selector.mjs';
+import {createPractice,current,answer,markHint,pickGame} from '../src/practice-engine.mjs';
+import {formOf} from '../src/core-facts.mjs';
+import {currentLevel} from '../src/adaptive-selector.mjs';
 
 test('a chosen topic keeps the whole session on that level, records into shared progress and leaves the curriculum alone',()=>{
   const profile=createProfile(),events=[];
@@ -24,7 +24,7 @@ test('pickGame spreads the finish-screen suggestion across every game it is give
 });
 
 test('practice finish suggests a random game from the game zone instead of always Bubble',async()=>{
-  const [app,practice]=await Promise.all(['app.js','practice.mjs'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,practice]=await Promise.all(['app.js','practice.mjs'].map(f=>readFile(new URL(`../src/${f}`,import.meta.url),'utf8')));
   assert.match(app,/gameModes=modes\.filter\(m=>m\.zone==='game'\)/);
   assert.match(app,/mountPractice\(app,\{\.\.\.common,startGame:start,games:gameModes,focusLevel\}\)/);
   assert.match(practice,/suggestion=pickGame\(games\)/);

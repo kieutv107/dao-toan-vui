@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {strategyHint} from '../dist/strategies.mjs';
+import {strategyHint} from '../src/strategies.mjs';
 
 const f=(a,sign,b)=>({a,b,sign,answer:sign==='+'?a+b:a-b});
 

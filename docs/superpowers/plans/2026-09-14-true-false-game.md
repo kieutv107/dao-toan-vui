@@ -4,9 +4,9 @@
 
 **Goal:** Add a 90-second “Đúng hay sai?” game where the child marks an equation true or false, with clock-driven stages, adaptive step-down/recovery, review evidence and per-game high scores.
 
-**Architecture:** Rules and question generation live in a pure `dist/truefalse-engine.mjs`. DOM, clock, input, feedback, learning evidence and high scores live in `dist/truefalse.mjs`, styled by `dist/truefalse.css`, both modelled line-for-line on `compare.mjs`/`compare.css`. `app.js` registers and routes the mode; `sw.js` precaches the new files. The home tip card becomes a full-width band because six games no longer leave it a cell.
+**Architecture:** Rules and question generation live in a pure `src/truefalse-engine.mjs`. DOM, clock, input, feedback, learning evidence and high scores live in `src/truefalse.mjs`, styled by `src/truefalse.css`, both modelled line-for-line on `compare.mjs`/`compare.css`. `app.js` registers and routes the mode; `sw.js` precaches the new files. The home tip card becomes a full-width band because six games no longer leave it a cell.
 
-**Tech Stack:** Browser ES modules, hand-written minified-style CSS, Node.js built-in test runner (`node:test`, `node:assert/strict`), localStorage-backed learning and high-score services. No bundler, no dependencies; `dist/` is both source and deploy output.
+**Tech Stack:** Browser ES modules, hand-written minified-style CSS, Node.js built-in test runner (`node:test`, `node:assert/strict`), localStorage-backed learning and high-score services. No bundler, no dependencies; `src/` is both source and deploy output.
 
 **Spec:** `docs/superpowers/specs/2026-09-14-true-false-game-design.md`
 
@@ -33,7 +33,7 @@
 ### Task 1: Engine state, stages and scoring
 
 **Files:**
-- Create: `dist/truefalse-engine.mjs`
+- Create: `src/truefalse-engine.mjs`
 - Test: `tests/truefalse.test.mjs`
 
 **Interfaces:**
@@ -47,7 +47,7 @@ Create `tests/truefalse.test.mjs`:
 ```js
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createTrueFalseGame,unlockedTrueFalseStage,trueFalseStage,recordTrueFalseAnswer,elapseTrueFalse} from '../dist/truefalse-engine.mjs';
+import {createTrueFalseGame,unlockedTrueFalseStage,trueFalseStage,recordTrueFalseAnswer,elapseTrueFalse} from '../src/truefalse-engine.mjs';
 
 const at=remaining=>Object.assign(createTrueFalseGame(),{remaining});
 
@@ -104,11 +104,11 @@ test('ninety active seconds end the run and later answers do nothing',()=>{
 - [ ] **Step 2: Run the tests to see them fail**
 
 Run: `node --test tests/truefalse.test.mjs`
-Expected: FAIL with `ERR_MODULE_NOT_FOUND` for `dist/truefalse-engine.mjs`.
+Expected: FAIL with `ERR_MODULE_NOT_FOUND` for `src/truefalse-engine.mjs`.
 
 - [ ] **Step 3: Write the engine state**
 
-Create `dist/truefalse-engine.mjs`:
+Create `src/truefalse-engine.mjs`:
 
 ```js
 const DURATION=90;
@@ -151,7 +151,7 @@ Expected: PASS, 6 tests.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add dist/truefalse-engine.mjs tests/truefalse.test.mjs
+git add src/truefalse-engine.mjs tests/truefalse.test.mjs
 git commit -m "Add true or false game state"
 ```
 
@@ -160,7 +160,7 @@ git commit -m "Add true or false game state"
 ### Task 2: Round generation and review facts
 
 **Files:**
-- Modify: `dist/truefalse-engine.mjs` (append)
+- Modify: `src/truefalse-engine.mjs` (append)
 - Test: `tests/truefalse.test.mjs` (extend import, append tests)
 
 **Interfaces:**
@@ -175,7 +175,7 @@ git commit -m "Add true or false game state"
 In `tests/truefalse.test.mjs` replace the import line with:
 
 ```js
-import {createTrueFalseGame,unlockedTrueFalseStage,trueFalseStage,recordTrueFalseAnswer,elapseTrueFalse,createTrueFalseRound,reviewFacts} from '../dist/truefalse-engine.mjs';
+import {createTrueFalseGame,unlockedTrueFalseStage,trueFalseStage,recordTrueFalseAnswer,elapseTrueFalse,createTrueFalseRound,reviewFacts} from '../src/truefalse-engine.mjs';
 ```
 
 Append:
@@ -256,7 +256,7 @@ Expected: FAIL with a `SyntaxError` that `truefalse-engine.mjs` does not provide
 
 - [ ] **Step 3: Write the generator**
 
-Append to `dist/truefalse-engine.mjs`:
+Append to `src/truefalse-engine.mjs`:
 
 ```js
 const MAX=20,FALSE_GAPS={1:[3,5],2:[1,2],3:[1,1]};
@@ -301,7 +301,7 @@ Expected: PASS, 12 tests. If a share check fails by a hair, the generator is dra
 - [ ] **Step 5: Commit**
 
 ```bash
-git add dist/truefalse-engine.mjs tests/truefalse.test.mjs
+git add src/truefalse-engine.mjs tests/truefalse.test.mjs
 git commit -m "Generate true or false rounds by stage"
 ```
 
@@ -310,16 +310,16 @@ git commit -m "Generate true or false rounds by stage"
 ### Task 3: Controller, styles, registration and docs
 
 **Files:**
-- Create: `dist/truefalse.mjs`
-- Create: `dist/truefalse.css`
-- Modify: `dist/app.js:1-8` (imports), `dist/app.js:14-22` (modes), `dist/app.js:44` (router)
-- Modify: `dist/index.html` (stylesheet link, game count)
-- Modify: `dist/sw.js:4` (`ASSETS`)
+- Create: `src/truefalse.mjs`
+- Create: `src/truefalse.css`
+- Modify: `src/app.js:1-8` (imports), `src/app.js:14-22` (modes), `src/app.js:44` (router)
+- Modify: `src/index.html` (stylesheet link, game count)
+- Modify: `src/sw.js:4` (`ASSETS`)
 - Modify: `tests/home-ui.test.mjs:20,100,111,124,141` and append tests
 - Modify: `docs/FEATURES.md`, `docs/ENGINE.md`, `docs/README.md`, `docs/DESIGN_SYSTEM.md`
 
 **Interfaces:**
-- Consumes: `createTrueFalseGame`, `createTrueFalseRound`, `recordTrueFalseAnswer`, `elapseTrueFalse`, `reviewFacts` (Tasks 1–2); `showCenterCheck`, `showMiss`, `announce`, `NEXT_DELAY_MS`, `celebrateRecord` from `dist/feedback.mjs`; `learning.nextFact`, `learning.record`, `learning.newSessionId`; `scores.top`, `scores.record`.
+- Consumes: `createTrueFalseGame`, `createTrueFalseRound`, `recordTrueFalseAnswer`, `elapseTrueFalse`, `reviewFacts` (Tasks 1–2); `showCenterCheck`, `showMiss`, `announce`, `NEXT_DELAY_MS`, `celebrateRecord` from `src/feedback.mjs`; `learning.nextFact`, `learning.record`, `learning.newSessionId`; `scores.top`, `scores.record`.
 - Produces: `mountTrueFalse(app, {home, award, beep, learning, scores}): () => void` (cleanup).
 
 - [ ] **Step 1: Write the failing UI guards**
@@ -404,7 +404,7 @@ Expected: FAIL — `ENOENT` for `truefalse.mjs`/`truefalse.css`, the zones `deep
 
 - [ ] **Step 3: Write the controller**
 
-Create `dist/truefalse.mjs`:
+Create `src/truefalse.mjs`:
 
 ```js
 import {createTrueFalseGame,createTrueFalseRound,recordTrueFalseAnswer,elapseTrueFalse,reviewFacts} from './truefalse-engine.mjs';
@@ -491,7 +491,7 @@ Every line inside `choose` and `finish` must be indented at least four spaces ex
 
 - [ ] **Step 4: Write the styles**
 
-Create `dist/truefalse.css` (two lines, same style as `compare.css`). The result badge centres with `left:0;right:0;margin:auto;width:max-content` instead of a `transform`, because `fb-pop` animates `transform`:
+Create `src/truefalse.css` (two lines, same style as `compare.css`). The result badge centres with `left:0;right:0;margin:auto;width:max-content` instead of a `transform`, because `fb-pop` animates `transform`:
 
 ```css
 .tf-game{min-height:620px;position:relative}.tf-hud{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}.tf-hud>div{background:#fffd;padding:8px;border-radius:12px}.tf-hud span{display:block;font-size:13px;color:#625b72;font-weight:800}.tf-hud b{font-size:24px;color:var(--accent);font-variant-numeric:tabular-nums}.tf-card{max-width:640px;margin:22px auto;padding:54px 20px 30px;background:#fff;border:2px solid var(--border);border-bottom-width:5px;border-radius:22px;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;column-gap:16px;row-gap:46px;font-size:58px;font-weight:1000;line-height:1.1;color:#3d3552;font-variant-numeric:tabular-nums}.tf-card.two-sided{font-size:44px}.tf-part{white-space:nowrap}.tf-expression{position:relative}.tf-equals{color:#998aaf}.tf-result{position:absolute;left:0;right:0;bottom:100%;width:max-content;margin:0 auto 8px;background:#fff0bd;color:#5f4500;border:2px solid #f0c94c;border-radius:999px;padding:0 12px;font-size:22px;line-height:1.5;animation:fb-pop .18s ease-out both}.tf-result[hidden]{display:none}.tf-choices{display:grid;grid-template-columns:1fr 1fr;gap:14px;max-width:560px;margin:0 auto}.tf-choice{position:relative;min-height:96px;border:2px solid var(--border);border-bottom-width:5px;border-radius:20px;background:#fff;color:var(--accent);font-size:26px;font-weight:1000;display:flex;align-items:center;justify-content:center;gap:10px}.tf-choice b{font-size:36px}.tf-choice:disabled{cursor:default}.tf-choice.right{background:#d9efd8;border-color:#82bd85;color:#34713d}.tf-choice.wrong{background:#f7dce4;border-color:#d89aaa;color:#9a405a}.tf-overlay{gap:10px}.tf-overlay[hidden]{display:none}.tf-symbol{font-size:62px}.tf-overlay small{color:#77758d;font-weight:800}.tf-overlay .score-board{width:min(100%,360px)}
@@ -500,7 +500,7 @@ Create `dist/truefalse.css` (two lines, same style as `compare.css`). The result
 
 - [ ] **Step 5: Register, route and precache**
 
-`dist/app.js` — after `import {mountCompare} from './compare.mjs';` add:
+`src/app.js` — after `import {mountCompare} from './compare.mjs';` add:
 
 ```js
 import {mountTrueFalse} from './truefalse.mjs';
@@ -519,14 +519,14 @@ In `start`, replace `id==='compare'?mountCompare(app,common):` with:
 id==='compare'?mountCompare(app,common):id==='truefalse'?mountTrueFalse(app,common):
 ```
 
-`dist/index.html` — after `<link rel="stylesheet" href="compare.css?v=2">` add `<link rel="stylesheet" href="truefalse.css?v=2">`, and change `7 trò chơi` to `8 trò chơi` in the description meta.
+`src/index.html` — after `<link rel="stylesheet" href="compare.css?v=2">` add `<link rel="stylesheet" href="truefalse.css?v=2">`, and change `7 trò chơi` to `8 trò chơi` in the description meta.
 
-`dist/sw.js` — in `ASSETS` add `'truefalse.css'` after `'sheet.css'`, and `'truefalse-engine.mjs','truefalse.mjs'` after `'strategies.mjs'`.
+`src/sw.js` — in `ASSETS` add `'truefalse.css'` after `'sheet.css'`, and `'truefalse-engine.mjs','truefalse.mjs'` after `'strategies.mjs'`.
 
 - [ ] **Step 6: Run the whole suite**
 
 Run: `node --test tests/*.test.mjs`
-Expected: PASS, 0 failures (the offline test `the service worker precaches every file the app ships` proves `ASSETS` matches `dist/`).
+Expected: PASS, 0 failures (the offline test `the service worker precaches every file the app ships` proves `ASSETS` matches `src/`).
 
 - [ ] **Step 7: Update the docs**
 
@@ -597,7 +597,7 @@ Mục tiêu: nhìn một phép tính và chọn thật nhanh thẻ Đúng hoặc
 
 - Timer section: `- Compare cố ý dùng…` becomes `- Compare và Đúng hay sai cố ý dùng toàn bộ active frame delta để đồng hồ 90 giây không bị kéo dài khi tab/frame chậm.`; `- Khi document bị ẩn, Rain, Challenge và Compare tự pause.` becomes `- Khi document bị ẩn, Rain, Challenge, Compare và Đúng hay sai tự pause.`
 
-`docs/README.md`: `App hiện có 6 game` → `App hiện có 7 game`, add `7. Đúng hay sai?` after `6. Số nào lớn hơn?`, and after the `Số nào lớn hơn` row of the source map add `| Đúng hay sai | \`dist/truefalse-engine.mjs\`, \`dist/truefalse.mjs\`, \`dist/truefalse.css\` |`.
+`docs/README.md`: `App hiện có 6 game` → `App hiện có 7 game`, add `7. Đúng hay sai?` after `6. Số nào lớn hơn?`, and after the `Số nào lớn hơn` row of the source map add `| Đúng hay sai | \`src/truefalse-engine.mjs\`, \`src/truefalse.mjs\`, \`src/truefalse.css\` |`.
 
 `docs/DESIGN_SYSTEM.md`:
 
@@ -609,7 +609,7 @@ Mục tiêu: nhìn một phép tính và chọn thật nhanh thẻ Đúng hoặc
 - [ ] **Step 8: Commit**
 
 ```bash
-git add dist/truefalse.mjs dist/truefalse.css dist/app.js dist/index.html dist/sw.js tests/home-ui.test.mjs docs/FEATURES.md docs/ENGINE.md docs/README.md docs/DESIGN_SYSTEM.md
+git add src/truefalse.mjs src/truefalse.css src/app.js src/index.html src/sw.js tests/home-ui.test.mjs docs/FEATURES.md docs/ENGINE.md docs/README.md docs/DESIGN_SYSTEM.md
 git commit -m "Add true or false game to the island"
 ```
 
@@ -618,7 +618,7 @@ git commit -m "Add true or false game to the island"
 ### Task 4: Tip card becomes a full-width band
 
 **Files:**
-- Modify: `dist/style.css` (new line before the last line)
+- Modify: `src/style.css` (new line before the last line)
 - Modify: `tests/home-ui.test.mjs:18,31-32`
 - Modify: `docs/FEATURES.md` (Khu trò chơi bullet), `docs/DESIGN_SYSTEM.md:76`
 
@@ -633,7 +633,7 @@ In `tests/home-ui.test.mjs`, test `home splits practice and worksheet into a pra
 Line 18 no longer needs `rain.css`:
 
 ```js
-  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../src/${f}`,import.meta.url),'utf8')));
 ```
 
 Replace lines 31–32 with:
@@ -650,7 +650,7 @@ Expected: FAIL on the `.cards>.tip{grid-column:1/-1;` match.
 
 - [ ] **Step 3: Add the band style**
 
-In `dist/style.css`, insert this line directly above the final line `@media(max-width:520px){.cards,.cards.zone-practice{grid-template-columns:1fr}…}` (that media rule must stay last — another guard anchors it to the end of the file):
+In `src/style.css`, insert this line directly above the final line `@media(max-width:520px){.cards,.cards.zone-practice{grid-template-columns:1fr}…}` (that media rule must stay last — another guard anchors it to the end of the file):
 
 ```css
 .cards>.tip{grid-column:1/-1;flex-direction:row;flex-wrap:wrap;column-gap:22px;row-gap:4px;padding:16px 24px}.cards>.tip br{display:none}.cards>.tip h3{font-size:20px;margin:0}.cards>.tip p{margin:0}.cards>.tip>div{margin-top:0}
@@ -670,7 +670,7 @@ Expected: PASS, 0 failures.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add dist/style.css tests/home-ui.test.mjs docs/FEATURES.md docs/DESIGN_SYSTEM.md
+git add src/style.css tests/home-ui.test.mjs docs/FEATURES.md docs/DESIGN_SYSTEM.md
 git commit -m "Stretch the home tip into a band under six games"
 ```
 
@@ -683,7 +683,7 @@ git commit -m "Stretch the home tip into a band under six games"
 
 - [ ] **Step 1: Serve the app**
 
-Run (background): `python3 -m http.server 8000 -d dist`
+Run (background): `python3 -m http.server 8000 -d src`
 Open `http://localhost:8000/` in a fresh tab. Clear `localStorage` key `toan-high-scores-v1` only if a clean record run is needed.
 
 - [ ] **Step 2: Desktop (≥ 1000 px) checks**

@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createCompareGame,unlockedCompareStage,compareStage,recordCompareAnswer,elapseCompare,createCompareRound,compareGap,reviewFacts} from '../dist/compare-engine.mjs';
+import {createCompareGame,unlockedCompareStage,compareStage,recordCompareAnswer,elapseCompare,createCompareRound,compareGap,reviewFacts} from '../src/compare-engine.mjs';
 
 test('comparison stages open on attempts 1, 6 and 11',()=>{
   const g=createCompareGame();

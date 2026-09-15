@@ -1,8 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import * as feedback from '../dist/feedback.mjs';
-import {showCenterCheck,showMiss,showLevelUp,announce,NEXT_DELAY_MS,celebrateRecord} from '../dist/feedback.mjs';
+import * as feedback from '../src/feedback.mjs';
+import {showCenterCheck,showMiss,showLevelUp,announce,NEXT_DELAY_MS,celebrateRecord} from '../src/feedback.mjs';
 
 // Fake DOM tối thiểu: đủ cho className, children, textContent, attributes, style, remove.
 function element(tag='div'){
@@ -115,8 +115,8 @@ test('celebrateRecord does nothing when the page has no confetti layer',()=>{
 
 test('record celebration pops the trophy and title and stays calm with reduced motion',async()=>{
   const [css,style]=await Promise.all([
-    readFile(new URL('../dist/feedback.css',import.meta.url),'utf8'),
-    readFile(new URL('../dist/style.css',import.meta.url),'utf8')
+    readFile(new URL('../src/feedback.css',import.meta.url),'utf8'),
+    readFile(new URL('../src/style.css',import.meta.url),'utf8')
   ]);
   assert.match(css,/\.record-trophy\{[^}]*animation:record-trophy /);
   assert.match(css,/\.record-trophy:before\{[^}]*animation:record-glow /);
@@ -128,8 +128,8 @@ test('record celebration pops the trophy and title and stays calm with reduced m
 
 test('feedback stylesheet defines the check, miss, streak and sr-only styles and is loaded',async()=>{
   const [css,index]=await Promise.all([
-    readFile(new URL('../dist/feedback.css',import.meta.url),'utf8'),
-    readFile(new URL('../dist/index.html',import.meta.url),'utf8')
+    readFile(new URL('../src/feedback.css',import.meta.url),'utf8'),
+    readFile(new URL('../src/index.html',import.meta.url),'utf8')
   ]);
   for(const cls of ['fb-check-center','fb-miss','fb-levelup','sr-only'])assert.match(css,new RegExp(`\\.${cls}\\b`),cls);
   for(const kf of ['fb-pop','fb-center','fb-rise'])assert.match(css,new RegExp(`@keyframes ${kf}\\{`),kf);
@@ -148,7 +148,7 @@ test('feedback stylesheet defines the check, miss, streak and sr-only styles and
 });
 
 test('practice wires check, miss and the shared delay but no streak',async()=>{
-  const src=await readFile(new URL('../dist/practice.mjs',import.meta.url),'utf8');
+  const src=await readFile(new URL('../src/practice.mjs',import.meta.url),'utf8');
   assert.match(src,/import \{showCenterCheck,showMiss,announce,NEXT_DELAY_MS\} from '\.\/feedback\.mjs'/);
   assert.match(src,/showCenterCheck\(\$\('\.play'\)\)/);
   assert.doesNotMatch(src,/showCheck\(/);
@@ -161,7 +161,7 @@ test('practice wires check, miss and the shared delay but no streak',async()=>{
 });
 
 test('challenge games wire check, miss, streak and the shared delay',async()=>{
-  const src=await readFile(new URL('../dist/challenge.mjs',import.meta.url),'utf8');
+  const src=await readFile(new URL('../src/challenge.mjs',import.meta.url),'utf8');
   assert.match(src,/import \{showCenterCheck,showMiss,showLevelUp,announce,NEXT_DELAY_MS,celebrateRecord\} from '\.\/feedback\.mjs'/);
   assert.match(src,/showCenterCheck\(\$\('\.challenge'\)\)/);
   assert.doesNotMatch(src,/showCheck\(/);
@@ -179,7 +179,7 @@ test('challenge games wire check, miss, streak and the shared delay',async()=>{
 });
 
 test('compare game pops the shared centre check on a correct answer and uses the shared delay',async()=>{
-  const src=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  const src=await readFile(new URL('../src/compare.mjs',import.meta.url),'utf8');
   assert.match(src,/import \{showCenterCheck,showMiss,announce,NEXT_DELAY_MS,celebrateRecord\} from '\.\/feedback\.mjs'/);
   assert.match(src,/award\(\);beep\(\);showCenterCheck\(\$\('\.compare-game'\)\);/);
   // the right card still turns green, but no corner badge on it (also after a wrong answer)
@@ -196,7 +196,7 @@ test('compare game pops the shared centre check on a correct answer and uses the
 });
 
 test('rain shows the level-up pill on its field when a correct answer raises the level',async()=>{
-  const src=await readFile(new URL('../dist/rain.mjs',import.meta.url),'utf8');
+  const src=await readFile(new URL('../src/rain.mjs',import.meta.url),'utf8');
   assert.match(src,/import \{celebrateRecord,showLevelUp\} from '\.\/feedback\.mjs'/);
   assert.match(src,/const levelBefore=difficulty\(g\)\.level,result=submit\(g,input\)/);
   assert.match(src,/if\(difficulty\(g\)\.level>levelBefore\)showLevelUp\(\$\('\.rain-game'\),difficulty\(g\)\.level,\$\('#rain-level'\)\.parentElement\)/);

@@ -6,9 +6,9 @@ Làm phản hồi đúng/sai trong bốn game trả lời nhanh (Vườn luyện
 
 ## Phạm vi
 
-- Thêm module dùng chung `dist/feedback.mjs` và `dist/feedback.css`.
-- Sửa `dist/practice.mjs`, `dist/challenge.mjs` (chỉ nhánh bubble và mystery), `dist/compare.mjs` để gọi module.
-- Đổi âm báo đúng/sai trong `dist/app.js` cho ngắn hơn.
+- Thêm module dùng chung `src/feedback.mjs` và `src/feedback.css`.
+- Sửa `src/practice.mjs`, `src/challenge.mjs` (chỉ nhánh bubble và mystery), `src/compare.mjs` để gọi module.
+- Đổi âm báo đúng/sai trong `src/app.js` cho ngắn hơn.
 - Không đổi Lật thẻ thần kỳ, Mưa phép tính, Phiếu 20 phép.
 - Không thêm confetti, điểm nổi hay hiệu ứng toàn màn hình.
 

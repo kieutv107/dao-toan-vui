@@ -6,7 +6,7 @@
 
 **Architecture:** Keep the existing pure-engine + controller split. A new pure `placement-engine.mjs` runs a 3-question binary-search ladder; a new `placement.mjs` controller drives it and calls a new `learning.placeAt(level)` that seeds still-blank lower-stage forms as `strong`. Three fast-track knobs are tuned in `mastery-engine.mjs`/`adaptive-selector.mjs`. A new `toan-placement-v1` storage key (owned entirely by the learning service) records that placement ran.
 
-**Tech Stack:** Vanilla ES modules (`dist/*.mjs`, `dist/app.js`), `node:test` + `node:assert/strict` (no DOM runner), localStorage. No build step, no dependencies.
+**Tech Stack:** Vanilla ES modules (`src/*.mjs`, `src/app.js`), `node:test` + `node:assert/strict` (no DOM runner), localStorage. No build step, no dependencies.
 
 ## Global Constraints
 
@@ -28,13 +28,13 @@
 
 | File | Change | Responsibility |
 | --- | --- | --- |
-| `dist/mastery-engine.mjs` | modify | Add `MASTERY_SESSIONS`, clean-fast-first-try `+3`, `seedForm()`. |
-| `dist/adaptive-selector.mjs` | modify | Lower `UNLOCK` to `0.6`. |
-| `dist/placement-engine.mjs` | create | Pure binary-search ladder state machine. |
-| `dist/learning-service.mjs` | modify | Add `placeAt(level)`, `skipPlacement()`, `placement()`; own `toan-placement-v1`. |
-| `dist/placement.mjs` | create | Quiz controller: one question per stage, drives the engine, calls `placeAt`. |
-| `dist/app.js` | modify | First-run offer card + re-run button; register `placement` in `start()`. |
-| `dist/style.css` | modify | Styles for the offer card, re-run button, quiz screen. |
+| `src/mastery-engine.mjs` | modify | Add `MASTERY_SESSIONS`, clean-fast-first-try `+3`, `seedForm()`. |
+| `src/adaptive-selector.mjs` | modify | Lower `UNLOCK` to `0.6`. |
+| `src/placement-engine.mjs` | create | Pure binary-search ladder state machine. |
+| `src/learning-service.mjs` | modify | Add `placeAt(level)`, `skipPlacement()`, `placement()`; own `toan-placement-v1`. |
+| `src/placement.mjs` | create | Quiz controller: one question per stage, drives the engine, calls `placeAt`. |
+| `src/app.js` | modify | First-run offer card + re-run button; register `placement` in `start()`. |
+| `src/style.css` | modify | Styles for the offer card, re-run button, quiz screen. |
 | `tests/mastery-engine.test.mjs` | modify | Update for new strength/mastery rules; add `seedForm` tests. |
 | `tests/adaptive-selector.test.mjs` | modify | Update unlock-threshold test to `0.6`. |
 | `tests/placement-engine.test.mjs` | create | Ladder convergence, ≤3 questions, each stage once, deterministic. |
@@ -49,7 +49,7 @@
 Adds the `MASTERY_SESSIONS` constant, the clean-fast-first-try `+3` gain, and updates the existing tests that assumed the old numbers. `UNLOCK` is NOT touched here (that is Task 2). `seedForm` is NOT added here (that is Task 3).
 
 **Files:**
-- Modify: `dist/mastery-engine.mjs:1` (add constant), `dist/mastery-engine.mjs:22-23` (`statusOf`/`schedule`), `dist/mastery-engine.mjs:27-31` (correct branch)
+- Modify: `src/mastery-engine.mjs:1` (add constant), `src/mastery-engine.mjs:22-23` (`statusOf`/`schedule`), `src/mastery-engine.mjs:27-31` (correct branch)
 - Test: `tests/mastery-engine.test.mjs`, `tests/learning-service.test.mjs`, `tests/adaptive-selector.test.mjs`
 
 **Interfaces:**
@@ -105,7 +105,7 @@ Expected: FAIL — new assertions (`strength,3`, `status 'strong'`/`'mastered'`,
 
 - [ ] **Step 4: Add the `MASTERY_SESSIONS` constant**
 
-In `dist/mastery-engine.mjs:1`, add the constant to the existing top line. Change:
+In `src/mastery-engine.mjs:1`, add the constant to the existing top line. Change:
 
 ```js
 const MAX=20,BANDS=[[0,5],[6,10],[11,15],[16,20]],PROFILE_VERSION=2;
@@ -120,7 +120,7 @@ export const MASTERY_SESSIONS=2;
 
 - [ ] **Step 5: Use `MASTERY_SESSIONS` in `statusOf` and `schedule`**
 
-In `dist/mastery-engine.mjs`, replace lines 22-23:
+In `src/mastery-engine.mjs`, replace lines 22-23:
 
 ```js
 function statusOf(s){if(!s.correct&&!s.wrong&&!s.hints&&!s.reviews)return'new';if(s.strength<=2)return'learning';if(s.strength<=4||s.fastSessions.length<3)return'strong';return'mastered'}
@@ -136,7 +136,7 @@ function schedule(s,now){s.dueAt=now+([0,0,86400000,259200000][Math.min(3,s.stre
 
 - [ ] **Step 6: Reward a clean fast first try with `+3`**
 
-In `dist/mastery-engine.mjs`, in `recordEvidence`, replace the correct branch (lines 27-31):
+In `src/mastery-engine.mjs`, in `recordEvidence`, replace the correct branch (lines 27-31):
 
 ```js
   if(event.result==='correct'){
@@ -165,7 +165,7 @@ Expected: PASS — all tests (previously 134, same count) pass. If any other tes
 - [ ] **Step 8: Commit**
 
 ```bash
-git add dist/mastery-engine.mjs tests/mastery-engine.test.mjs tests/learning-service.test.mjs tests/adaptive-selector.test.mjs
+git add src/mastery-engine.mjs tests/mastery-engine.test.mjs tests/learning-service.test.mjs tests/adaptive-selector.test.mjs
 git commit -m "Fast-track: clean first-try +3 and mastery at 2 fast sessions"
 ```
 
@@ -174,7 +174,7 @@ git commit -m "Fast-track: clean first-try +3 and mastery at 2 fast sessions"
 ## Task 2: Lower the unlock threshold (`adaptive-selector.mjs`)
 
 **Files:**
-- Modify: `dist/adaptive-selector.mjs:4`
+- Modify: `src/adaptive-selector.mjs:4`
 - Test: `tests/adaptive-selector.test.mjs`
 
 **Interfaces:**
@@ -205,7 +205,7 @@ Expected: FAIL — with `UNLOCK=0.7`, `master(...,.6)` leaves `currentLevel` at 
 
 - [ ] **Step 3: Lower `UNLOCK`**
 
-In `dist/adaptive-selector.mjs:4`, change:
+In `src/adaptive-selector.mjs:4`, change:
 
 ```js
 const UNLOCK=.7,FOCUS_SHARE=.75;
@@ -225,7 +225,7 @@ Expected: PASS — all tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add dist/adaptive-selector.mjs tests/adaptive-selector.test.mjs
+git add src/adaptive-selector.mjs tests/adaptive-selector.test.mjs
 git commit -m "Fast-track: unlock a stage at 0.6 readiness"
 ```
 
@@ -234,7 +234,7 @@ git commit -m "Fast-track: unlock a stage at 0.6 readiness"
 ## Task 3: `seedForm()` — fill-blanks-only seeding (`mastery-engine.mjs`)
 
 **Files:**
-- Modify: `dist/mastery-engine.mjs` (add `seedForm` near `recordEvidence`)
+- Modify: `src/mastery-engine.mjs` (add `seedForm` near `recordEvidence`)
 - Test: `tests/mastery-engine.test.mjs`
 
 **Interfaces:**
@@ -248,7 +248,7 @@ Append to `tests/mastery-engine.test.mjs` (`seedForm` is already exportable from
 Change the import line 3 to include `seedForm`:
 
 ```js
-import {factCatalog,factId,factFamilyId,formKey,createProfile,getFactState,recordEvidence,migrateProfile,responseBenchmark,seedForm} from '../dist/mastery-engine.mjs';
+import {factCatalog,factId,factFamilyId,formKey,createProfile,getFactState,recordEvidence,migrateProfile,responseBenchmark,seedForm} from '../src/mastery-engine.mjs';
 ```
 
 Then append:
@@ -280,7 +280,7 @@ Expected: FAIL with "seedForm is not a function" / "seedForm is not defined".
 
 - [ ] **Step 3: Implement `seedForm`**
 
-In `dist/mastery-engine.mjs`, add after `recordEvidence` (after line 37, before `migrateProfile`):
+In `src/mastery-engine.mjs`, add after `recordEvidence` (after line 37, before `migrateProfile`):
 
 ```js
 // Fill a still-blank form with strong-but-reviewable evidence. Never touches a form that already
@@ -306,7 +306,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add dist/mastery-engine.mjs tests/mastery-engine.test.mjs
+git add src/mastery-engine.mjs tests/mastery-engine.test.mjs
 git commit -m "Add seedForm: fill-blanks-only strong seeding for placement"
 ```
 
@@ -315,7 +315,7 @@ git commit -m "Add seedForm: fill-blanks-only strong seeding for placement"
 ## Task 4: Placement engine (`placement-engine.mjs`)
 
 **Files:**
-- Create: `dist/placement-engine.mjs`
+- Create: `src/placement-engine.mjs`
 - Test: `tests/placement-engine.test.mjs`
 
 **Interfaces:**
@@ -333,7 +333,7 @@ Create `tests/placement-engine.test.mjs`:
 ```js
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createPlacement,placementStage,recordPlacement,placementResult} from '../dist/placement-engine.mjs';
+import {createPlacement,placementStage,recordPlacement,placementResult} from '../src/placement-engine.mjs';
 
 // Drive the ladder with a fixed answer script. Returns the resulting level, the number of
 // questions asked, and the stages probed (in order).
@@ -387,11 +387,11 @@ test('a mixed sequence lands on the exact stage',()=>{
 - [ ] **Step 2: Run to verify failure**
 
 Run: `node --test tests/placement-engine.test.mjs`
-Expected: FAIL — module `dist/placement-engine.mjs` does not exist (ERR_MODULE_NOT_FOUND).
+Expected: FAIL — module `src/placement-engine.mjs` does not exist (ERR_MODULE_NOT_FOUND).
 
 - [ ] **Step 3: Implement the engine**
 
-Create `dist/placement-engine.mjs`:
+Create `src/placement-engine.mjs`:
 
 ```js
 // Adaptive-ladder placement over the 5 curriculum stages. Pure: no DOM, timer, audio, or storage.
@@ -426,7 +426,7 @@ Expected: PASS.
 - [ ] **Step 6: Commit**
 
 ```bash
-git add dist/placement-engine.mjs tests/placement-engine.test.mjs
+git add src/placement-engine.mjs tests/placement-engine.test.mjs
 git commit -m "Add pure placement engine (3-question adaptive ladder)"
 ```
 
@@ -435,7 +435,7 @@ git commit -m "Add pure placement engine (3-question adaptive ladder)"
 ## Task 5: `placeAt`, `skipPlacement`, `placement` (`learning-service.mjs`)
 
 **Files:**
-- Modify: `dist/learning-service.mjs:1-3` (imports), `dist/learning-service.mjs:5-6` (add placement key helpers), `dist/learning-service.mjs:19-28` (add methods)
+- Modify: `src/learning-service.mjs:1-3` (imports), `src/learning-service.mjs:5-6` (add placement key helpers), `src/learning-service.mjs:19-28` (add methods)
 - Test: `tests/learning-service.test.mjs`
 
 **Interfaces:**
@@ -450,10 +450,10 @@ git commit -m "Add pure placement engine (3-question adaptive ladder)"
 In `tests/learning-service.test.mjs`, extend the imports (lines 3-4) to:
 
 ```js
-import {createLearningService} from '../dist/learning-service.mjs';
-import {getFactState,formKey,recordEvidence} from '../dist/mastery-engine.mjs';
-import {formsAtLevel,formsBelowLevel} from '../dist/core-facts.mjs';
-import {currentLevel} from '../dist/adaptive-selector.mjs';
+import {createLearningService} from '../src/learning-service.mjs';
+import {getFactState,formKey,recordEvidence} from '../src/mastery-engine.mjs';
+import {formsAtLevel,formsBelowLevel} from '../src/core-facts.mjs';
+import {currentLevel} from '../src/adaptive-selector.mjs';
 ```
 
 Add a `master` helper below the existing `storage()` helper (line 6):
@@ -540,7 +540,7 @@ Expected: FAIL — `learning.placeAt`, `learning.skipPlacement`, `learning.place
 
 - [ ] **Step 3: Add imports and placement-key helpers**
 
-In `dist/learning-service.mjs`, replace the import block (lines 1-3):
+In `src/learning-service.mjs`, replace the import block (lines 1-3):
 
 ```js
 import {createLearningStore} from './learning-store.mjs';
@@ -561,7 +561,7 @@ const PLACEMENT_KEY='toan-placement-v1';
 
 - [ ] **Step 4: Add placement read/write helpers inside the service**
 
-In `dist/learning-service.mjs`, after the `draw` function closes (after line 18, `}`), and before the `return {` (line 19), add:
+In `src/learning-service.mjs`, after the `draw` function closes (after line 18, `}`), and before the `return {` (line 19), add:
 
 ```js
   function readPlacement(){try{const raw=storage?.getItem(PLACEMENT_KEY);if(raw){const v=JSON.parse(raw);if(v&&typeof v==='object')return v}}catch{}return null}
@@ -570,7 +570,7 @@ In `dist/learning-service.mjs`, after the `draw` function closes (after line 18,
 
 - [ ] **Step 5: Add the three methods to the returned object**
 
-In `dist/learning-service.mjs`, in the returned object, replace the `newSessionId` line (line 27) — which is the last property — so the object gains the new methods. Change:
+In `src/learning-service.mjs`, in the returned object, replace the `newSessionId` line (line 27) — which is the last property — so the object gains the new methods. Change:
 
 ```js
     newSessionId(){return `${now()}-${++sequence}`}
@@ -604,7 +604,7 @@ Expected: PASS.
 - [ ] **Step 8: Commit**
 
 ```bash
-git add dist/learning-service.mjs tests/learning-service.test.mjs
+git add src/learning-service.mjs tests/learning-service.test.mjs
 git commit -m "Add placeAt/skipPlacement/placement to the learning service"
 ```
 
@@ -613,7 +613,7 @@ git commit -m "Add placeAt/skipPlacement/placement to the learning service"
 ## Task 6: Placement quiz controller (`placement.mjs`)
 
 **Files:**
-- Create: `dist/placement.mjs`
+- Create: `src/placement.mjs`
 
 **Interfaces:**
 - Consumes: `choices` (`math.mjs`); `createPlacement`/`placementStage`/`recordPlacement`/`placementResult` (Task 4); `showCenterCheck`/`showMiss`/`NEXT_DELAY_MS` (`feedback.mjs`); `learning.nextFact`, `learning.placeAt`, `learning.summary` (Task 5); `home`, `beep` from the common mount context.
@@ -623,7 +623,7 @@ This controller has no unit test (it is DOM/timer glue, consistent with the othe
 
 - [ ] **Step 1: Create the controller**
 
-Create `dist/placement.mjs`:
+Create `src/placement.mjs`:
 
 ```js
 import {choices} from './math.mjs';
@@ -673,7 +673,7 @@ Note: the celebration shows `learning.summary().level` (the real landing stage),
 
 - [ ] **Step 2: Verify the module imports cleanly**
 
-Run: `node --input-type=module -e "import('./dist/placement.mjs').then(m=>console.log(typeof m.mountPlacement))"`
+Run: `node --input-type=module -e "import('./src/placement.mjs').then(m=>console.log(typeof m.mountPlacement))"`
 Expected: prints `function`.
 
 - [ ] **Step 3: Run the full suite (nothing should break)**
@@ -684,7 +684,7 @@ Expected: PASS.
 - [ ] **Step 4: Commit**
 
 ```bash
-git add dist/placement.mjs
+git add src/placement.mjs
 git commit -m "Add placement quiz controller"
 ```
 
@@ -693,8 +693,8 @@ git commit -m "Add placement quiz controller"
 ## Task 7: UI integration (`app.js`, `style.css`)
 
 **Files:**
-- Modify: `dist/app.js:6` (import), `dist/app.js:34` (offer card + re-run button in template), `dist/app.js:39-49` (handlers), `dist/app.js:51` (dispatcher)
-- Modify: `dist/style.css` (append styles)
+- Modify: `src/app.js:6` (import), `src/app.js:34` (offer card + re-run button in template), `src/app.js:39-49` (handlers), `src/app.js:51` (dispatcher)
+- Modify: `src/style.css` (append styles)
 - Test: `tests/home-ui.test.mjs`
 
 **Interfaces:**
@@ -707,7 +707,7 @@ Append to `tests/home-ui.test.mjs`:
 
 ```js
 test('a first-run placement offer invites, starts or is skipped through the service',async()=>{
-  const app=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const app=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   // registered in the dispatcher
   assert.match(app,/import \{mountPlacement\} from '\.\/placement\.mjs'/);
   assert.match(app,/id==='placement'\?mountPlacement\(app,common\)/);
@@ -723,13 +723,13 @@ test('a first-run placement offer invites, starts or is skipped through the serv
 });
 
 test('the journey details modal offers a re-run of the placement check',async()=>{
-  const app=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const app=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   assert.match(app,/id="placement-rerun">🧭 Kiểm tra trình độ<\/button>/);
   assert.match(app,/#placement-rerun'\)\.onclick=\(\)=>start\('placement'\)/);
 });
 
 test('placement styles exist for the offer card and quiz screen',async()=>{
-  const style=await readFile(new URL('../dist/style.css',import.meta.url),'utf8');
+  const style=await readFile(new URL('../src/style.css',import.meta.url),'utf8');
   assert.match(style,/\.placement-offer\{/);
   assert.match(style,/\.placement-offer-actions\{/);
 });
@@ -742,7 +742,7 @@ Expected: FAIL — none of these strings exist yet.
 
 - [ ] **Step 3: Import the controller**
 
-In `dist/app.js:6`, after the `createLearningService` import line, the imports block runs lines 1-8. Change line 6:
+In `src/app.js:6`, after the `createLearningService` import line, the imports block runs lines 1-8. Change line 6:
 
 ```js
 import {createLearningService} from './learning-service.mjs';
@@ -757,7 +757,7 @@ import {mountPlacement} from './placement.mjs';
 
 - [ ] **Step 4: Compute the offer flag in `home()`**
 
-In `dist/app.js:32`, extend the first line of `home()`. Change:
+In `src/app.js:32`, extend the first line of `home()`. Change:
 
 ```js
   stopGame?.();stopGame=null;const p=learning.summary(),started=p.total-p.new,stage=p.levels.find(l=>l.id===p.level)||p.levels[0];
@@ -771,7 +771,7 @@ to:
 
 - [ ] **Step 5: Render the offer card in the template**
 
-In `dist/app.js:33`, the `home()` template opens with the `<section class="welcome">...</section>` line. Insert the offer card immediately after that welcome section's closing `</section>` and before the ``<section class="journey">`` that begins line 34. Change the start of line 34 from:
+In `src/app.js:33`, the `home()` template opens with the `<section class="welcome">...</section>` line. Insert the offer card immediately after that welcome section's closing `</section>` and before the ``<section class="journey">`` that begins line 34. Change the start of line 34 from:
 
 ```js
   <section class="journey">
@@ -786,7 +786,7 @@ to:
 
 - [ ] **Step 6: Add the re-run button inside the journey-details modal**
 
-In `dist/app.js:34`, within the `#journey-details` dialog, the details body ends with the level list `</ul></div></dialog>`. Add the re-run button right after the `</ul>`. Find this fragment in the template:
+In `src/app.js:34`, within the `#journey-details` dialog, the details body ends with the level list `</ul></div></dialog>`. Add the re-run button right after the `</ul>`. Find this fragment in the template:
 
 ```js
 `<li class="${l.unlocked?'':'locked'} ${l.id===p.level?'current':''}"><span>${l.id}. ${l.title}</span><div class="progress"><div style="width:${l.total?Math.round(l.ready/l.total*100):0}%"></div></div><b>${l.ready}/${l.total}</b><button class="level-practice" data-level="${l.id}" aria-label="Luyện riêng chặng ${l.id}: ${l.title}">Luyện</button></li>`).join('')}</ul></div></dialog>
@@ -800,7 +800,7 @@ and change the trailing `</ul></div></dialog>` to insert the button:
 
 - [ ] **Step 7: Wire the offer and re-run handlers**
 
-In `dist/app.js`, in the handler block of `home()` (lines 39-49), add the placement handlers. After the `#details-close` handler line (line 44):
+In `src/app.js`, in the handler block of `home()` (lines 39-49), add the placement handlers. After the `#details-close` handler line (line 44):
 
 ```js
   app.querySelector('#details-close').onclick=()=>details.close();
@@ -815,7 +815,7 @@ add:
 
 - [ ] **Step 8: Register `placement` in the `start()` dispatcher**
 
-In `dist/app.js:51`, add the placement branch before the `mountChallenge` fallback. Change:
+In `src/app.js:51`, add the placement branch before the `mountChallenge` fallback. Change:
 
 ```js
 function start(id,{focusLevel}={}){stopGame?.();stopGame=null;const mode=modes.find(m=>m.id===id),common={settings,home,award,beep,learning,scores};stopGame=id==='rain'?mountRain(app,common):id==='practice'?mountPractice(app,{...common,startGame:start,games:gameModes,focusLevel}):id==='sheet'?mountSheet(app,{...common,startGame:start}):id==='compare'?mountCompare(app,common):mountChallenge(app,{...common,mode})}
@@ -829,7 +829,7 @@ function start(id,{focusLevel}={}){stopGame?.();stopGame=null;const mode=modes.f
 
 - [ ] **Step 9: Append the styles**
 
-Read the end of `dist/style.css` (`Read` the last ~15 lines to find a unique anchor), then append this block to the very end of the file:
+Read the end of `src/style.css` (`Read` the last ~15 lines to find a unique anchor), then append this block to the very end of the file:
 
 ```css
 .placement-offer{background:linear-gradient(135deg,#e8f4ff,#f3ecff);border:2px solid #cfe0ff;border-radius:20px;padding:18px 20px;margin:0 0 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between}
@@ -854,7 +854,7 @@ Expected: PASS.
 - [ ] **Step 11: Commit**
 
 ```bash
-git add dist/app.js dist/style.css tests/home-ui.test.mjs
+git add src/app.js src/style.css tests/home-ui.test.mjs
 git commit -m "Wire placement offer, re-run and quiz screen into the home shell"
 ```
 

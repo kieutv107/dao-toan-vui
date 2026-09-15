@@ -4,9 +4,9 @@
 
 **Goal:** Phản hồi đúng/sai tức thời bằng dấu ✓/✗ ngay tại chỗ bé đang nhìn, câu mới đến sau 450 ms, trong bốn game Luyện tập, Bắt bong bóng, Số nào trốn mất, Số nào lớn hơn.
 
-**Architecture:** Một module DOM thuần `dist/feedback.mjs` (không state, không engine) xuất `showCheck`, `showMiss`, `showStreak`, `announce`, `NEXT_DELAY_MS`; kiểu dáng và keyframes trong `dist/feedback.css`. Ba controller `practice.mjs`, `challenge.mjs`, `compare.mjs` gọi module thay cho dòng chữ "Chính xác!" và các số ms riêng lẻ. `beep` trong `app.js` rút ngắn để không dài hơn khoảnh khắc 450 ms.
+**Architecture:** Một module DOM thuần `src/feedback.mjs` (không state, không engine) xuất `showCheck`, `showMiss`, `showStreak`, `announce`, `NEXT_DELAY_MS`; kiểu dáng và keyframes trong `src/feedback.css`. Ba controller `practice.mjs`, `challenge.mjs`, `compare.mjs` gọi module thay cho dòng chữ "Chính xác!" và các số ms riêng lẻ. `beep` trong `app.js` rút ngắn để không dài hơn khoảnh khắc 450 ms.
 
-**Tech Stack:** Vanilla ES modules, CSS animations, `node:test` với `mock.timers` (Node 25), test regex trên file nguồn theo mẫu `tests/home-ui.test.mjs`. Không có bundler: `dist/` là mã nguồn, chạy trực tiếp.
+**Tech Stack:** Vanilla ES modules, CSS animations, `node:test` với `mock.timers` (Node 25), test regex trên file nguồn theo mẫu `tests/home-ui.test.mjs`. Không có bundler: `src/` là mã nguồn, chạy trực tiếp.
 
 **Spec:** `docs/superpowers/specs/2026-09-13-green-check-feedback-design.md`
 
@@ -25,13 +25,13 @@
 
 | File | Trách nhiệm |
 | --- | --- |
-| `dist/feedback.mjs` (mới) | Chèn/gỡ ✓, ✗, pill chuỗi và thông báo sr-only. Không biết gì về game. |
-| `dist/feedback.css` (mới) | Kiểu dáng và keyframes của các phần tử trên, class `sr-only`, rule reduced-motion. |
-| `dist/index.html` | Nạp `feedback.css`. |
-| `dist/app.js` | `beep` ngắn hơn. |
-| `dist/practice.mjs` | Gọi `showCheck`, `showMiss`, `announce`; sang câu sau `NEXT_DELAY_MS`. |
-| `dist/challenge.mjs` | Như practice, thêm `showStreak`; chỉ nhánh bubble/mystery. |
-| `dist/compare.mjs` | `showCheck` không `answer`, `showMiss`, `showStreak`, `announce`. |
+| `src/feedback.mjs` (mới) | Chèn/gỡ ✓, ✗, pill chuỗi và thông báo sr-only. Không biết gì về game. |
+| `src/feedback.css` (mới) | Kiểu dáng và keyframes của các phần tử trên, class `sr-only`, rule reduced-motion. |
+| `src/index.html` | Nạp `feedback.css`. |
+| `src/app.js` | `beep` ngắn hơn. |
+| `src/practice.mjs` | Gọi `showCheck`, `showMiss`, `announce`; sang câu sau `NEXT_DELAY_MS`. |
+| `src/challenge.mjs` | Như practice, thêm `showStreak`; chỉ nhánh bubble/mystery. |
+| `src/compare.mjs` | `showCheck` không `answer`, `showMiss`, `showStreak`, `announce`. |
 | `tests/feedback.test.mjs` (mới) | Test hành vi module qua fake DOM + mock timers; test regex CSS và wiring của ba controller. |
 | `tests/home-ui.test.mjs` | Thêm test `beep` ngắn. |
 | `docs/FEATURES.md`, `docs/DESIGN_SYSTEM.md`, spec | Cập nhật mô tả. |
@@ -41,7 +41,7 @@
 ### Task 1: Module `feedback.mjs` với test hành vi
 
 **Files:**
-- Create: `dist/feedback.mjs`
+- Create: `src/feedback.mjs`
 - Test: `tests/feedback.test.mjs`
 
 **Interfaces:**
@@ -60,7 +60,7 @@ Tạo `tests/feedback.test.mjs`:
 import {test,mock} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {showCheck,showMiss,showStreak,announce,NEXT_DELAY_MS} from '../dist/feedback.mjs';
+import {showCheck,showMiss,showStreak,announce,NEXT_DELAY_MS} from '../src/feedback.mjs';
 
 // Fake DOM tối thiểu: đủ cho className, children, textContent, attributes, remove.
 function element(tag='div'){
@@ -144,11 +144,11 @@ test('announce replaces the live region content with visually hidden text',()=>{
 - [ ] **Step 2: Chạy test để thấy thất bại**
 
 Run: `node --test tests/feedback.test.mjs`
-Expected: FAIL ở bước import, thông báo kiểu `Cannot find module '.../dist/feedback.mjs'`.
+Expected: FAIL ở bước import, thông báo kiểu `Cannot find module '.../src/feedback.mjs'`.
 
 - [ ] **Step 3: Viết module tối thiểu**
 
-Tạo `dist/feedback.mjs`:
+Tạo `src/feedback.mjs`:
 
 ```js
 export const NEXT_DELAY_MS=450;
@@ -196,7 +196,7 @@ Expected: 6 pass, 0 fail. Rồi `node --test tests/*.test.mjs` → 94 pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add dist/feedback.mjs tests/feedback.test.mjs
+git add src/feedback.mjs tests/feedback.test.mjs
 git commit -m "Add shared green check feedback module"
 ```
 
@@ -205,8 +205,8 @@ git commit -m "Add shared green check feedback module"
 ### Task 2: `feedback.css` và nạp vào `index.html`
 
 **Files:**
-- Create: `dist/feedback.css`
-- Modify: `dist/index.html` (thẻ `<link>` sau `sheet.css?v=2`)
+- Create: `src/feedback.css`
+- Modify: `src/index.html` (thẻ `<link>` sau `sheet.css?v=2`)
 - Test: `tests/feedback.test.mjs`
 
 **Interfaces:**
@@ -220,8 +220,8 @@ Thêm vào cuối `tests/feedback.test.mjs`:
 ```js
 test('feedback stylesheet defines the check, miss, streak and sr-only styles and is loaded',async()=>{
   const [css,index]=await Promise.all([
-    readFile(new URL('../dist/feedback.css',import.meta.url),'utf8'),
-    readFile(new URL('../dist/index.html',import.meta.url),'utf8')
+    readFile(new URL('../src/feedback.css',import.meta.url),'utf8'),
+    readFile(new URL('../src/index.html',import.meta.url),'utf8')
   ]);
   for(const cls of ['is-check','fb-check-fill','fb-check-badge','fb-answer','fb-miss','fb-streak','sr-only'])assert.match(css,new RegExp(`\\.${cls}\\b`),cls);
   for(const kf of ['fb-pop','fb-fade-in','fb-badge','fb-rise'])assert.match(css,new RegExp(`@keyframes ${kf}\\{`),kf);
@@ -238,7 +238,7 @@ Expected: 1 fail với `ENOENT ... feedback.css`.
 
 - [ ] **Step 3: Viết CSS và thêm link**
 
-Tạo `dist/feedback.css`:
+Tạo `src/feedback.css`:
 
 ```css
 .is-check,.has-miss,.has-streak{position:relative}
@@ -256,7 +256,7 @@ Tạo `dist/feedback.css`:
 @media(prefers-reduced-motion:reduce){.fb-check-fill{display:none}}
 ```
 
-Trong `dist/index.html`, ngay sau `<link rel="stylesheet" href="sheet.css?v=2">` thêm `<link rel="stylesheet" href="feedback.css?v=2">`.
+Trong `src/index.html`, ngay sau `<link rel="stylesheet" href="sheet.css?v=2">` thêm `<link rel="stylesheet" href="feedback.css?v=2">`.
 
 Lưu ý: rule reduced-motion toàn cục trong `style.css` đã đặt `animation:none!important`, nên `.fb-answer` hiện ngay và `.fb-check-fill` ẩn để không chồng chữ.
 
@@ -268,7 +268,7 @@ Expected: 95 pass, 0 fail.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add dist/feedback.css dist/index.html tests/feedback.test.mjs
+git add src/feedback.css src/index.html tests/feedback.test.mjs
 git commit -m "Style green check, miss badge and streak pill"
 ```
 
@@ -277,7 +277,7 @@ git commit -m "Style green check, miss badge and streak pill"
 ### Task 3: Rút ngắn `beep` trong `app.js`
 
 **Files:**
-- Modify: `dist/app.js:24`
+- Modify: `src/app.js:24`
 - Test: `tests/home-ui.test.mjs`
 
 **Interfaces:**
@@ -290,7 +290,7 @@ Thêm vào cuối `tests/home-ui.test.mjs`:
 
 ```js
 test('answer beep is a short ding, not a three-note fanfare',async()=>{
-  const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   const fn=source.match(/function beep\(win=true\)\{[\s\S]*?\n/)[0];
   assert.doesNotMatch(fn,/\[0,\.12,\.24\]/);
   assert.match(fn,/520/);assert.match(fn,/780/);assert.match(fn,/200/);
@@ -304,7 +304,7 @@ Expected: 1 fail, `The input was expected to not match ... [0,.12,.24]`.
 
 - [ ] **Step 3: Viết lại `beep`**
 
-Thay dòng 24 của `dist/app.js` (bắt đầu `function beep(win=true){`) bằng:
+Thay dòng 24 của `src/app.js` (bắt đầu `function beep(win=true){`) bằng:
 
 ```js
 function beep(win=true){if(!sound)return;try{ctx??=new(window.AudioContext||window.webkitAudioContext)();ctx.resume();const notes=win?[[520,0,.08],[780,.07,.08]]:[[200,0,.1]];notes.forEach(([hz,at,len])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.type='sine';o.frequency.value=hz;const t=ctx.currentTime+at;g.gain.setValueAtTime(win?.08:.05,t);g.gain.exponentialRampToValueAtTime(.001,t+len);o.start(t);o.stop(t+len)})}catch{}}
@@ -318,7 +318,7 @@ Expected: 96 pass, 0 fail.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add dist/app.js tests/home-ui.test.mjs
+git add src/app.js tests/home-ui.test.mjs
 git commit -m "Shorten answer beep to a quick ding"
 ```
 
@@ -327,7 +327,7 @@ git commit -m "Shorten answer beep to a quick ding"
 ### Task 4: Vườn luyện tập dùng module
 
 **Files:**
-- Modify: `dist/practice.mjs:1,21-22`
+- Modify: `src/practice.mjs:1,21-22`
 - Test: `tests/feedback.test.mjs`
 
 **Interfaces:**
@@ -339,7 +339,7 @@ Thêm vào cuối `tests/feedback.test.mjs`:
 
 ```js
 test('practice wires check, miss and the shared delay but no streak',async()=>{
-  const src=await readFile(new URL('../dist/practice.mjs',import.meta.url),'utf8');
+  const src=await readFile(new URL('../src/practice.mjs',import.meta.url),'utf8');
   assert.match(src,/import \{showCheck,showMiss,announce,NEXT_DELAY_MS\} from '\.\/feedback\.mjs'/);
   assert.match(src,/showCheck\(\$\('\.unknown'\),q\.answer\)/);
   assert.match(src,/showMiss\(button\)/);
@@ -385,12 +385,12 @@ Expected: 97 pass, 0 fail.
 
 - [ ] **Step 5: Kiểm tra trực quan**
 
-Mở `dist/index.html` bằng server tĩnh (ví dụ `npx serve dist` hoặc `python3 -m http.server -d dist 8080`), vào Vườn luyện tập, trả lời đúng một câu: ô `?` chuyển xanh, ✓ phóng lên rồi thành số, câu mới sau chưa tới nửa giây. Trả lời sai: ✗ đỏ ở góc nút, tan sau khoảng 0,3 s.
+Mở `src/index.html` bằng server tĩnh (ví dụ `npx serve src` hoặc `python3 -m http.server -d src 8080`), vào Vườn luyện tập, trả lời đúng một câu: ô `?` chuyển xanh, ✓ phóng lên rồi thành số, câu mới sau chưa tới nửa giây. Trả lời sai: ✗ đỏ ở góc nút, tan sau khoảng 0,3 s.
 
 - [ ] **Step 6: Commit**
 
 ```bash
-git add dist/practice.mjs tests/feedback.test.mjs
+git add src/practice.mjs tests/feedback.test.mjs
 git commit -m "Use green check feedback in practice garden"
 ```
 
@@ -399,7 +399,7 @@ git commit -m "Use green check feedback in practice garden"
 ### Task 5: Bắt bong bóng và Số nào trốn mất dùng module
 
 **Files:**
-- Modify: `dist/challenge.mjs:1,23-26`
+- Modify: `src/challenge.mjs:1,23-26`
 - Test: `tests/feedback.test.mjs`
 
 **Interfaces:**
@@ -411,7 +411,7 @@ Thêm vào cuối `tests/feedback.test.mjs`:
 
 ```js
 test('challenge games wire check, miss, streak and the shared delay',async()=>{
-  const src=await readFile(new URL('../dist/challenge.mjs',import.meta.url),'utf8');
+  const src=await readFile(new URL('../src/challenge.mjs',import.meta.url),'utf8');
   assert.match(src,/import \{showCheck,showMiss,showStreak,announce,NEXT_DELAY_MS\} from '\.\/feedback\.mjs'/);
   assert.match(src,/showCheck\(\$\('\.unknown'\),expected\)/);
   assert.match(src,/showMiss\(button\)/);
@@ -467,7 +467,7 @@ Vào Bắt bong bóng: đúng 3 câu liên tiếp thấy pill "Chuỗi 3" bay l�
 - [ ] **Step 6: Commit**
 
 ```bash
-git add dist/challenge.mjs tests/feedback.test.mjs
+git add src/challenge.mjs tests/feedback.test.mjs
 git commit -m "Use green check feedback in bubble and mystery games"
 ```
 
@@ -476,7 +476,7 @@ git commit -m "Use green check feedback in bubble and mystery games"
 ### Task 6: Số nào lớn hơn dùng module
 
 **Files:**
-- Modify: `dist/compare.mjs:1,25-43`
+- Modify: `src/compare.mjs:1,25-43`
 - Test: `tests/feedback.test.mjs`
 
 **Interfaces:**
@@ -488,7 +488,7 @@ Thêm vào cuối `tests/feedback.test.mjs`:
 
 ```js
 test('compare game pins the check on the chosen card and uses the shared delay',async()=>{
-  const src=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  const src=await readFile(new URL('../src/compare.mjs',import.meta.url),'utf8');
   assert.match(src,/import \{showCheck,showMiss,showStreak,announce,NEXT_DELAY_MS\} from '\.\/feedback\.mjs'/);
   assert.match(src,/if\(button\.dataset\.compareChoice===answer\)\{button\.classList\.add\('right'\);showCheck\(button\)\}/);
   assert.match(src,/else if\(button\.dataset\.compareChoice===choice\)\{button\.classList\.add\('wrong'\);showMiss\(button\)\}/);
@@ -557,7 +557,7 @@ Vào Số nào lớn hơn: chọn đúng thấy ✓ phóng giữa thẻ rồi th
 - [ ] **Step 6: Commit**
 
 ```bash
-git add dist/compare.mjs tests/feedback.test.mjs
+git add src/compare.mjs tests/feedback.test.mjs
 git commit -m "Use green check feedback in greater number game"
 ```
 

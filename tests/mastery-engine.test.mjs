@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {factCatalog,factId,factFamilyId,formKey,createProfile,getFactState,recordEvidence,migrateProfile,responseBenchmark,seedForm} from '../dist/mastery-engine.mjs';
+import {factCatalog,factId,factFamilyId,formKey,createProfile,getFactState,recordEvidence,migrateProfile,responseBenchmark,seedForm} from '../src/mastery-engine.mjs';
 
 test('catalog contains stable valid mixed facts through 20',()=>{
   const facts=factCatalog();

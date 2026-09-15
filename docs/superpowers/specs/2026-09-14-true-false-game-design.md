@@ -84,17 +84,17 @@ Giữ cơ chế của Số nào lớn hơn?:
 
 File mới:
 
-- `dist/truefalse-engine.mjs`: `createTrueFalseGame()`, `unlockedTrueFalseStage(g)`, `trueFalseStage(g)`, `recordTrueFalseAnswer(g, good)`, `elapseTrueFalse(g, seconds)`, `createTrueFalseRound(g, {fact, random})`, `reviewFacts(round, correct)`. Round trả về vế trái (có `fact`), vế phải (số hoặc phép tính), `truth` và giá trị thật của hai vế. Engine thuần, nhận supplier và `random` qua tham số.
-- `dist/truefalse.mjs`: `mountTrueFalse(app, {home, award, beep, learning, scores})`, trả về hàm cleanup.
-- `dist/truefalse.css`: thẻ phép tính, hai thẻ Đúng/Sai, trạng thái đúng/sai và responsive.
+- `src/truefalse-engine.mjs`: `createTrueFalseGame()`, `unlockedTrueFalseStage(g)`, `trueFalseStage(g)`, `recordTrueFalseAnswer(g, good)`, `elapseTrueFalse(g, seconds)`, `createTrueFalseRound(g, {fact, random})`, `reviewFacts(round, correct)`. Round trả về vế trái (có `fact`), vế phải (số hoặc phép tính), `truth` và giá trị thật của hai vế. Engine thuần, nhận supplier và `random` qua tham số.
+- `src/truefalse.mjs`: `mountTrueFalse(app, {home, award, beep, learning, scores})`, trả về hàm cleanup.
+- `src/truefalse.css`: thẻ phép tính, hai thẻ Đúng/Sai, trạng thái đúng/sai và responsive.
 - `tests/truefalse.test.mjs`.
 
 File sửa:
 
-- `dist/app.js`: import, thêm mode, định tuyến `truefalse` tới `mountTrueFalse`.
-- `dist/index.html`: thêm `truefalse.css?v=2`, đổi số trò chơi.
-- `dist/sw.js`: thêm `truefalse-engine.mjs`, `truefalse.mjs`, `truefalse.css` vào `ASSETS`.
-- `dist/style.css`: thẻ lời khuyên trải hàng.
+- `src/app.js`: import, thêm mode, định tuyến `truefalse` tới `mountTrueFalse`.
+- `src/index.html`: thêm `truefalse.css?v=2`, đổi số trò chơi.
+- `src/sw.js`: thêm `truefalse-engine.mjs`, `truefalse.mjs`, `truefalse.css` vào `ASSETS`.
+- `src/style.css`: thẻ lời khuyên trải hàng.
 - `tests/home-ui.test.mjs`: danh sách zone, test thẻ lời khuyên đổi sang trải hàng, đưa `truefalse.mjs` vào các test HUD kỷ lục/ăn mừng/top 5, thêm test đăng ký game, không ghi thời lượng, HUD không có ô chặng.
 - `docs/FEATURES.md`: mục mới “Đúng hay sai?”, danh sách game, bảng router, danh sách game có kỷ lục, danh sách ghi tiến độ.
 - `docs/ENGINE.md`: bảng hàm engine mới.

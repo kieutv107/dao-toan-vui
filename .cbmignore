@@ -1,6 +1,6 @@
 # codebase-memory-mcp ignore rules (gitignore syntax).
-# This project keeps its source in dist/, which the indexer skips by default.
-!dist/
-!dist/**
+# This project keeps its source in src/, which the indexer skips by default.
+!src/
+!src/**
 *.png
 *.ico

@@ -50,10 +50,10 @@ Khoảng 20% câu có hai giá trị bằng nhau. Các câu còn lại có một
 
 ## Cấu trúc mã
 
-- `dist/compare-engine.mjs`: trạng thái 2 phút, bậc đã mở, giảm/khôi phục độ khó, sinh cặp so sánh, xác định đáp án và tính điểm.
-- `dist/compare.mjs`: giao diện, đồng hồ, bàn phím, phản hồi, ghi tiến độ và lưu kỷ lục.
-- `dist/compare.css`: bố cục hai thẻ, trạng thái đúng/sai và responsive.
-- `dist/app.js`: thêm game vào menu và định tuyến đến controller mới.
+- `src/compare-engine.mjs`: trạng thái 2 phút, bậc đã mở, giảm/khôi phục độ khó, sinh cặp so sánh, xác định đáp án và tính điểm.
+- `src/compare.mjs`: giao diện, đồng hồ, bàn phím, phản hồi, ghi tiến độ và lưu kỷ lục.
+- `src/compare.css`: bố cục hai thẻ, trạng thái đúng/sai và responsive.
+- `src/app.js`: thêm game vào menu và định tuyến đến controller mới.
 - Engine giữ logic thuần, nhận hàm sinh số/phép tính qua tham số để kiểm thử ổn định.
 
 ## Kiểm thử và xác nhận

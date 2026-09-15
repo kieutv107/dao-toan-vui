@@ -2,10 +2,10 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile,readdir} from 'node:fs/promises';
 import vm from 'node:vm';
-import {registerOffline} from '../dist/offline.mjs';
+import {registerOffline} from '../src/offline.mjs';
 
-const dist=new URL('../dist/',import.meta.url);
-const swSource=await readFile(new URL('sw.js',dist),'utf8');
+const src=new URL('../src/',import.meta.url);
+const swSource=await readFile(new URL('sw.js',src),'utf8');
 const ORIGIN='https://toan.test';
 
 // Runs sw.js against fake self/caches/fetch so the real handlers are exercised.
@@ -30,7 +30,7 @@ const offline=()=>Promise.reject(new TypeError('Failed to fetch'));
 const assetsIn=src=>new Function(`return ${src.match(/const ASSETS=(\[[^\]]*\])/)[1]}`)();
 
 test('the service worker precaches every file the app ships',async()=>{
-  const files=(await readdir(dist)).filter(f=>!f.startsWith('.')&&f!=='sw.js').sort();
+  const files=(await readdir(src)).filter(f=>!f.startsWith('.')&&f!=='sw.js').sort();
   const assets=assetsIn(swSource);
   assert.deepEqual(assets.filter(a=>a!=='./').sort(),files);
   assert.ok(assets.includes('./'));
@@ -103,7 +103,7 @@ test('registerOffline registers sw.js and is a no-op without service worker supp
 });
 
 test('the page opens full screen from the browser\'s own "add to home screen" and registers the service worker',async()=>{
-  const [index,app,manifest]=await Promise.all(['index.html','app.js','site.webmanifest'].map(f=>readFile(new URL(f,dist),'utf8')));
+  const [index,app,manifest]=await Promise.all(['index.html','app.js','site.webmanifest'].map(f=>readFile(new URL(f,src),'utf8')));
   for(const meta of ['<meta name="apple-mobile-web-app-capable" content="yes">','<meta name="mobile-web-app-capable" content="yes">','<meta name="apple-mobile-web-app-title" content="Toán Vui">'])assert.ok(index.includes(meta),meta);
   assert.match(index,/<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon\.png">/);
   // no in-app install button: the browser already offers "add to home screen"

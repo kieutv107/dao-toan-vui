@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-const engine=await import('../dist/challenge-engine.mjs').catch(()=>({}));
+const engine=await import('../src/challenge-engine.mjs').catch(()=>({}));
 test('every mode increases arithmetic range while respecting lesson settings',()=>{
   for(const mode of ['practice','bubble','rocket','mystery','memory']) {
     const g=engine.createChallenge(mode,20);const low=engine.challengeDifficulty(g);g.correct=8;g.board=3;

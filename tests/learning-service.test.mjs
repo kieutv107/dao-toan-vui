@@ -1,9 +1,9 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createLearningService} from '../dist/learning-service.mjs';
-import {getFactState,formKey,recordEvidence} from '../dist/mastery-engine.mjs';
-import {formsAtLevel,formsBelowLevel} from '../dist/core-facts.mjs';
-import {currentLevel} from '../dist/adaptive-selector.mjs';
+import {createLearningService} from '../src/learning-service.mjs';
+import {getFactState,formKey,recordEvidence} from '../src/mastery-engine.mjs';
+import {formsAtLevel,formsBelowLevel} from '../src/core-facts.mjs';
+import {currentLevel} from '../src/adaptive-selector.mjs';
 
 function storage(){const m=new Map();return{getItem:k=>m.get(k)??null,setItem:(k,v)=>m.set(k,v),removeItem:k=>m.delete(k)}}
 function master(profile,forms){for(const form of forms)for(const sessionId of ['a','b'])recordEvidence(profile,{fact:form.questions[0],result:'correct',elapsedMs:1000,context:'practice',sessionId,now:1})}

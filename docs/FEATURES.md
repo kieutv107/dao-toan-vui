@@ -2,7 +2,7 @@
 
 ## 1. Shell và màn hình đảo trò chơi
 
-`dist/app.js` sở hữu shell toàn app và mount đúng một game tại một thời điểm.
+`src/app.js` sở hữu shell toàn app và mount đúng một game tại một thời điểm.
 
 ### Header
 
@@ -13,10 +13,10 @@
 ### Chạy offline
 
 - App không có nút cài riêng: bé lưu về màn hình bằng tính năng sẵn có của trình duyệt (Safari: Chia sẻ → Thêm vào MH chính; Chrome: Cài đặt ứng dụng / Thêm vào màn hình chính). `site.webmanifest` và các thẻ `apple-mobile-web-app-*` giúp app mở toàn màn hình với tên “Toán Vui” và icon riêng.
-- `dist/offline.mjs` đăng ký `dist/sw.js`; service worker lưu sẵn toàn bộ file của app trong lần mở đầu tiên khi có mạng. Sau đó app mở và chơi được khi không có mạng, kể cả khi mở từ màn hình chính trên iPad/điện thoại.
+- `src/offline.mjs` đăng ký `src/sw.js`; service worker lưu sẵn toàn bộ file của app trong lần mở đầu tiên khi có mạng. Sau đó app mở và chơi được khi không có mạng, kể cả khi mở từ màn hình chính trên iPad/điện thoại.
 - File của app luôn lấy bản mới từ mạng trước; mất mạng hoặc mạng chậm quá 3 giây thì dùng bản đã lưu. Vì vậy bản deploy mới đến tay bé ngay khi có mạng, không cần đổi phiên bản cache.
 - Font Nunito được lưu lại ở lần tải đầu; nếu chưa kịp lưu, app dùng font hệ thống.
-- Khi thêm file mới vào `dist`, phải thêm vào `ASSETS` trong `sw.js`; test `offline.test.mjs` sẽ báo nếu thiếu.
+- Khi thêm file mới vào `src`, phải thêm vào `ASSETS` trong `sw.js`; test `offline.test.mjs` sẽ báo nếu thiếu.
 
 ### Hành trình của bé
 
@@ -28,7 +28,7 @@
 
 ### Danh sách game
 
-Menu lấy từ mảng `modes` trong `dist/app.js`. Mỗi mode có `id`, `zone`, icon, tiêu đề, mô tả, tag, màu và nhãn CTA. Trang chủ chia hai khu, ngăn cách bằng đường nét đứt:
+Menu lấy từ mảng `modes` trong `src/app.js`. Mỗi mode có `id`, `zone`, icon, tiêu đề, mô tả, tag, màu và nhãn CTA. Trang chủ chia hai khu, ngăn cách bằng đường nét đứt:
 
 - **Khu luyện tập** (`zone:'practice'`): Vườn luyện tập và Phiếu 20 phép, lưới 2 cột.
 - **Khu trò chơi** (`zone:'game'`) bên dưới: Mưa phép tính, Bắt bong bóng, Lật thẻ thần kỳ, Số nào trốn mất?, Số nào lớn hơn?, Đúng hay sai?, kèm thẻ lời khuyên trải hết một hàng thành dải ngang dưới các game.

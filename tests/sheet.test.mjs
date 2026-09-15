@@ -1,10 +1,10 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {createProfile,recordEvidence} from '../dist/mastery-engine.mjs';
-import {formsAtLevel,formOf} from '../dist/core-facts.mjs';
-import {createSheet,setAnswer,filledCount,grade,SHEET_SIZE} from '../dist/sheet-engine.mjs';
-import {currentLevel} from '../dist/adaptive-selector.mjs';
+import {createProfile,recordEvidence} from '../src/mastery-engine.mjs';
+import {formsAtLevel,formOf} from '../src/core-facts.mjs';
+import {createSheet,setAnswer,filledCount,grade,SHEET_SIZE} from '../src/sheet-engine.mjs';
+import {currentLevel} from '../src/adaptive-selector.mjs';
 
 test('a level-one sheet uses all 13 level-one questions once and borrows 7 from level two instead of repeating',()=>{
   const profile=createProfile(),g=createSheet({profile,sessionId:'s',random:()=>.3});
@@ -56,8 +56,8 @@ test('grading marks each question once, counts blanks as wrong and records evide
 
 test('sheet mode is registered and styled',async()=>{
   const [app,index]=await Promise.all([
-    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
-    readFile(new URL('../dist/index.html',import.meta.url),'utf8')
+    readFile(new URL('../src/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../src/index.html',import.meta.url),'utf8')
   ]);
   assert.match(app,/id:'sheet'/);assert.match(app,/mountSheet/);
   assert.match(index,/sheet\.css/);assert.match(index,/8 trò chơi/);
@@ -65,15 +65,15 @@ test('sheet mode is registered and styled',async()=>{
 
 test('rows carry no question number',async()=>{
   const [ui,css]=await Promise.all([
-    readFile(new URL('../dist/sheet.mjs',import.meta.url),'utf8'),
-    readFile(new URL('../dist/sheet.css',import.meta.url),'utf8')
+    readFile(new URL('../src/sheet.mjs',import.meta.url),'utf8'),
+    readFile(new URL('../src/sheet.css',import.meta.url),'utf8')
   ]);
   assert.doesNotMatch(ui,/sheet-num/);
   assert.doesNotMatch(css,/sheet-num/);
 });
 
 test('equation spreads its terms and operators evenly with flex',async()=>{
-  const css=await readFile(new URL('../dist/sheet.css',import.meta.url),'utf8');
+  const css=await readFile(new URL('../src/sheet.css',import.meta.url),'utf8');
   const eq=css.match(/\.sheet-eq\{[^}]*\}/)[0];
   assert.match(eq,/display:flex/);
   assert.match(eq,/justify-content:space-evenly/);

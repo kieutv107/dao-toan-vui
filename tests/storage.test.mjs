@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createLearningStore} from '../dist/learning-store.mjs';
-import {createHighScoreStore} from '../dist/high-scores.mjs';
+import {createLearningStore} from '../src/learning-store.mjs';
+import {createHighScoreStore} from '../src/high-scores.mjs';
 
 function memoryStorage(seed={}){const data=new Map(Object.entries(seed));return{getItem:k=>data.get(k)??null,setItem:(k,v)=>data.set(k,String(v)),removeItem:k=>data.delete(k)}}
 

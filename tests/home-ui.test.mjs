@@ -3,19 +3,19 @@ import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 
 test('home template has no stray patch markers between its sections',async()=>{
-  const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   assert.doesNotMatch(source,/\n\+\s+<(?:section|div)\b/);
 });
 
 test('home introduces the current curriculum stage and lists every level',async()=>{
-  const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   assert.doesNotMatch(source,/từ 11 đến 15/);
   assert.match(source,/Chặng \$\{p\.level\} · \$\{stage\.title\}/);
   assert.match(source,/p\.levels\.map\(/);
 });
 
 test('home splits practice and worksheet into a practice zone above the game zone',async()=>{
-  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../src/${f}`,import.meta.url),'utf8')));
   const zones=Object.fromEntries([...app.matchAll(/\{id:'(\w+)',zone:'(\w+)'/g)].map(m=>[m[1],m[2]]));
   assert.deepEqual(zones,{practice:'practice',sheet:'practice',rain:'game',bubble:'game',memory:'game',mystery:'game',compare:'game',truefalse:'game'});
   const practiceZone=app.indexOf('KHU LUYỆN TẬP'),gameZone=app.indexOf('KHU TRÒ CHƠI');
@@ -33,7 +33,7 @@ test('home splits practice and worksheet into a practice zone above the game zon
 });
 
 test('home links to a non-profit, no-warranty disclaimer that opens in a modal',async()=>{
-  const [app,index,style]=await Promise.all(['app.js','index.html','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,index,style]=await Promise.all(['app.js','index.html','style.css'].map(f=>readFile(new URL(`../src/${f}`,import.meta.url),'utf8')));
   const home=app.match(/function home\(\)\{[\s\S]*?\n\}/)?.[0]??'';
   const dialog=home.match(/<dialog class="disclaimer-modal"[\s\S]*?<\/dialog>/)?.[0]??'';
   assert.ok(home.indexOf('id="disclaimer-open"')>home.indexOf('aria-label="Khu trò chơi"'),'the trigger sits after the game zone');
@@ -46,7 +46,7 @@ test('home links to a non-profit, no-warranty disclaimer that opens in a modal',
 });
 
 test('progress details open in a modal that closes with a button, backdrop or Esc',async()=>{
-  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,style]=await Promise.all(['app.js','style.css'].map(f=>readFile(new URL(`../src/${f}`,import.meta.url),'utf8')));
   assert.match(app,/<dialog class="journey-modal" id="journey-details" aria-labelledby="journey-details-title"><div class="details-head"><strong id="journey-details-title">Chi tiết hành trình<\/strong><button class="details-close" id="details-close" aria-label="Đóng chi tiết">✕<\/button><\/div><div class="journey-details-body">/);
   assert.match(app,/more\.onclick=\(\)=>\{details\.showModal\(\);more\.setAttribute\('aria-expanded','true'\)\}/,'the link opens the modal');
   assert.match(app,/details\.addEventListener\('close',\(\)=>\{more\.setAttribute\('aria-expanded','false'\);more\.focus\(\)\}\)/,'every close path resets the trigger and returns focus');
@@ -59,7 +59,7 @@ test('progress details open in a modal that closes with a button, backdrop or Es
 });
 
 test('progress details let the child practice any level now, for that session only',async()=>{
-  const [app,practice,style]=await Promise.all(['app.js','practice.mjs','style.css'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,practice,style]=await Promise.all(['app.js','practice.mjs','style.css'].map(f=>readFile(new URL(`../src/${f}`,import.meta.url),'utf8')));
   assert.match(app,/<button class="level-practice" data-level="\$\{l\.id\}"[^>]*>Luyện<\/button>/);
   assert.match(app,/app\.querySelectorAll\('\[data-level\]'\)\.forEach\(b=>b\.onclick=\(\)=>start\('practice',\{focusLevel:Number\(b\.dataset\.level\)\}\)\)/);
   assert.match(app,/function start\(id,\{focusLevel\}=\{\}\)/);
@@ -72,8 +72,8 @@ test('progress details let the child practice any level now, for that session on
 
 test('journey card invites the child to practice with an animated CTA',async()=>{
   const [app,css]=await Promise.all([
-    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
-    readFile(new URL('../dist/style.css',import.meta.url),'utf8')
+    readFile(new URL('../src/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../src/style.css',import.meta.url),'utf8')
   ]);
   assert.doesNotMatch(app,/>Xem tiến độ</);
   assert.match(app,/id="practice-now"[^>]*>[\s\S]*?Luyện tập ngay/);
@@ -100,7 +100,7 @@ test('journey card invites the child to practice with an animated CTA',async()=>
   assert.match(css,/@keyframes cta-lift/);
 });
 
-const read=file=>readFile(new URL(`../dist/${file}`,import.meta.url),'utf8');
+const read=file=>readFile(new URL(`../src/${file}`,import.meta.url),'utf8');
 
 test('in-game HUDs show only the best score from before the run',async()=>{
   const [challenge,rain,...css]=await Promise.all(['challenge.mjs','rain.mjs','challenge.css','rain.css','compare.css','truefalse.css'].map(read));
@@ -140,8 +140,8 @@ test('finish screens highlight this run in the top five with a "Lượt chơi hi
 
 test('greater-number game is registered and styled',async()=>{
   const [app,index]=await Promise.all([
-    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
-    readFile(new URL('../dist/index.html',import.meta.url),'utf8')
+    readFile(new URL('../src/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../src/index.html',import.meta.url),'utf8')
   ]);
   assert.match(app,/id:'compare'/);assert.match(app,/mountCompare/);
   assert.match(index,/compare\.css/);assert.match(index,/8 trò chơi/);
@@ -149,8 +149,8 @@ test('greater-number game is registered and styled',async()=>{
 
 test('obstacle runner is absent from the island',async()=>{
   const [app,index]=await Promise.all([
-    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
-    readFile(new URL('../dist/index.html',import.meta.url),'utf8')
+    readFile(new URL('../src/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../src/index.html',import.meta.url),'utf8')
   ]);
   assert.doesNotMatch(app,/id:'runner'|mountRunner/);
   assert.doesNotMatch(index,/runner\.css/);
@@ -158,8 +158,8 @@ test('obstacle runner is absent from the island',async()=>{
 
 test('greater-number game keeps duration out of its menu and intro labels',async()=>{
   const [app,game]=await Promise.all([
-    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
-    readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8')
+    readFile(new URL('../src/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../src/compare.mjs',import.meta.url),'utf8')
   ]);
   assert.match(game,/>Bắt đầu →<\/button>/);
   assert.doesNotMatch(app,/So sánh hai thẻ thật nhanh trong (?:2 phút|60 giây)/);
@@ -167,25 +167,25 @@ test('greater-number game keeps duration out of its menu and intro labels',async
 });
 
 test('greater-number cards omit positional labels',async()=>{
-  const game=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  const game=await readFile(new URL('../src/compare.mjs',import.meta.url),'utf8');
   assert.doesNotMatch(game,/THẺ TRÊN|THẺ DƯỚI/);
 });
 
 test('greater-number HUD stays focused without a difficulty counter',async()=>{
-  const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  const source=await readFile(new URL('../src/compare.mjs',import.meta.url),'utf8');
   assert.doesNotMatch(source,/<span>Độ khó<\/span>/);
   assert.doesNotMatch(source,/BẬC \$\{compareStage\(g\)\}/);
 });
 
 test('greater-number record celebration appears only after the game',async()=>{
-  const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  const source=await readFile(new URL('../src/compare.mjs',import.meta.url),'utf8');
   const hud=source.match(/function hud\(\)\{([\s\S]*?)\n  \}/)?.[1]||'';
   assert.doesNotMatch(hud,/new-record|Kỷ lục mới/);
   assert.match(source,/function finish\(\)[\s\S]*Kỷ lục mới!/);
 });
 
 test('greater-number timer counts the full active frame interval',async()=>{
-  const source=await readFile(new URL('../dist/compare.mjs',import.meta.url),'utf8');
+  const source=await readFile(new URL('../src/compare.mjs',import.meta.url),'utf8');
   assert.match(source,/const dt=last\?\(now-last\)\/1000:0/);
   assert.doesNotMatch(source,/Math\.min\(\.25,\(now-last\)\/1000\)/);
 });
@@ -231,8 +231,8 @@ test('true-or-false counts the full frame interval and maps ArrowRight to true',
 
 test('Nunito starts from HTML preconnects instead of a CSS import',async()=>{
   const [index,css]=await Promise.all([
-    readFile(new URL('../dist/index.html',import.meta.url),'utf8'),
-    readFile(new URL('../dist/style.css',import.meta.url),'utf8')
+    readFile(new URL('../src/index.html',import.meta.url),'utf8'),
+    readFile(new URL('../src/style.css',import.meta.url),'utf8')
   ]);
   assert.match(index,/<link rel="preconnect" href="https:\/\/fonts\.googleapis\.com">/);
   assert.match(index,/<link rel="preconnect" href="https:\/\/fonts\.gstatic\.com" crossorigin>/);
@@ -243,13 +243,13 @@ test('Nunito starts from HTML preconnects instead of a CSS import',async()=>{
 });
 
 test('sound is on by default and the speaker button says so',async()=>{
-  const [app,index]=await Promise.all(['app.js','index.html'].map(f=>readFile(new URL(`../dist/${f}`,import.meta.url),'utf8')));
+  const [app,index]=await Promise.all(['app.js','index.html'].map(f=>readFile(new URL(`../src/${f}`,import.meta.url),'utf8')));
   assert.match(app,/let stopGame=null,sound=true,/);
   assert.match(index,/<button id="sound" aria-label="Tắt âm thanh" title="Bật hoặc tắt âm thanh">🔊<\/button>/);
 });
 
 test('the sound choice is saved in localStorage and restored on the next visit',async()=>{
-  const app=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const app=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   // only an explicit "off" mutes, so first visits and blocked storage keep sound on
   assert.match(app,/sound=localStorage\.getItem\('toan-sound'\)!=='off'/);
   assert.match(app,/sound=!sound;updateSound\(\);try\{localStorage\.setItem\('toan-sound',sound\?'on':'off'\)\}catch\{\}/);
@@ -257,14 +257,14 @@ test('the sound choice is saved in localStorage and restored on the next visit',
 });
 
 test('answer beep is a short ding, not a three-note fanfare',async()=>{
-  const source=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const source=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   const fn=source.match(/function beep\(win=true\)\{[\s\S]*?\n/)[0];
   assert.doesNotMatch(fn,/\[0,\.12,\.24\]/);
   assert.match(fn,/520/);assert.match(fn,/780/);assert.match(fn,/200/);
 });
 
 test('a first-run placement offer invites, starts or is skipped through the service',async()=>{
-  const app=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const app=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   // registered in the dispatcher
   assert.match(app,/import \{mountPlacement\} from '\.\/placement\.mjs'/);
   assert.match(app,/id==='placement'\?mountPlacement\(app,common\)/);
@@ -280,13 +280,13 @@ test('a first-run placement offer invites, starts or is skipped through the serv
 });
 
 test('the journey details modal offers a re-run of the placement check',async()=>{
-  const app=await readFile(new URL('../dist/app.js',import.meta.url),'utf8');
+  const app=await readFile(new URL('../src/app.js',import.meta.url),'utf8');
   assert.match(app,/id="placement-rerun">🧭 Kiểm tra trình độ<\/button>/);
   assert.match(app,/#placement-rerun'\)\.onclick=\(\)=>start\('placement'\)/);
 });
 
 test('placement styles exist for the offer card and quiz screen',async()=>{
-  const style=await readFile(new URL('../dist/style.css',import.meta.url),'utf8');
+  const style=await readFile(new URL('../src/style.css',import.meta.url),'utf8');
   assert.match(style,/\.placement-offer\{/);
   assert.match(style,/\.placement-offer-actions\{/);
 });

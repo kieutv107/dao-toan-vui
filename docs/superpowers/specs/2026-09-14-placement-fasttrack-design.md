@@ -6,12 +6,12 @@
 
 ## 1. Problem
 
-`currentLevel(profile)` (`dist/adaptive-selector.mjs:9`) starts every child at stage 1 and advances a stage only when ≥70% of the current stage's forms reach `strong`/`mastered`. Progression is purely evidence-driven, so:
+`currentLevel(profile)` (`src/adaptive-selector.mjs:9`) starts every child at stage 1 and advances a stage only when ≥70% of the current stage's forms reach `strong`/`mastered`. Progression is purely evidence-driven, so:
 
 - An advanced child must answer many stage-1 facts before the app stops treating them as a beginner.
 - There is no placement, no skip-ahead, and no faster path for a child who clearly already knows the material.
 
-Kids can already *practice* a locked stage via the journey "Luyện" buttons (`focusLevel`, `dist/app.js:43`), but that does not move `currentLevel`, the default "Luyện tập ngay" flow, or the progress display.
+Kids can already *practice* a locked stage via the journey "Luyện" buttons (`focusLevel`, `src/app.js:43`), but that does not move `currentLevel`, the default "Luyện tập ngay" flow, or the progress display.
 
 ## 2. Solution overview
 
@@ -28,12 +28,12 @@ Follows the existing pure-engine + controller split (mirrors `challenge-engine.m
 
 | Module | Change | Purpose |
 | --- | --- | --- |
-| `dist/placement-engine.mjs` | **new (pure)** | Adaptive ladder state machine. No DOM/timer/audio. Fully unit-testable. |
-| `dist/placement.mjs` | **new (controller)** | Mounts quiz UI, fetches a question per stage via the learning service, drives the engine, calls `learning.placeAt(level)` on completion. |
-| `dist/mastery-engine.mjs` | edit | Fast-track evidence rules + `seedForm()` helper + `MASTERY_SESSIONS` constant. |
-| `dist/adaptive-selector.mjs` | edit | Lower `UNLOCK` constant. |
-| `dist/learning-service.mjs` | edit | Add `placeAt(level)` (seeds lower stages, persists) and `skipPlacement()`. |
-| `dist/app.js` | edit | First-run offer + re-run button in journey-details modal. |
+| `src/placement-engine.mjs` | **new (pure)** | Adaptive ladder state machine. No DOM/timer/audio. Fully unit-testable. |
+| `src/placement.mjs` | **new (controller)** | Mounts quiz UI, fetches a question per stage via the learning service, drives the engine, calls `learning.placeAt(level)` on completion. |
+| `src/mastery-engine.mjs` | edit | Fast-track evidence rules + `seedForm()` helper + `MASTERY_SESSIONS` constant. |
+| `src/adaptive-selector.mjs` | edit | Lower `UNLOCK` constant. |
+| `src/learning-service.mjs` | edit | Add `placeAt(level)` (seeds lower stages, persists) and `skipPlacement()`. |
+| `src/app.js` | edit | First-run offer + re-run button in journey-details modal. |
 
 **Storage:** new key `toan-placement-v1` = `{done: boolean, level: number, at: number}`. Follows the existing multi-key convention (`toan-stars`, `toan-sound`, `toan-high-scores-v1`). The learning profile schema (`toan-learning-v1`) is **not** changed and `PROFILE_VERSION` is **not** bumped — seeding uses existing fact-state fields.
 
@@ -41,7 +41,7 @@ The `toan-placement-v1` schema is **owned entirely by the learning service**. Th
 
 ## 4. Placement engine (adaptive ladder)
 
-Binary search over the 5 stages (`LEVELS`, `dist/core-facts.mjs:3`), starting mid.
+Binary search over the 5 stages (`LEVELS`, `src/core-facts.mjs:3`), starting mid.
 
 State: `{lo:1, hi:5, place:1, step, done:false, level:null}`.
 
@@ -73,7 +73,7 @@ The controller supplies the actual questions:
 learning.nextFact({ focusLevel: placementStage(state), context: 'placement' })
 ```
 
-- `focusLevel` restricts selection to that stage, including locked ones (`dist/adaptive-selector.mjs:22-25`); every stage 1–5 always has forms, so a probe is always available.
+- `focusLevel` restricts selection to that stage, including locked ones (`src/adaptive-selector.mjs:22-25`); every stage 1–5 always has forms, so a probe is always available.
 - **No `kind: 'new'`.** On a re-run the child has already played, so a stage may have zero `new` facts; `selectFact` with `focusLevel` is strict (no fallback outside the focus level) and would return `undefined`. Dropping `kind` draws any fact at that stage — seen or not — so placement works at any point in the profile's life.
 - **No `excludeIds` / no `asked` state.** Binary search probes each stage at most once per run, so there is nothing to dedup within a run. The dedicated `context: 'placement'` is enough. (If placement ever asks multiple questions per stage, add an exclude/dedup mechanism then — not before.)
 - **Probe answers do NOT record evidence.** The controller never calls `learning.record()` for a probe; probe results drive the ladder only. This keeps the quiz side-effect-free except for the final seeding, and it is what makes a wrong probe answer unable to lower any existing fact (see §5, monotonic re-run).
@@ -117,7 +117,7 @@ toan-placement-v1 = { done: true, level: max(target, prevStoredLevel), at: now }
 
 - `ready(state)` is true for `strong`/`mastered`, so `levelReadiness` of a fully-seeded (all-blank) stage = 100% ≥ `UNLOCK`.
 - `currentLevel()` walks up while readiness ≥ `UNLOCK`. On a fresh profile the seeded stages are 100% ready, so it **returns `target` with no new field or floor logic** — placement falls out of the existing readiness walk. On an existing profile it returns whatever real readiness supports (≤ `target`). The stage the child lands on is not seeded, so they actually practice it.
-- `dueAt: now` makes each seeded fact **strong (unlocks the stage) but immediately due**, so the selector's review weighting (`+3 if due & seen`, `dist/adaptive-selector.mjs:36`) resurfaces it. A mis-placement self-corrects: a wrong answer during play drops strength and the fact falls back to `learning`.
+- `dueAt: now` makes each seeded fact **strong (unlocks the stage) but immediately due**, so the selector's review weighting (`+3 if due & seen`, `src/adaptive-selector.mjs:36`) resurfaces it. A mis-placement self-corrects: a wrong answer during play drops strength and the fact falls back to `learning`.
 - **Monotonicity, end to end:** probe answers record no evidence (§4), seeding only fills blanks (§5.1), and `target` never dips below `currentLevel` (§5.2). Together these make it impossible for a re-run to lower `currentLevel` or clobber any fact — it can only raise the level or do nothing.
 
 ### 5.4 Edge cases
@@ -137,7 +137,7 @@ Four principles the implementation must uphold:
 
 ## 6. Adaptive fast-track
 
-All three knobs, in `dist/mastery-engine.mjs` and `dist/adaptive-selector.mjs`.
+All three knobs, in `src/mastery-engine.mjs` and `src/adaptive-selector.mjs`.
 
 | Knob | Now | Proposed |
 | --- | --- | --- |
@@ -151,14 +151,14 @@ All three knobs, in `dist/mastery-engine.mjs` and `dist/adaptive-selector.mjs`.
 
 ## 7. UI & integration (`app.js`)
 
-**First-run offer:** in `home()`, when `started === 0` (`dist/app.js:32`) **and** `toan-placement-v1` is absent, render a gentle offer card above the journey section:
+**First-run offer:** in `home()`, when `started === 0` (`src/app.js:32`) **and** `toan-placement-v1` is absent, render a gentle offer card above the journey section:
 
 - Copy: "Con muốn thử vài câu để bắt đầu đúng chỗ không?"
 - Buttons: **"Bắt đầu"** → `start('placement')`; **"Bỏ qua"** → `learning.skipPlacement()` then re-render home. The UI does not touch the storage schema.
 
 **Re-run:** a small **"Kiểm tra trình độ"** button inside the existing journey-details modal (`#journey-details`), available anytime.
 
-**Quiz screen (`placement.mjs`):** reuses existing card/feedback styling; shows one question at a time with large answer buttons; ~3 questions (at most 3); ends on a celebratory screen ("Bắt đầu ở Chặng N!") then returns to `home()`. Registered in the `start()` dispatcher (`dist/app.js:51`) alongside the other mounts, receiving the common context `{settings, home, award, beep, learning, scores}`.
+**Quiz screen (`placement.mjs`):** reuses existing card/feedback styling; shows one question at a time with large answer buttons; ~3 questions (at most 3); ends on a celebratory screen ("Bắt đầu ở Chặng N!") then returns to `home()`. Registered in the `start()` dispatcher (`src/app.js:51`) alongside the other mounts, receiving the common context `{settings, home, award, beep, learning, scores}`.
 
 ## 8. Testing (`node:test`, no DOM runner — per `docs/ENGINE.md` §10)
 

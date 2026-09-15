@@ -15,4 +15,26 @@
 .level-check{margin-top:14px;width:100%;padding:12px;border:2px dashed #cfe0ff;border-radius:14px;background:#f7faff;font-weight:700;cursor:pointer}
 .level-check:hover{background:#eef4ff}
 .play.placement{display:flex;flex-direction:column}.play.placement #placement-body{flex:1;display:flex;flex-direction:column;justify-content:center}.play.placement .equation{margin:18px 0}.play.placement .answers{width:100%}
+/* Brand identity: “hòn đảo khám phá toán học”. These semantic tokens keep the
+   product palette and the reusable brand assets in sync. */
+:root{--brand-violet:#5b43c6;--brand-violet-dark:#443195;--brand-coral:#ff6b4a;--brand-yellow:#ffc94a;--brand-mint:#59c78d;--brand-ocean:#46b8d8;--brand-cream:#fff9ed;--brand-ink:#26233a;color:var(--brand-ink);background:#fbfaf6}
+body{background:radial-gradient(circle at 8% 2%,#fff2d5 0,transparent 22rem),radial-gradient(circle at 94% 16%,#e8f8f6 0,transparent 26rem),#fbfaf6}
+button:focus-visible,a:focus-visible,select:focus-visible{outline-color:var(--brand-violet)}
+header{border-bottom-color:#e8e2d6}
+#brand{color:var(--brand-ink);gap:14px;letter-spacing:-.35px}
+.brand-icon{display:block;width:58px;height:58px;object-fit:cover;background:#fff;border-radius:15px;font-size:0;transform:rotate(-8deg);box-shadow:0 3px 10px #4431952b}
+#brand small{color:#716a80;letter-spacing:1.35px}
+#stars{background:#fff1bd;color:#765610;border-color:#ffe08a}
+#sound{border-color:#dfd9cf;background:var(--brand-cream)}
+.ambient{color:#ddd5fa}
+h1>span:not(.spark){color:var(--brand-violet)}
+.spark{color:var(--brand-yellow)}
+.next,.primary{background:var(--brand-violet)}
+.green{--bg:#eaf8f0;--border:#c7ead7;--accent:#23754f;--icon:#ccefdc}.blue{--bg:#eaf7fb;--border:#c8e9f1;--accent:#1b718b;--icon:#cceef5}.purple{--bg:#f0edff;--border:#d9d1fa;--accent:#5b43c6;--icon:#ddd6ff}.orange{--bg:#fff0eb;--border:#ffd5c9;--accent:#a94a34;--icon:#ffded4}.pink{--bg:#fff0f4;--border:#f3d3df;--accent:#a84870;--icon:#ffdae7}.yellow{--bg:#fff8df;--border:#f1df9e;--accent:#765610;--icon:#ffedaa}.teal{--bg:#e8f8f6;--border:#c4e9e4;--accent:#176f70;--icon:#c9eeea}
+.welcome{position:relative}
+.welcome:before{content:'';position:absolute;right:18px;top:25px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#fff3b7 0 26%,transparent 27%),repeating-radial-gradient(circle at center,transparent 0 52px,#ffc94a24 53px 55px,transparent 56px 72px);z-index:-1}
+.journey{background:linear-gradient(135deg,#eaf8f0,#fffdf8);border-color:#c7ead7}
+.journey-cta{background:linear-gradient(135deg,#47b97d,#23754f)}
+.cards>.tip{background:linear-gradient(145deg,#fff9ed,#f3f0ff);border-color:#ded6ef}
+@media(max-width:520px){.brand-icon{width:44px;height:44px}#brand{gap:8px;letter-spacing:-.2px}#brand small{font-size:7px;letter-spacing:.65px}.welcome:before{width:120px;height:120px;right:-12px;top:38px}}
 @media(max-width:520px){.cards,.cards.zone-practice{grid-template-columns:1fr}.game-card h3,.game-card p{min-height:0}}

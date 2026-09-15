@@ -38,11 +38,16 @@ Trên mobile, hero giảm còn 37 px, phép tính khoảng 38–44 px và tiêu 
 
 | Token ý nghĩa | Giá trị hiện tại | Dùng cho |
 | --- | --- | --- |
-| Page background | `#f7f8fd` | nền toàn trang |
-| Primary text | `#292944` | chữ chính |
+| Page background | `#fbfaf6` | nền toàn trang |
+| Primary text | `#26233A` | chữ chính |
 | Muted text | `#77758d` | mô tả |
-| Primary purple | `#7253e9`, `#7453dd` | brand và CTA |
-| Focus | `#6550de` | outline bàn phím |
+| Primary purple | `#5B43C6` | brand và CTA |
+| Focus | `#5B43C6` | outline bàn phím |
+| Coral | `#FF6B4A` | năng lượng và điểm nhấn |
+| Sunshine | `#FFC94A` | thành tích và phần thưởng |
+| Mint | `#59C78D` | tiến bộ và luyện tập |
+| Ocean | `#46B8D8` | hành trình và thông tin |
+| Warm cream | `#FFF9ED` | bề mặt thương hiệu |
 | Success dark | `#237249` | feedback đúng |
 | Success fill | `#51a978` | đáp án đúng |
 | Error dark | `#a14660` | feedback sai |
@@ -93,7 +98,8 @@ Từ 520 px trở xuống, card trang chủ xếp 1 cột, mỗi card một dòn
 
 ### Brand header
 
-- Brand icon vuông bo 15 px, nền tím, xoay `-8deg`.
+- Brand mark là hòn đảo toán học, hiển thị 58 px trên desktop và 44 px trên mobile.
+- Wordmark đi cùng câu định vị “Chơi một chút, giỏi thêm mỗi ngày”.
 - Bộ đếm sao là pill vàng.
 - Nút âm thanh hình tròn 44 px, giảm còn 37 px trên mobile.
 ### Game card
@@ -242,4 +248,3 @@ Hoàn thành: “Mỗi lần thử, bé lại giỏi hơn một chút.”
 - Controller cleanup toàn bộ timer, frame và listener.
 - Copy tiếng Việt ngắn, tích cực và đúng luật thực tế.
 - Không thêm dependency chỉ để tạo một component nhỏ.
-

@@ -1,7 +1,7 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {factCatalog} from '../dist/mastery-engine.mjs';
-import {LEVELS,MIXED_LEVEL,coreFacts,coreForms,coreFactOf,formOf,formsAtLevel,formsBelowLevel} from '../dist/core-facts.mjs';
+import {factCatalog} from '../src/mastery-engine.mjs';
+import {LEVELS,MIXED_LEVEL,coreFacts,coreForms,coreFactOf,formOf,formsAtLevel,formsBelowLevel} from '../src/core-facts.mjs';
 
 const q=id=>factCatalog().find(f=>f.id===id);
 

@@ -1,8 +1,8 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createProfile,recordEvidence,getFactState} from '../dist/mastery-engine.mjs';
-import {formsAtLevel,coreFactOf,formOf} from '../dist/core-facts.mjs';
-import {currentLevel,levelReadiness,selectFact,buildPracticeSession,progressSummary} from '../dist/adaptive-selector.mjs';
+import {createProfile,recordEvidence,getFactState} from '../src/mastery-engine.mjs';
+import {formsAtLevel,coreFactOf,formOf} from '../src/core-facts.mjs';
+import {currentLevel,levelReadiness,selectFact,buildPracticeSession,progressSummary} from '../src/adaptive-selector.mjs';
 
 function master(profile,forms,share=1){
   const count=Math.ceil(forms.length*share);

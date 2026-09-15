@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-import {createTrueFalseGame,unlockedTrueFalseStage,trueFalseStage,recordTrueFalseAnswer,elapseTrueFalse,createTrueFalseRound,reviewFacts} from '../dist/truefalse-engine.mjs';
+import {createTrueFalseGame,unlockedTrueFalseStage,trueFalseStage,recordTrueFalseAnswer,elapseTrueFalse,createTrueFalseRound,reviewFacts} from '../src/truefalse-engine.mjs';
 
 const at=remaining=>Object.assign(createTrueFalseGame(),{remaining});
 

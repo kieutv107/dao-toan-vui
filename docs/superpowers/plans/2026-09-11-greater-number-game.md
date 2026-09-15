@@ -25,7 +25,7 @@ Spec:** `docs/superpowers/specs/2026-09-11-greater-number-game-design.md`
 ### Task 1: Pure comparison state and scoring
 
 **Files:**
-- Create: `dist/compare-engine.mjs`
+- Create: `src/compare-engine.mjs`
 - Create: `tests/compare.test.mjs`
 
 **Interfaces:**
@@ -60,7 +60,7 @@ test('sixty active seconds ends the run',()=>{
 
 Run: `node --test tests/compare.test.mjs`
 
-Expected: FAIL because `dist/compare-engine.mjs` does not exist.
+Expected: FAIL because `src/compare-engine.mjs` does not exist.
 
 - [ ] **Step 3: Implement minimal state transitions**
 
@@ -89,14 +89,14 @@ Expected: all comparison state tests pass.
 - [ ] **Step 5: Commit the engine state**
 
 ```bash
-git add dist/compare-engine.mjs tests/compare.test.mjs
+git add src/compare-engine.mjs tests/compare.test.mjs
 git commit -m "Add greater number game state"
 ```
 
 ### Task 2: Comparison round generation
 
 **Files:**
-- Modify: `dist/compare-engine.mjs`
+- Modify: `src/compare-engine.mjs`
 - Modify: `tests/compare.test.mjs`
 
 **Interfaces:**
@@ -157,14 +157,14 @@ for(const [attempts,expected] of [[10,[3,6]],[15,[2,4]],[20,[1,2]]]){
 - [ ] **Step 5: Commit round generation**
 
 ```bash
-git add dist/compare-engine.mjs tests/compare.test.mjs
+git add src/compare-engine.mjs tests/compare.test.mjs
 git commit -m "Generate progressive comparison rounds"
 ```
 
 ### Task 3: Game controller and learning integration
 
 **Files:**
-- Create: `dist/compare.mjs`
+- Create: `src/compare.mjs`
 - Modify: `tests/compare.test.mjs`
 
 **Interfaces:**
@@ -237,23 +237,23 @@ return ()=>{disposed=true;cancelAnimationFrame(frame);clearTimeout(transition);d
 
 - [ ] **Step 6: Run engine tests and syntax checks**
 
-Run: `node --test tests/compare.test.mjs && node --check dist/compare.mjs`
+Run: `node --test tests/compare.test.mjs && node --check src/compare.mjs`
 
 Expected: PASS with no warnings.
 
 - [ ] **Step 7: Commit controller integration**
 
 ```bash
-git add dist/compare.mjs dist/compare-engine.mjs tests/compare.test.mjs
+git add src/compare.mjs src/compare-engine.mjs tests/compare.test.mjs
 git commit -m "Build greater number game controller"
 ```
 
 ### Task 4: Responsive UI and menu registration
 
 **Files:**
-- Create: `dist/compare.css`
-- Modify: `dist/index.html`
-- Modify: `dist/app.js`
+- Create: `src/compare.css`
+- Modify: `src/index.html`
+- Modify: `src/app.js`
 - Modify: `tests/home-ui.test.mjs`
 
 **Interfaces:**
@@ -265,8 +265,8 @@ git commit -m "Build greater number game controller"
 ```js
 test('greater-number game is registered and styled',async()=>{
   const [app,index]=await Promise.all([
-    readFile(new URL('../dist/app.js',import.meta.url),'utf8'),
-    readFile(new URL('../dist/index.html',import.meta.url),'utf8')
+    readFile(new URL('../src/app.js',import.meta.url),'utf8'),
+    readFile(new URL('../src/index.html',import.meta.url),'utf8')
   ]);
   assert.match(app,/id:'compare'/);assert.match(app,/mountCompare/);
   assert.match(index,/compare\.css/);assert.match(index,/6 trò chơi/);
@@ -302,14 +302,14 @@ Use two vertically stacked buttons with at least 96px height on desktop and 78px
 
 - [ ] **Step 5: Run static tests and all syntax checks**
 
-Run: `node --test tests/home-ui.test.mjs && for file in dist/*.mjs dist/app.js; do node --check "$file" || exit 1; done`
+Run: `node --test tests/home-ui.test.mjs && for file in src/*.mjs src/app.js; do node --check "$file" || exit 1; done`
 
 Expected: PASS.
 
 - [ ] **Step 6: Commit UI registration**
 
 ```bash
-git add dist/compare.css dist/index.html dist/app.js tests/home-ui.test.mjs
+git add src/compare.css src/index.html src/app.js tests/home-ui.test.mjs
 git commit -m "Add greater number game to the island"
 ```
 
@@ -330,7 +330,7 @@ Expected: all tests pass with zero failures.
 
 - [ ] **Step 2: Run source checks**
 
-Run: `for file in dist/*.mjs dist/app.js; do node --check "$file" || exit 1; done && git diff --check`
+Run: `for file in src/*.mjs src/app.js; do node --check "$file" || exit 1; done && git diff --check`
 
 Expected: exit code 0 and no output.
 
@@ -348,7 +348,7 @@ If QA requires a fix, add a failing regression test first, make the smallest cor
 
 - [ ] **Step 6: Push and deploy the exact verified commit**
 
-Push the current full SHA to the configured Sites source branch, package `dist` with `.openai/hosting.json`, save a new Site version with that exact SHA, privately deploy the saved version, and poll until deployment status is `succeeded`.
+Push the current full SHA to the configured Sites source branch, package `src` with `.openai/hosting.json`, save a new Site version with that exact SHA, privately deploy the saved version, and poll until deployment status is `succeeded`.
 
 - [ ] **Step 7: Verify production and report**
 

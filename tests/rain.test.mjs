@@ -1,6 +1,6 @@
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
-const engine = await import('../dist/rain-engine.mjs').catch(()=>({}));
+const engine = await import('../src/rain-engine.mjs').catch(()=>({}));
 test('rain engine is available',()=>assert.equal(typeof engine.createGame,'function'));
 test('all generated sums and differences stay inside the chosen range',()=>{
   for(const limit of [10,20]) for(const op of ['mix','plus','minus']) {
