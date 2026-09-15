@@ -1,6 +1,6 @@
 import {buildPracticeSession} from './adaptive-selector.mjs';
 
-export const SHEET_SIZE=20;
+export const SHEET_SIZE=12;
 export function createSheet({profile,sessionId,random=Math.random,now=Date.now(),record=()=>{},count=SHEET_SIZE}={}){
   const questions=buildPracticeSession({profile,random,now,count,unique:true});
   return {sessionId,record,now,questions,answers:questions.map(()=>null),marks:[],graded:false,results:{correct:0,wrong:0,blank:0}};

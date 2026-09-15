@@ -30,7 +30,7 @@
 
 Menu lấy từ mảng `modes` trong `src/app.js`. Mỗi mode có `id`, `zone`, icon, tiêu đề, mô tả, tag, màu và nhãn CTA. Trang chủ chia hai khu, ngăn cách bằng đường nét đứt:
 
-- **Khu luyện tập** (`zone:'practice'`): Vườn luyện tập và Phiếu 20 phép, lưới 2 cột.
+- **Khu luyện tập** (`zone:'practice'`): Vườn luyện tập và Phiếu phép tính, lưới 2 cột.
 - **Khu trò chơi** (`zone:'game'`) bên dưới: Mưa phép tính, Bắt bong bóng, Lật thẻ thần kỳ, Số nào trốn mất?, Số nào lớn hơn?, Đúng hay sai?, kèm thẻ lời khuyên trải hết một hàng thành dải ngang dưới các game.
 
 Số thứ tự trên thẻ đếm lại từ 01 trong mỗi khu. Trên điện thoại (≤ 520 px) mỗi thẻ chiếm một dòng. Cuối trang chủ, dưới Khu trò chơi, có khối “Về dự án”: dự án cá nhân, phi lợi nhuận của một người bố có con trai học tiểu học; ứng dụng không cam kết điều gì và người dùng tự chịu trách nhiệm. Khối này chỉ có ở trang chủ, không nằm trong footer chung. Router hiện ánh xạ:
@@ -64,7 +64,7 @@ Mục tiêu: luyện đúng phần trẻ đang yếu mà không tạo áp lực 
 4. Dùng gợi ý hiển thị chiến lược tính nhẩm của phép đó (xem `strategies.mjs`: bù về 10 với khung 10 ô, số đôi, gần số đôi, qua 10 kiểu “8 + 2 = 10, 10 + 3 = 13”) kèm chấm trực quan; phép tính cũng được xếp lại để bé làm lại ngay sau khi hiểu.
 5. Trả lời đúng chuyển sang câu sau sau 700 ms.
 6. Session có thể dài hơn 18 câu vì các câu sai hoặc dùng gợi ý được thêm lại.
-7. Màn kết thúc hiển thị số câu đúng và thay đổi mastery; có thể luyện tiếp, chơi một game gợi ý hoặc nghỉ. Game gợi ý được chọn ngẫu nhiên mỗi lần trong Khu trò chơi (không gợi ý Phiếu 20 phép), nút ghi icon và tên game đó.
+7. Màn kết thúc hiển thị số câu đúng và thay đổi mastery; có thể luyện tiếp, chơi một game gợi ý hoặc nghỉ. Game gợi ý được chọn ngẫu nhiên mỗi lần trong Khu trò chơi (không gợi ý Phiếu phép tính), nút ghi icon và tên game đó.
 
 ### Quy tắc
 
@@ -238,17 +238,17 @@ Mục tiêu: nhìn một phép tính và chọn thật nhanh thẻ Đúng hoặc
 - `Escape`: tạm dừng.
 - Tab bị ẩn sẽ tự tạm dừng.
 
-## 9. Phiếu 20 phép
+## 9. Phiếu phép tính
 
-Mục tiêu: một “tờ bài tập” điền cả 20 kết quả rồi chấm một lượt, dành cho lúc bé muốn làm bình tĩnh, không tương tác từng câu.
+Mục tiêu: một “tờ bài tập” điền cả 12 kết quả rồi chấm một lượt, dành cho lúc bé muốn làm bình tĩnh, không tương tác từng câu.
 
 ### Flow
 
-1. `sheet-engine.mjs` lấy 20 câu qua `buildPracticeSession({count:20,unique:true})`, nên theo đúng chặng giáo trình và tỉ lệ 75% trọng tâm / 25% ôn như Vườn luyện tập. Một phiếu không bao giờ lặp phép tính. Ở chặng 1 pool chỉ có 13 câu, nên phiếu dùng đủ 13 câu đó rồi mượn 7 câu của chặng 2 (Số đôi và gần số đôi); chặng hiện tại không đổi.
+1. `sheet-engine.mjs` lấy 12 câu qua `buildPracticeSession({count:12,unique:true})`, nên theo đúng chặng giáo trình và tỉ lệ 75% trọng tâm / 25% ôn như Vườn luyện tập. Một phiếu không bao giờ lặp phép tính. Nếu chương trình đang mở không đủ câu chưa dùng, phiếu mượn câu của chặng kế tiếp thay vì lặp; chặng hiện tại không đổi.
 2. Lưới 3 cột (2 cột dưới 900px), mỗi dòng `a ± b =` và một ô `input type=number`, không đánh số câu. Phép tính là một flex row `justify-content:space-evenly` chiếm hết bề rộng còn lại của dòng, nên số hạng và dấu dàn đều từ mép trái tới ô nhập.
 3. Enter hoặc mũi tên xuống chuyển ô kế; mũi tên lên quay lại. Dòng trạng thái đếm số ô đã điền.
 4. “Chấm bài” chấm đúng một lần: ô đúng xanh có ✓, ô sai đỏ gạch ngang và hiện `✗ sai → đáp án`, ô trống hiện `trống → đáp án` (nhãn nằm dòng riêng dưới phép tính). Ô khóa lại; phiếu tự cuộn tới câu sai đầu tiên.
-5. Kết quả “Đúng x / 20 câu”, rồi “Làm phiếu mới” hoặc “Nghỉ một chút”.
+5. Kết quả “Đúng x / 12 câu”, rồi “Làm phiếu mới” hoặc “Nghỉ một chút”.
 
 ### Quy tắc
 
